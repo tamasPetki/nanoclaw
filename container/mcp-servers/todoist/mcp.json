@@ -1,0 +1,13 @@
+{
+  "name": "todoist",
+  "description": "Todoist task and project management",
+  "runtime": "python",
+  "command": "/bin/bash",
+  "args": ["/opt/mcp-servers/todoist/run.sh"],
+  "installPath": "/opt/mcp-servers/todoist",
+  "install": "python3 -m venv .venv && .venv/bin/pip install --no-cache-dir mcp httpx pydantic",
+  "env": {
+    "TODOIST_API_TOKEN": ""
+  },
+  "secrets": ["TODOIST_API_TOKEN"]
+}

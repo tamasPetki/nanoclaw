@@ -322,6 +322,14 @@ async function processQuery(query: AgentQuery, routing: RoutingContext): Promise
 
       if (event.type === 'init') {
         queryContinuation = event.continuation;
+        // DOWNSTREAM FIX: persist immediately. The original code only saves at
+        // processQuery return, but concurrent-polling (query.push follow-ups)
+        // keeps the query stream open forever, so the return never happens
+        // under normal warm-session use. Every container restart then starts a
+        // brand-new SDK session and agents "forget" prior conversations.
+        if (event.continuation) {
+          setStoredSessionId(event.continuation);
+        }
       } else if (event.type === 'result' && event.text) {
         dispatchResultText(event.text, routing);
       }

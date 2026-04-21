@@ -26,10 +26,22 @@ if [ "${INSTALL_CJK_FONTS:-false}" = "true" ]; then
     BUILD_ARGS+=(--build-arg INSTALL_CJK_FONTS=true)
 fi
 
+# Copy utility scripts into build context (Python + Node helpers used by skills and MCPs)
+rm -rf "$SCRIPT_DIR/_scripts"
+mkdir -p "$SCRIPT_DIR/_scripts"
+cp "$SCRIPT_DIR/../scripts/telegram-read.py" \
+   "$SCRIPT_DIR/../scripts/telegram-auth.py" \
+   "$SCRIPT_DIR/../scripts/youtube-transcript.py" \
+   "$SCRIPT_DIR/../scripts/pdf-filler.cjs" \
+   "$SCRIPT_DIR/_scripts/" 2>/dev/null || true
+
 echo "Building NanoClaw agent container image..."
 echo "Image: ${IMAGE_NAME}:${TAG}"
 
 ${CONTAINER_RUNTIME} build "${BUILD_ARGS[@]}" -t "${IMAGE_NAME}:${TAG}" .
+
+# Clean up temp script copy
+rm -rf "$SCRIPT_DIR/_scripts"
 
 echo ""
 echo "Build complete!"

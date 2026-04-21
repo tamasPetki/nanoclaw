@@ -47,10 +47,32 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
         git \
         tini \
         unzip \
+        xvfb \
+        dbus-x11 \
+        fluxbox \
+        x11-utils \
+        python3-venv \
+        python3-pip \
+        jq \
+        poppler-utils \
     && if [ "$INSTALL_CJK_FONTS" = "true" ]; then \
         apt-get install -y --no-install-recommends fonts-noto-cjk; \
        fi \
     && rm -rf /var/lib/apt/lists/*
+
+# ---- Python runtime + uv (for Python-based MCPs and scripts) -----------------
+# uv/uvx for mcp-email-server and similar publicly-installed Python MCPs
+RUN curl -LsSf https://astral.sh/uv/install.sh | env UV_INSTALL_DIR=/usr/local/bin sh
+
+# Python venv at /opt/pyenv with common deps used by skills
+# (telethon for Telegram read, youtube-transcript-api for YT, yt-dlp for media).
+RUN python3 -m venv /opt/pyenv && \
+    /opt/pyenv/bin/pip install --no-cache-dir telethon youtube-transcript-api requests yt-dlp
+ENV PATH="/opt/pyenv/bin:$PATH"
+
+# Utility scripts copied from build context (telegram-read.py, youtube-transcript.py, pdf-filler.cjs)
+COPY _scripts/ /opt/scripts/
+RUN chmod +x /opt/scripts/*.py 2>/dev/null || true
 
 # Chromium path for agent-browser / Playwright consumers
 ENV AGENT_BROWSER_EXECUTABLE_PATH=/usr/bin/chromium
@@ -79,7 +101,44 @@ RUN --mount=type=cache,target=/root/.cache/pnpm \
     pnpm install -g \
         "@anthropic-ai/claude-code@${CLAUDE_CODE_VERSION}" \
         "agent-browser@${AGENT_BROWSER_VERSION}" \
-        "vercel@${VERCEL_VERSION}"
+        "vercel@${VERCEL_VERSION}" \
+        "pdf-lib@1.17.1"
+
+# pdf-filler wrapper — CJS script at /opt/scripts/pdf-filler.cjs uses pdf-lib
+# via NODE_PATH pointing at pnpm global root.
+RUN printf '#!/bin/bash\nNODE_PATH=%s node /opt/scripts/pdf-filler.cjs "$@"\n' "$(pnpm root -g)" > /usr/local/bin/pdf-filler && \
+    chmod +x /usr/local/bin/pdf-filler
+
+# ---- MCP servers (per-group container.json picks which to use) --------------
+# Copy all custom MCP server sources under /opt/mcp-servers/, then install
+# each per its runtime needs. Published MCPs (mcp-email-server via uvx,
+# google-calendar via npx, youtube-transcript via npx) don't need image-time
+# install — they download on first use. Listed below are the only custom-code
+# MCPs: quick (Node), todoist (Python), withings (Python).
+COPY mcp-servers/ /opt/mcp-servers/
+
+# Quick (riport.app) — Node MCP
+RUN cd /opt/mcp-servers/quick && npm install --production --no-audit --no-fund 2>&1 | tail -20
+
+# Todoist — Python MCP (venv inside its dir, entrypoint run.sh)
+RUN cd /opt/mcp-servers/todoist && \
+    python3 -m venv .venv && \
+    .venv/bin/pip install --no-cache-dir mcp httpx pydantic
+
+# Withings — Python MCP (venv inside its dir, package install editable)
+RUN cd /opt/mcp-servers/withings && \
+    python3 -m venv .venv && \
+    .venv/bin/pip install --no-cache-dir -e .
+
+# Precache uvx mcp-email-server — first-call download avoided at runtime.
+RUN uvx mcp-email-server@latest --help 2>/dev/null || true
+
+# ---- Skill binaries (PATH-installed) ----------------------------------------
+# stealth-browse: headed Chrome via Xvfb with human-like input for X/TG/etc.
+# pdf-reader: PDF text extraction CLI (wraps poppler-utils pdftotext)
+COPY skills/stealth-browser/stealth-browse /usr/local/bin/stealth-browse
+COPY skills/pdf-reader/pdf-reader /usr/local/bin/pdf-reader
+RUN chmod +x /usr/local/bin/stealth-browse /usr/local/bin/pdf-reader
 
 # ---- agent-runner ------------------------------------------------------------
 WORKDIR /app

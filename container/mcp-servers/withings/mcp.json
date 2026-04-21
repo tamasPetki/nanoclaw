@@ -1,0 +1,22 @@
+{
+  "name": "withings",
+  "description": "Withings health data (weight, sleep, activity, heart)",
+  "runtime": "python",
+  "command": "/bin/bash",
+  "args": ["/opt/mcp-servers/withings/run.sh"],
+  "installPath": "/opt/mcp-servers/withings",
+  "install": "python3 -m venv .venv && .venv/bin/pip install --no-cache-dir -e .",
+  "systemDeps": ["python3-venv"],
+  "env": {
+    "WITHINGS_CLIENT_ID": "",
+    "WITHINGS_CLIENT_SECRET": "",
+    "WITHINGS_TOKEN_PATH": "/home/node/.claude/withings_tokens.json"
+  },
+  "secrets": ["WITHINGS_CLIENT_ID", "WITHINGS_CLIENT_SECRET"],
+  "files": {
+    "withings_tokens": {
+      "source": "withings_tokens.json",
+      "destination": "/home/node/.claude/withings_tokens.json"
+    }
+  }
+}

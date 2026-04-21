@@ -1,0 +1,19 @@
+{
+  "name": "quick-mcp-server",
+  "version": "1.0.0",
+  "description": "MCP server for QUiCK (riport.app) API — PietScarlet Kft számlázási adatok",
+  "main": "index.js",
+  "type": "module",
+  "bin": {
+    "quick-mcp": "./index.js"
+  },
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": ["mcp", "quick", "invoicing"],
+  "author": "PietScarlet",
+  "license": "ISC",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.26.0"
+  }
+}

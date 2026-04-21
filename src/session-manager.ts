@@ -133,6 +133,21 @@ export function initSessionFolder(agentGroupId: string, sessionId: string): void
 
   ensureSchema(inboundDbPath(agentGroupId, sessionId), 'inbound');
   ensureSchema(outboundDbPath(agentGroupId, sessionId), 'outbound');
+
+  // If the host runs as root, chown the session tree to uid 1000 (the
+  // container's node user) so the container can write cross-mount DBs.
+  // No-op when host uid != 0. Downstream customization — upstream runs as
+  // unprivileged user so this is never needed there.
+  if (process.getuid?.() === 0) {
+    try {
+      fs.chownSync(dir, 1000, 1000);
+      fs.chownSync(path.join(dir, 'outbox'), 1000, 1000);
+      fs.chownSync(inboundDbPath(agentGroupId, sessionId), 1000, 1000);
+      fs.chownSync(outboundDbPath(agentGroupId, sessionId), 1000, 1000);
+    } catch {
+      /* best effort — container will error if it can't read */
+    }
+  }
 }
 
 /**

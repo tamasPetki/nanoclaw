@@ -10,6 +10,7 @@ import path from 'path';
 import { OneCLI } from '@onecli-sh/sdk';
 
 import { CONTAINER_IMAGE, DATA_DIR, GROUPS_DIR, MAX_MESSAGES_PER_PROMPT, ONECLI_URL, TIMEZONE } from './config.js';
+import { readEnvFile } from './env.js';
 import { readContainerConfig, writeContainerConfig } from './container-config.js';
 import { CONTAINER_RUNTIME_BIN, hostGatewayArgs, readonlyMountArgs, stopContainer } from './container-runtime.js';
 import { getAgentGroup } from './db/agent-groups.js';
@@ -324,10 +325,24 @@ async function buildContainerArgs(
     }
   }
 
-  // Pass additional MCP servers from container config (groups/<folder>/container.json)
+  // Pass additional MCP servers from container config (groups/<folder>/container.json).
+  // Template substitution on env values: ${VAR_NAME} → host .env value.
+  // Keeps secrets out of the JSON on disk; resolved at container-spawn time.
   const containerConfig = readContainerConfig(agentGroup.folder);
   if (containerConfig.mcpServers && Object.keys(containerConfig.mcpServers).length > 0) {
-    args.push('-e', `NANOCLAW_MCP_SERVERS=${JSON.stringify(containerConfig.mcpServers)}`);
+    const resolved: Record<string, { command: string; args?: string[]; env?: Record<string, string> }> = {};
+    const templateRe = /\$\{([A-Z_][A-Z0-9_]*)\}/g;
+    const hostEnv = readEnvFile([]);
+    for (const [name, cfg] of Object.entries(containerConfig.mcpServers)) {
+      const newEnv: Record<string, string> = {};
+      for (const [k, v] of Object.entries(cfg.env ?? {})) {
+        newEnv[k] = v.replace(templateRe, (_match, varName: string) => {
+          return hostEnv[varName] ?? process.env[varName] ?? '';
+        });
+      }
+      resolved[name] = { command: cfg.command, args: cfg.args, env: newEnv };
+    }
+    args.push('-e', `NANOCLAW_MCP_SERVERS=${JSON.stringify(resolved)}`);
   }
 
   // Override entrypoint: run v2 entry point directly via Bun (no tsc, no stdin).
@@ -340,7 +355,14 @@ async function buildContainerArgs(
   const imageTag = containerConfig.imageTag || CONTAINER_IMAGE;
   args.push(imageTag);
 
-  args.push('-c', 'exec bun run /app/src/index.ts');
+  // Symlink any .mcp-auth mount from /workspace/extra/ to $HOME/.mcp-auth so
+  // mcp-remote finds its OAuth token cache. Additional-mount paths land under
+  // /workspace/extra/ (mount-security convention), but mcp-remote only looks in
+  // the HOME directory.
+  args.push(
+    '-c',
+    'if [ -d /workspace/extra/.mcp-auth ]; then ln -sfn /workspace/extra/.mcp-auth "$HOME/.mcp-auth"; fi; exec bun run /app/src/index.ts',
+  );
 
   return args;
 }
