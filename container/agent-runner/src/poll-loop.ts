@@ -204,7 +204,7 @@ export async function runPollLoop(config: PollLoopConfig): Promise<void> {
     const skippedSet = new Set(skipped);
     const processingIds = ids.filter((id) => !commandIds.includes(id) && !skippedSet.has(id));
     try {
-      const result = await processQuery(query, routing);
+      const result = await processQuery(query, routing, processingIds);
       if (result.continuation && result.continuation !== continuation) {
         continuation = result.continuation;
         setStoredSessionId(continuation);
@@ -276,9 +276,33 @@ interface QueryResult {
   continuation?: string;
 }
 
-async function processQuery(query: AgentQuery, routing: RoutingContext): Promise<QueryResult> {
+// Exported so the fix for initial-batch completion on `result` (see DOWNSTREAM
+// FIX block below) can be unit-tested without re-implementing the logic.
+export async function processQuery(
+  query: AgentQuery,
+  routing: RoutingContext,
+  initialIds: string[],
+): Promise<QueryResult> {
   let queryContinuation: string | undefined;
   let done = false;
+  // DOWNSTREAM FIX — initial-batch completion on `result` event.
+  //
+  // Upstream `markCompleted(processingIds)` for the initial batch only ran
+  // when `processQuery` returned, i.e. when the SDK event stream actually
+  // ended. Under the concurrent-polling design (see interval below), new
+  // follow-ups keep `query.push`-ing into the open stream, so `for await`
+  // never terminates in a warm session. The initial batch's processing_ack
+  // row therefore stayed at 'processing' forever — which blocks:
+  //   1. Recurrence fanout (modules/scheduling/recurrence uses status=completed)
+  //   2. host-sweep's syncProcessingAcks → messages_in.status propagation
+  //   3. clearStaleProcessingAcks on next boot (treated as stuck and reset)
+  //
+  // Fix: mark the initial batch completed on the first `result` event (the
+  // agent has definitively finished its response to those messages). The
+  // outer markCompleted(processingIds) at the caller stays as a safety net
+  // for the error/early-close paths — both calls are idempotent via
+  // INSERT OR REPLACE.
+  let initialBatchCompleted = false;
 
   // Concurrent polling: push follow-ups into the active query as they arrive.
   // We do NOT force-end the stream on silence — keeping the query open is
@@ -330,8 +354,14 @@ async function processQuery(query: AgentQuery, routing: RoutingContext): Promise
         if (event.continuation) {
           setStoredSessionId(event.continuation);
         }
-      } else if (event.type === 'result' && event.text) {
-        dispatchResultText(event.text, routing);
+      } else if (event.type === 'result') {
+        if (event.text) dispatchResultText(event.text, routing);
+        // First result = agent has finished responding to the initial batch.
+        // See the DOWNSTREAM FIX block at the top of processQuery.
+        if (!initialBatchCompleted) {
+          markCompleted(initialIds);
+          initialBatchCompleted = true;
+        }
       }
     }
   } finally {

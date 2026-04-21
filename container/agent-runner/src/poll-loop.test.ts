@@ -192,6 +192,77 @@ describe('mock provider', () => {
   });
 });
 
+describe('processQuery — initial batch completion on result', () => {
+  it('marks initial batch completed on first result (not only on stream end)', async () => {
+    // Regression guard for the downstream fix: under concurrent-polling the
+    // SDK event stream stays open indefinitely, so waiting for stream end
+    // before markCompleted leaves the processing_ack at 'processing' forever.
+    // The fix: mark on the first `result` event.
+    const { processQuery } = await import('./poll-loop.js');
+    const { markProcessing } = await import('./db/messages-in.js');
+
+    insertMessage('m1', 'chat', { sender: 'User', text: 'hi' });
+    const messages = getPendingMessages();
+    markProcessing(['m1']);
+
+    const provider = new MockProvider({}, () => 'hello back');
+    const query = provider.query({ prompt: formatMessages(messages), cwd: '/tmp' });
+
+    // Do NOT call query.end() — simulate the concurrent-polling case where
+    // the stream stays open (the real failure mode). Observe that ack flips
+    // to 'completed' anyway, once the result event fires. We race the check
+    // against a timeout to catch the regression without hanging forever.
+    const routing = extractRouting(messages);
+    const processPromise = processQuery(query, routing, ['m1']);
+
+    // Wait for the mock provider's result (emitted after ~15ms). Poll the ack.
+    const deadline = Date.now() + 1000;
+    let ackStatus: string | undefined;
+    while (Date.now() < deadline) {
+      const row = getOutboundDb()
+        .prepare("SELECT status FROM processing_ack WHERE message_id = 'm1'")
+        .get() as { status: string } | undefined;
+      ackStatus = row?.status;
+      if (ackStatus === 'completed') break;
+      await new Promise((r) => setTimeout(r, 10));
+    }
+
+    expect(ackStatus).toBe('completed');
+
+    // Clean up: close the stream so the test doesn't leak a running processQuery.
+    query.end();
+    await processPromise;
+  });
+
+  it('mark-on-result is idempotent with the caller-side safety-net markCompleted', async () => {
+    // After processQuery returns, the outer while-loop also calls
+    // markCompleted(processingIds) as a safety net for error paths. Both
+    // calls must be safe to run for the same ids (INSERT OR REPLACE).
+    const { processQuery } = await import('./poll-loop.js');
+    const { markProcessing, markCompleted } = await import('./db/messages-in.js');
+
+    insertMessage('m1', 'chat', { sender: 'User', text: 'hi' });
+    markProcessing(['m1']);
+
+    const provider = new MockProvider({}, () => 'hi');
+    const query = provider.query({ prompt: 'hi', cwd: '/tmp' });
+    const routing = extractRouting(getPendingMessages());
+
+    const processPromise = processQuery(query, routing, ['m1']);
+    // Let the stream close naturally by ending after result has fired.
+    setTimeout(() => query.end(), 50);
+    await processPromise;
+
+    // Safety-net call by outer while-loop — must not throw or corrupt state.
+    markCompleted(['m1']);
+
+    const row = getOutboundDb()
+      .prepare("SELECT status FROM processing_ack WHERE message_id = 'm1'")
+      .get() as { status: string };
+    expect(row.status).toBe('completed');
+  });
+});
+
 describe('end-to-end with mock provider', () => {
   it('should read messages_in, process with mock provider, write messages_out', async () => {
     // Insert a chat message into inbound DB
