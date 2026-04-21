@@ -1,0 +1,16 @@
+{
+    "mcpServers": {
+        "youtube-transcript": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@kimtaeyoon83/mcp-server-youtube-transcript"
+            ]
+        }
+    },
+    "packages": {
+        "apt": [],
+        "npm": []
+    },
+    "additionalMounts": []
+}

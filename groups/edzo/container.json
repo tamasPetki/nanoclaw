@@ -1,0 +1,26 @@
+{
+  "mcpServers": {
+    "withings": {
+      "command": "/bin/bash",
+      "args": [
+        "/opt/mcp-servers/withings/run.sh"
+      ],
+      "env": {
+        "WITHINGS_CLIENT_ID": "${WITHINGS_CLIENT_ID}",
+        "WITHINGS_CLIENT_SECRET": "${WITHINGS_CLIENT_SECRET}",
+        "WITHINGS_TOKEN_PATH": "/workspace/extra/.withings/withings_tokens.json"
+      }
+    }
+  },
+  "packages": {
+    "apt": [],
+    "npm": []
+  },
+  "additionalMounts": [
+    {
+      "hostPath": "/root/nanoclaw-v2/groups/edzo/.withings",
+      "containerPath": ".withings",
+      "readonly": false
+    }
+  ]
+}
