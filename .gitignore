@@ -11,21 +11,31 @@ store/
 data/
 logs/
 
-# Groups - only track base structure and specific CLAUDE.md files
-groups/*
-!groups/main/
-!groups/global/
-groups/main/*
-groups/global/*
-!groups/main/CLAUDE.md
-!groups/global/CLAUDE.md
+# Groups — track content (CLAUDE.md, container.json, strategy.md, etc.)
+# but exclude secrets, tokens, sessions, runtime state.
+groups/*/.secrets
+groups/*/.withings/
+groups/*/.mcp-auth/
+groups/*/.claude-auth/
+groups/*/logs/
+groups/*/*-session.json
+groups/*/tg-web-session.json
+groups/*/tokens.json
+groups/*/credentials.json
+groups/*/*.keys.json
 
-# Secrets
+# Secrets (repo-wide)
 *.keys.json
 .env
+.env.bak-*
+.env.bak
+
+# Deployment-specific (machine-local state)
+.discord-structure.json
 
 # Temp files
 .tmp-*
+tmp/
 
 # OS
 .DS_Store
@@ -38,3 +48,6 @@ groups/global/*
 .nanoclaw/
 
 agents-sdk-docs
+
+# Ad-hoc v1 backups kept locally
+tmp-crontab-v1-backup.txt
