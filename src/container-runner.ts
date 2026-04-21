@@ -27,7 +27,7 @@ import {
   type ProviderContainerContribution,
   type VolumeMount,
 } from './providers/provider-container-registry.js';
-import { markContainerRunning, markContainerStopped, sessionDir, writeSessionRouting } from './session-manager.js';
+import { heartbeatPath, markContainerRunning, markContainerStopped, sessionDir, writeSessionRouting } from './session-manager.js';
 import type { AgentGroup, Session } from './types.js';
 
 const onecli = new OneCLI({ url: ONECLI_URL });
@@ -105,6 +105,13 @@ async function spawnContainer(session: Session): Promise<void> {
   const args = await buildContainerArgs(mounts, containerName, agentGroup, provider, contribution, agentIdentifier);
 
   log.info('Spawning container', { sessionId: session.id, agentGroup: agentGroup.name, containerName });
+
+  // Reset any stale heartbeat file from a previous container run. Without this,
+  // host-sweep's absolute-ceiling check reads the old mtime and immediately
+  // kills the freshly spawned container before the poll loop can touch it.
+  // Host-sweep's "no heartbeat file" branch skips the ceiling check, giving
+  // the new container time to start up and record its own liveness.
+  fs.rmSync(heartbeatPath(agentGroup.id, session.id), { force: true });
 
   const container = spawn(CONTAINER_RUNTIME_BIN, args, { stdio: ['ignore', 'pipe', 'pipe'] });
 

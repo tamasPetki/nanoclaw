@@ -81,21 +81,46 @@ export function createChatSdkBridge(config: ChatSdkBridgeConfig): ChannelAdapter
     if (message.attachments && message.attachments.length > 0) {
       const enriched = [];
       for (const att of message.attachments) {
+        const attAny = att as unknown as Record<string, unknown>;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const entry: Record<string, any> = {
           type: att.type,
           name: att.name,
           mimeType: att.mimeType,
           size: att.size,
-          width: (att as unknown as Record<string, unknown>).width,
-          height: (att as unknown as Record<string, unknown>).height,
+          url: attAny.url,
+          width: attAny.width,
+          height: attAny.height,
         };
         if (att.fetchData) {
           try {
             const buffer = await att.fetchData();
             entry.data = buffer.toString('base64');
           } catch (err) {
-            log.warn('Failed to download attachment', { type: att.type, err });
+            log.warn('Failed to download attachment via fetchData', { type: att.type, err });
+          }
+        } else if (typeof entry.url === 'string') {
+          // Fallback for adapters that expose only a URL (e.g. @chat-adapter/discord,
+          // which doesn't implement fetchData). Download so the host can persist it
+          // into the session inbox dir and the agent gets a localPath.
+          try {
+            const res = await fetch(entry.url as string);
+            if (res.ok) {
+              const buffer = Buffer.from(await res.arrayBuffer());
+              entry.data = buffer.toString('base64');
+            } else {
+              log.warn('Attachment URL fetch returned non-OK', {
+                status: res.status,
+                type: att.type,
+                url: entry.url,
+              });
+            }
+          } catch (err) {
+            log.warn('Failed to download attachment via URL', {
+              type: att.type,
+              url: entry.url,
+              err,
+            });
           }
         }
         enriched.push(entry);

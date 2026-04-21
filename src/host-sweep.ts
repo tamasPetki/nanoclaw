@@ -94,7 +94,7 @@ export function decideStuckAction(args: {
 
   const tolerance = Math.max(CLAIM_STUCK_MS, declaredBashMs ?? 0);
   for (const claim of claims) {
-    const claimedAt = Date.parse(claim.status_changed);
+    const claimedAt = parseSqliteUtcTimestamp(claim.status_changed);
     if (Number.isNaN(claimedAt)) continue;
     const claimAge = now - claimedAt;
     if (claimAge <= tolerance) continue;
@@ -103,6 +103,20 @@ export function decideStuckAction(args: {
   }
 
   return { action: 'ok' };
+}
+
+/**
+ * Parse a timestamp written by the container's `datetime('now')` — SQLite
+ * emits UTC in "YYYY-MM-DD HH:MM:SS" form with no timezone marker, which
+ * `Date.parse` otherwise interprets as local time (making every claim look
+ * ~tz-offset hours older than it really is, triggering false claim-stuck
+ * kills seconds after a fresh container spawn).
+ */
+function parseSqliteUtcTimestamp(s: string): number {
+  if (!s) return NaN;
+  // Already explicit UTC or offset — trust Date.parse.
+  if (/Z$|[+-]\d{2}:?\d{2}$/.test(s)) return Date.parse(s);
+  return Date.parse(s.replace(' ', 'T') + 'Z');
 }
 
 let running = false;
