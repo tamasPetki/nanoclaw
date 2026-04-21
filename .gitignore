@@ -27,8 +27,7 @@ groups/*/*.keys.json
 # Secrets (repo-wide)
 *.keys.json
 .env
-.env.bak-*
-.env.bak
+.env*
 
 # Deployment-specific (machine-local state)
 .discord-structure.json
