@@ -1,27 +1,24 @@
 # Aktuális állapot
-<!-- Lloyd frissíti, ha Tomi új infót ad a projektről -->
-_Frissítve: 2026. március_
-
-## Szerkezet
-Szinte kész. Falak állnak, válaszfalazás és előtét falak készen vannak.
-Nyílászárók a földszinten és emeleten benn vannak.
+_Frissítve: 2026. április 23. (H9)_
 
 ## Tetőszerkezet
-Épül, ~3 hét múlva kész. Alvállalkozó: Horgász Csaba.
-Utána: fóliázás, héjalás, tetőablakok.
+✅ Kész. Fóliázás szinte kész. Alvállalkozó: **Horgász Csaba**.
 
 ## Homlokzat
-A saját csapat elkezdi a lábazat szigetelést, majd állvány felállítás,
-homlokzati szigetelés és színezés. Tűzszakasz határoknál kőzetgyapot kell.
-Villámhárító a homlokzaton — a villanyszerelőknek a villámvédelmet tovább kell vinniük,
-hogy ne blokkolja a szigetelést. Ez jövő héten (2026-03-09 hete) megtörténik.
+Folyamatban — EPS ragasztás tart, az épület **egyik oldala felállványozva**.
+Terv szerint H8-ra (ápr. 20.) kellett volna kész lenni → **kb. 1-2 hét csúszás**.
 
-## Földmunkák
-Elkezdődtek a ház körül (kocsibeálló, parkoló). Eddig tükröt szedtük le.
+## Villanyszerelés (alap, rough-in)
+Folyamatban — még tart.
+Terv szerint H5-re (ápr. 7.) kellett volna kész lenni → **~3 hét csúszás**.
+
+## Gépészet
+Letfusz és Fia — jövő hétfőn (ápr. 27.) jönnek vissza, folytatják az alap szerelést.
+Terv szerint H8-ra (ápr. 20.) kellett volna kész lenni → **~1+ hét csúszás**.
 
 ## Következő teendők
-1. Villámvédelem továbbvezetése homlokzaton (jövő hét)
-2. Tetőszerkezet befejezése (~3 hét)
-3. Fóliázás, héjalás, tetőablakok
-4. Lábazat szigetelés indítása
-5. Állvány felállítás → homlokzati szigetelés
+1. EPS ragasztás befejezése (2. állvány oldal)
+2. Villany rough-in befejezése (A&D Vill)
+3. Gépészek visszajönnek ápr. 27. (hétfő)
+4. Cserépezés (Unitető) — mikor indul a 2. oldal után?
+5. Bádogos munkák (Bádog Varázs) — ütemezés egyeztetés

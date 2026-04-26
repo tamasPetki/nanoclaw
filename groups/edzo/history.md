@@ -28,6 +28,13 @@
 ### 5. hét (márc. 15-21)
 <!-- Agent: töltsd ki a Withings adatok alapján -->
 
+### 10. hét (ápr. 18-24) — visszatérés a linkeskedés után
+- Súly: 97.5 → 96.9 kg, heti átlag ~97.2 kg (azonos induló súllyal)
+- Edzés: 1 megerősített (csüt. bringa 30p), Upper A/Lower A/Upper B/Lower B mind ismeretlen
+- Hideg fürdő: 1 alkalom (kedd elfelejtve, szerda meleg fürdő + hideg zuhany a végén)
+- Alvás: matrac Szandráé volt egész héten, Tomi adatai vakok (még pár hétig így marad)
+- Konklúzió: két hónap linkeskedés után újrakezdés, súly elkezdett mozdulni, de a tracking gyenge — kevés visszajelzés az edzésekről
+
 ## Mérföldkő tracker
 
 | Mérföldkő | Státusz | Dátum |
@@ -37,6 +44,12 @@
 | **90 kg** | ⏳ | — |
 | 87 kg | ⏳ | — |
 | **85 kg (CÉL)** | ⏳ | — |
+
+## Napló
+
+2026-04-22 reggel — súly 97.2 kg, AHI 16.8 (Szandra adata, Tomi más matracon alszik még pár hétig), REM 1h33m, mai fókusz: kardió (szobabicikli 30-40p)
+2026-04-23 reggel — súly 96.4 kg (reggel 8:13-kor mérve), alvásadat nem Tomi (matrac Szandráé), mai fókusz: Upper B húzó edzés | este — edzés: bringa 30p (kardió), Upper B: ismeretlen, hideg fürdő: ismeretlen
+2026-04-24 reggel — súly n/a (tegnap 96.4 kg), alvásadat nem Tomi, mai fókusz: Lower B csípődominás edzés
 
 ## Fontos megfigyelések
 

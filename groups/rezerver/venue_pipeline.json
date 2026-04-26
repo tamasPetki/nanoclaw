@@ -186,7 +186,8 @@
     "notes": "Céges rendezvények aloldal van. Méret és kapacitás ellenőrizendő.",
     "added": "2026-04-19",
     "tier": 2,
-    "estimated_event_volume": "low-medium"
+    "estimated_event_volume": "low-medium",
+    "hook": "Rendezvény-aloldal van a weboldalon – szignálja, hogy a céges vonal komolyan vett, nem csak alkalmi."
   },
   {
     "id": 11,
@@ -375,7 +376,8 @@
     "notes": "Marriott Hotel teteje. Nemzetközi lánc tulajdonlás — döntéshozó corporate szinten lehet.",
     "added": "2026-04-19",
     "tier": 3,
-    "estimated_event_volume": "low-medium"
+    "estimated_event_volume": "low-medium",
+    "hook": "Rooftop, Lánchíd panoráma – high-end corporate events és PR-rendezvények fő célpontja."
   },
   {
     "id": 21,
@@ -393,7 +395,8 @@
     "notes": "Esküvő + céges. Weboldal és contact keresendő.",
     "added": "2026-04-19",
     "tier": 3,
-    "estimated_event_volume": "low-medium"
+    "estimated_event_volume": "low-medium",
+    "hook": "Dunai hajó rendezvény Budapesten – mozgó helyszín, egyedi élmény, nehéz helyettesíteni."
   },
   {
     "id": 22,
@@ -411,7 +414,8 @@
     "notes": "Rendezvényszervezés + helyszínkínálat. Inkább közvetítő mint venue tulajdonos — later megvizsgálandó.",
     "added": "2026-04-19",
     "tier": 3,
-    "estimated_event_volume": "low-medium"
+    "estimated_event_volume": "low-medium",
+    "hook": "Helyszínnel rendelkező rendezvényszervező – ha a saját teret is bérlik, Rezerver dupla értéket ad."
   },
   {
     "id": 23,
@@ -429,7 +433,8 @@
     "notes": "Lakások, házak, stúdiók rendezvényre. Platform modell — partner vagy konkurencia?",
     "added": "2026-04-19",
     "tier": 3,
-    "estimated_event_volume": "low-medium"
+    "estimated_event_volume": "low-medium",
+    "hook": "Privát lakásstúdió kis rendezvényekre – niche szegmens, de megvan a maga közönsége."
   },
   {
     "name": "Gundel Palota",
@@ -561,7 +566,8 @@
     "contact_email": null,
     "notes": "",
     "tier": 1,
-    "estimated_event_volume": "high"
+    "estimated_event_volume": "high",
+    "hook": "2200 m²-es tér Vörösmarty téren, 1300 álló / 580 ültetett – ritka ekkora kapacitás Budapest szívében."
   },
   {
     "name": "La Vida Rendezvényház",
@@ -579,7 +585,8 @@
     "contact_email": null,
     "notes": "",
     "tier": 1,
-    "estimated_event_volume": "high"
+    "estimated_event_volume": "high",
+    "hook": "3 különböző kerületben (XIII., VI., IX.) 30–300 főig – multi-helyszín portfólió, amit szinte senki más nem csinál Pesten."
   },
   {
     "name": "Halászbástya Étterem",
@@ -597,7 +604,8 @@
     "added": "2026-04-19",
     "notes": "",
     "tier": 2,
-    "estimated_event_volume": "medium"
+    "estimated_event_volume": "medium",
+    "hook": "Halászbástya terasz, 46-60 fős intim kapacitás – prémium panorámalokáció, amit a Rezerver árkijelzővel csak felértékel."
   },
   {
     "name": "Matild Palace",
@@ -615,7 +623,8 @@
     "contact_email": null,
     "notes": "",
     "tier": 2,
-    "estimated_event_volume": "low-medium"
+    "estimated_event_volume": "low-medium",
+    "hook": "Matild Palace több teremmel – a legújabb 5 csillagos nyitású Budapest szívében, Rezerver itt early credibilityt ad."
   },
   {
     "name": "Bagolyvár",
@@ -633,7 +642,8 @@
     "added": "2026-04-19",
     "notes": "",
     "tier": 1,
-    "estimated_event_volume": "high"
+    "estimated_event_volume": "high",
+    "hook": "A Városligetben, Gundel szomszédságában – Bagolyvár az a 40-80 fős intim helyszín, amit fine dining-rajongók ismernek."
   },
   {
     "name": "ATNO Forge Klubműhely",
@@ -651,7 +661,8 @@
     "contact_email": null,
     "notes": "",
     "tier": 2,
-    "estimated_event_volume": "low-medium"
+    "estimated_event_volume": "low-medium",
+    "hook": "Ipari loft 100-400 főre Budapesten – ritkán kerül ez a look és ekkora range egy helyszínen össze."
   },
   {
     "name": "Daalarna Garden",
@@ -669,7 +680,8 @@
     "contact_email": null,
     "notes": "",
     "tier": 1,
-    "estimated_event_volume": "high"
+    "estimated_event_volume": "high",
+    "hook": "5 hektáros birtok 22 km-re Budapesttől – elég messze az 'elvonulós' érzéshez, elég közel hogy a vendégek eljöjjenek."
   },
   {
     "name": "KultPince",
@@ -687,7 +699,8 @@
     "contact_email": null,
     "notes": "",
     "tier": 2,
-    "estimated_event_volume": "low-medium"
+    "estimated_event_volume": "low-medium",
+    "hook": "Terasz 90-100 fő + pince 50-60 fő – kétszintes borospince helyszín, kombóárazás ideális Rezerver-esetpélda."
   },
   {
     "name": "Instant-Fogas Complex",
@@ -705,7 +718,8 @@
     "contact_email": null,
     "notes": "",
     "tier": 3,
-    "estimated_event_volume": "low-medium"
+    "estimated_event_volume": "low-medium",
+    "hook": "Instant-Fogas Complex – Bp legnagyobb party-komplexuma, céges after-party piac erős."
   },
   {
     "name": "Akvárium Klub",
@@ -723,7 +737,8 @@
     "contact_email": null,
     "notes": "",
     "tier": 2,
-    "estimated_event_volume": "high"
+    "estimated_event_volume": "high",
+    "hook": "NagyHall ~1300 fővel az Astoria szomszédságában – a legtöbb aggregátor ezzel el van adva, mi az árat is megmutatnánk."
   },
   {
     "name": "Four Seasons Gresham Palace",
@@ -741,7 +756,8 @@
     "contact_email": null,
     "notes": "",
     "tier": 3,
-    "estimated_event_volume": "low-medium"
+    "estimated_event_volume": "low-medium",
+    "hook": "Four Seasons Gresham – a Budapest-prémium csúcs, Rezerver prestige csatornának jó."
   },
   {
     "name": "Titkom Club",
@@ -759,7 +775,8 @@
     "contact_email": null,
     "notes": "",
     "tier": 3,
-    "estimated_event_volume": "low-medium"
+    "estimated_event_volume": "low-medium",
+    "hook": "Titkom Club – belvárosi party-venue, céges vacsora + after-party kombó szegmens."
   },
   {
     "name": "Elysian Budapest",
@@ -777,7 +794,8 @@
     "contact_email": null,
     "notes": "",
     "tier": 3,
-    "estimated_event_volume": "low-medium"
+    "estimated_event_volume": "low-medium",
+    "hook": "Elysian Budapest koktélbár – kis capacity, de magas árkategória, prémium privát esemény."
   },
   {
     "id": 43,
@@ -795,7 +813,8 @@
     "added": "2026-04-19",
     "notes": "Debrecen, teljes eszközpark, konyha.",
     "tier": 1,
-    "estimated_event_volume": "medium-high"
+    "estimated_event_volume": "medium-high",
+    "hook": "Debrecenben 180 fős kapacitással, teljes saját konyhával és eszközparkkal – minden a helyszínen, nincs outsource."
   },
   {
     "id": 44,
@@ -813,7 +832,8 @@
     "added": "2026-04-19",
     "notes": "Esküvő, születésnap, céges rendezvény. Debrecen mellett.",
     "tier": 1,
-    "estimated_event_volume": "medium-high"
+    "estimated_event_volume": "medium-high",
+    "hook": "Farm-feeling Debrecen tőszomszédságában – a 'vidéki esküvő, de mégse messze' szegmens egyre erősebb keleten."
   },
   {
     "id": 45,
@@ -831,7 +851,8 @@
     "added": "2026-04-19",
     "notes": "3 rendezvényterem, helyszíni szállás, nagy ingyenes parkoló, korlátlan italcsomag opció.",
     "tier": 1,
-    "estimated_event_volume": "medium-high"
+    "estimated_event_volume": "medium-high",
+    "hook": "3 terem, szállás a helyszínen, ingyenes nagy parkoló, korlátlan italcsomag opció – Debrecen legkomplettebb rendezvényháza."
   },
   {
     "id": 46,
@@ -849,7 +870,8 @@
     "added": "2026-04-19",
     "notes": "Debrecen szíve, Nagytemplom mellett, 2 helyszín, 5 terem.",
     "tier": 1,
-    "estimated_event_volume": "medium-high"
+    "estimated_event_volume": "medium-high",
+    "hook": "Debrecen szívében, a Nagytemplom árnyékában, 5 terem + terasz – prémium centrumlokáció a városban."
   },
   {
     "id": 47,
@@ -867,7 +889,8 @@
     "added": "2026-04-19",
     "notes": "Természetközeli, konferencia, csapatépítő, születésnap.",
     "tier": 1,
-    "estimated_event_volume": "medium-high"
+    "estimated_event_volume": "medium-high",
+    "hook": "Természetközeli kert Debrecen-Pallag határán – esküvőre, csapatépítőre, konferenciára egyaránt."
   },
   {
     "id": 48,
@@ -885,7 +908,8 @@
     "added": "2026-04-19",
     "notes": "Családi, baráti, esküvő, céges. Részletek ellenőrizendők.",
     "tier": 1,
-    "estimated_event_volume": "medium-high"
+    "estimated_event_volume": "medium-high",
+    "hook": "Debrecen melletti helyszín kisebb, privát rendezvényekre – a régió family-friendly vonulata."
   },
   {
     "id": 49,
@@ -903,7 +927,8 @@
     "added": "2026-04-19",
     "notes": "Szeged, modern étterem, angol oldal is van.",
     "tier": 2,
-    "estimated_event_volume": "medium"
+    "estimated_event_volume": "medium",
+    "hook": "Modern étterem Szegeden 105 fő beltér + 50 fős terasz – és angolul is kommunikálnak, nem tipikus a régióban."
   },
   {
     "id": 50,
@@ -921,7 +946,8 @@
     "added": "2026-04-19",
     "notes": "Csendes környezet, pár perc a belvárostól. Esküvő, céges, konferencia, bál.",
     "tier": 1,
-    "estimated_event_volume": "medium-high"
+    "estimated_event_volume": "medium-high",
+    "hook": "Csendes, belváros-közeli kert Szeged mellett – esküvő, bál, konferencia egyaránt. Ritkán van ilyen kombó."
   },
   {
     "id": 51,
@@ -939,7 +965,8 @@
     "added": "2026-04-19",
     "notes": "Esküvő, családi, céges. Parkosított rendezvényház.",
     "tier": 1,
-    "estimated_event_volume": "medium-high"
+    "estimated_event_volume": "medium-high",
+    "hook": "Parkosított rendezvényház Szeged mellett – klasszikus outdoor esküvőkre a régió egyik fő opciója."
   },
   {
     "id": 52,
@@ -957,7 +984,8 @@
     "added": "2026-04-19",
     "notes": "Bisztró + rendezvényhelyszín + catering szolgáltatás. Szeged.",
     "tier": 2,
-    "estimated_event_volume": "medium"
+    "estimated_event_volume": "medium",
+    "hook": "Bisztró + rendezvény + catering egy helyen Szegeden – teljes service, Rezerver azokat a kombinált csomagokat emeli ki."
   },
   {
     "id": 53,
@@ -975,7 +1003,8 @@
     "added": "2026-04-19",
     "notes": "Győr, esküvői rendezvényhelyszín oldal van.",
     "tier": 1,
-    "estimated_event_volume": "medium-high"
+    "estimated_event_volume": "medium-high",
+    "hook": "Győrben az egyik étterem, amelyik dedikált esküvői oldalt üzemeltet – láthatóan komolyan veszitek a rendezvényes vonalat."
   },
   {
     "id": 54,
@@ -993,7 +1022,8 @@
     "added": "2026-04-19",
     "notes": "7.5 hektáros parkos oázis, Rábaközben. Exkluzív esküvők.",
     "tier": 1,
-    "estimated_event_volume": "high"
+    "estimated_event_volume": "high",
+    "hook": "7,5 hektáros parkos oázis Rábaközben, 40 km-re Győrtől – exkluzív esküvők a Kisalföldön, természetben."
   },
   {
     "id": 55,
@@ -1011,7 +1041,8 @@
     "added": "2026-04-19",
     "notes": "Pécs, céges rendezvények + esküvők.",
     "tier": 1,
-    "estimated_event_volume": "medium-high"
+    "estimated_event_volume": "medium-high",
+    "hook": "Pécsett céges és esküvői rendezvényeket egyaránt vállalnak – a catering-háttér értékes USP a régióban."
   },
   {
     "id": 56,
@@ -1029,7 +1060,8 @@
     "added": "2026-04-19",
     "notes": "Balaton-felvidék, szőlőbirtok, exkluzív. Website ellenőrizendő.",
     "tier": 2,
-    "estimated_event_volume": "medium"
+    "estimated_event_volume": "medium",
+    "hook": "1000 m²-es villa + 250 m² sátor, 25 hektáros birtok Balaton-felvidéken – exkluzív bérlet, skálázható kapacitás."
   },
   {
     "id": 57,
@@ -1047,7 +1079,8 @@
     "added": "2026-04-19",
     "notes": "Toszkán stílus, borospince, Balaton északi part.",
     "tier": 2,
-    "estimated_event_volume": "medium"
+    "estimated_event_volume": "medium",
+    "hook": "Toszkán stílus, borospince, 169 m²-es fedett terasz Balaton északi parton – az 'olasz hangulat Magyarországon' szegmens erős."
   },
   {
     "id": 58,
@@ -1065,7 +1098,8 @@
     "added": "2026-04-19",
     "notes": "2022-ben épült villa, szőlők között, balatoni panoráma. Toszkán esküvő alcím.",
     "tier": 2,
-    "estimated_event_volume": "medium"
+    "estimated_event_volume": "medium",
+    "hook": "2022-ben épült villa szőlők között balatoni panorámával – 'Toszkán esküvő' alcím a weboldalon. Minőség és fresh brand."
   },
   {
     "id": 59,
@@ -1083,7 +1117,8 @@
     "added": "2026-04-19",
     "notes": "Céges rendezvények és esküvők a Balatonnál.",
     "tier": 2,
-    "estimated_event_volume": "medium"
+    "estimated_event_volume": "medium",
+    "hook": "Birtok Balaton közelében, céges és esküvői profillal – a két szegmens ritkán fér meg ennyire természetesen."
   },
   {
     "id": 60,
@@ -1101,7 +1136,8 @@
     "added": "2026-04-19",
     "notes": "Tokaj, Bodrog-Tisza torkolat, kültéri ceremónia. Accor brand.",
     "tier": 2,
-    "estimated_event_volume": "medium"
+    "estimated_event_volume": "medium",
+    "hook": "Tokajban, Bodrog-Tisza torkolat, kültéri ceremónia, Accor brand mögött – megbízható infrastruktúra exkluzív lokációban."
   },
   {
     "id": 61,
@@ -1119,7 +1155,8 @@
     "added": "2026-04-19",
     "notes": "Tokaj-Hegyalja ékszerdoboza, romantikus esküvő, szőlőültetvények. Website keresendő.",
     "tier": 1,
-    "estimated_event_volume": "medium-high"
+    "estimated_event_volume": "medium-high",
+    "hook": "Tokaj-Hegyalján szőlőültetvényes kúria Tarcalon – bortúra + esküvő kombó, destination wedding szegmens egyre erősebb."
   },
   {
     "id": 62,
@@ -1137,7 +1174,8 @@
     "added": "2026-04-19",
     "notes": "5 csillagos, Lanka Venue & Garden, szőlős kilátás.",
     "tier": 2,
-    "estimated_event_volume": "medium"
+    "estimated_event_volume": "medium",
+    "hook": "5 csillagos Minaro Hotel Tokajban, Lanka Venue & Garden, szőlős kilátással – 90 fős intim csúcsminőség."
   },
   {
     "id": 63,
@@ -1155,7 +1193,8 @@
     "added": "2026-04-19",
     "notes": "Eger egyik legnépszerűbb esküvőhelyszíne. Website keresendő.",
     "tier": 2,
-    "estimated_event_volume": "medium"
+    "estimated_event_volume": "medium",
+    "hook": "Eger egyik legnépszerűbb esküvőhelyszíne – ha a forgalmuk akkora, az is jelzi a piac itteni méretét."
   },
   {
     "id": 64,
@@ -1173,7 +1212,8 @@
     "added": "2026-04-19",
     "notes": "Győr-Moson-Sopron megye, Kisalföld. Exkluzív kastélyszálló.",
     "tier": 1,
-    "estimated_event_volume": "medium-high"
+    "estimated_event_volume": "medium-high",
+    "hook": "Sopron melletti kastélyszálló a Kisalföldön – aktív határ-közeli piac (osztrák vendégek is), unikum."
   },
   {
     "id": 65,
@@ -1191,7 +1231,8 @@
     "added": "2026-04-19",
     "notes": "Veszprém, erdős környezet, Séd patak mellett. Elegáns rendezvénytermek.",
     "tier": 2,
-    "estimated_event_volume": "medium"
+    "estimated_event_volume": "medium",
+    "hook": "Veszprémi erdőben, Séd patak mellett – konferencia + wellness + rendezvény, céges fókuszú de esküvőre is alkalmas."
   },
   {
     "id": 66,
@@ -1209,7 +1250,8 @@
     "added": "2026-04-19",
     "notes": "Szeged főtere közelében, reprezentatív Koncert- és Tükörterem esküvőhöz.",
     "tier": 2,
-    "estimated_event_volume": "medium"
+    "estimated_event_volume": "medium",
+    "hook": "Szeged főtere közelében Koncert- és Tükörterem – reprezentatív, prémium lokáció a városban."
   },
   {
     "id": 67,
@@ -1227,7 +1269,8 @@
     "added": "2026-04-19",
     "notes": "Barokk hangulat, Győr belváros, Baross étterem. Danubius/Ensana brand.",
     "tier": 2,
-    "estimated_event_volume": "medium"
+    "estimated_event_volume": "medium",
+    "hook": "Barokk hangulat Győr belvárosában, Baross étteremmel – Danubius/Ensana brand = megbízható infrastruktúra."
   },
   {
     "name": "Anna Grand Hotel Balatonfüred",
@@ -1245,7 +1288,8 @@
     "contact_phone": null,
     "contact_email": null,
     "tier": 2,
-    "estimated_event_volume": "medium"
+    "estimated_event_volume": "medium",
+    "hook": "Teljesen felújított 5 csillagos hotel Balatonfüred belvárosában, panorámával – a Balaton-parti prémium csúcsa."
   },
   {
     "name": "Festetics Kastély Keszthely",
@@ -1263,7 +1307,8 @@
     "contact_phone": null,
     "contact_email": null,
     "tier": 1,
-    "estimated_event_volume": "medium-high"
+    "estimated_event_volume": "medium-high",
+    "hook": "A Festetics-kastély kertje Keszthelyen, Balaton-parton – a Dunántúl egyik legikonikusabb esküvőhelyszíne."
   },
   {
     "name": "Club Tihany",
@@ -1281,7 +1326,8 @@
     "contact_phone": null,
     "contact_email": null,
     "tier": 2,
-    "estimated_event_volume": "medium"
+    "estimated_event_volume": "medium",
+    "hook": "Tihanyi-félsziget, közvetlen Balaton-part – szertartás a tóparton, ez önmagában eladja."
   },
   {
     "name": "Tihanyi Viniarius",
@@ -1299,7 +1345,8 @@
     "contact_phone": null,
     "contact_email": null,
     "tier": 2,
-    "estimated_event_volume": "low-medium"
+    "estimated_event_volume": "low-medium",
+    "hook": "200 éves borospince + panorámás VIP terasz Tihanyban – rusztikus + exkluzív kombó, erős esküvős szegmens."
   },
   {
     "name": "PiciSzívem Badacsonyörs",
@@ -1317,7 +1364,8 @@
     "contact_phone": null,
     "contact_email": null,
     "tier": 2,
-    "estimated_event_volume": "low-medium"
+    "estimated_event_volume": "low-medium",
+    "hook": "Varázslatos Káli-medence, ~80 fős kapacitás Badacsony régióban – a boutique wedding mozgalom kedvenc."
   },
   {
     "name": "A Rétes Vonyarcvashegy",
@@ -1335,7 +1383,8 @@
     "contact_phone": null,
     "contact_email": null,
     "tier": 2,
-    "estimated_event_volume": "medium"
+    "estimated_event_volume": "medium",
+    "hook": "Idilli tóparti étterem kerttel Vonyarcvashegyen – esküvői vacsora a Balaton-parton, sunset-helyszín."
   },
   {
     "name": "Bodrogi Kúria Wellness Hotel",
@@ -1353,7 +1402,8 @@
     "contact_phone": null,
     "contact_email": null,
     "tier": 1,
-    "estimated_event_volume": "medium-high"
+    "estimated_event_volume": "medium-high",
+    "hook": "Privát part és sziget az esküvői fotózáshoz, wellness az éjszakára – Budapest közelében ez kombináció nem ismétlődik."
   },
   {
     "name": "Dudits Kastély",
@@ -1371,7 +1421,8 @@
     "contact_phone": null,
     "contact_email": null,
     "tier": 1,
-    "estimated_event_volume": "medium-high"
+    "estimated_event_volume": "medium-high",
+    "hook": "Kastélyesküvő ~30 perc Budapesttől (Monor) – az ár-érték arány itt valószínűleg jobb, mint a fővárosban."
   },
   {
     "name": "Laffert Kúria",
@@ -1389,7 +1440,8 @@
     "contact_phone": null,
     "contact_email": null,
     "tier": 1,
-    "estimated_event_volume": "medium-high"
+    "estimated_event_volume": "medium-high",
+    "hook": "Barokk atmoszféra, teraszok és kert Dunaharasztiban – Budapest határán, de teljesen más világ."
   },
   {
     "name": "Brunszvik Kastély Martonvásár",
@@ -1407,7 +1459,8 @@
     "contact_phone": null,
     "contact_email": null,
     "tier": 1,
-    "estimated_event_volume": "medium-high"
+    "estimated_event_volume": "medium-high",
+    "hook": "Beethoven Martonvásáron komponált – a kastély park háttértörténete érzelmileg erős hook esküvős pároknál."
   },
   {
     "name": "Károlyi Kastély Fehérvárcsurgó",
@@ -1425,7 +1478,8 @@
     "contact_phone": null,
     "contact_email": null,
     "tier": 1,
-    "estimated_event_volume": "medium-high"
+    "estimated_event_volume": "medium-high",
+    "hook": "Angolkert + kastély Fehérvárcsurgón – a Közép-Dunántúl egyik legelegánsabb esküvőhelyszíne."
   },
   {
     "name": "Tölgyfa Fogadó Fehérvárcsurgó",
@@ -1443,7 +1497,8 @@
     "contact_phone": null,
     "contact_email": null,
     "tier": 2,
-    "estimated_event_volume": "medium"
+    "estimated_event_volume": "medium",
+    "hook": "Természetközeli fogadó Fehérvárcsurgón – a Károlyi Kastély alternatívája kisebb, meghittebb rendezvényekre."
   },
   {
     "name": "Avalon Park és Resort & Spa",
@@ -1461,7 +1516,8 @@
     "contact_phone": null,
     "contact_email": null,
     "tier": 2,
-    "estimated_event_volume": "medium"
+    "estimated_event_volume": "medium",
+    "hook": "Tréning, workshop, konferencia, csapatépítés fókusz Miskolcon – a céges szegmens erős helyi igénye."
   },
   {
     "name": "Hotel Palota Lillafüred",
@@ -1479,7 +1535,8 @@
     "contact_phone": null,
     "contact_email": null,
     "tier": 2,
-    "estimated_event_volume": "medium"
+    "estimated_event_volume": "medium",
+    "hook": "Ikonikus lillafüredi Palota szálló erdei környezetben – a Miskolci régió legnézettebb esküvőhelyszíne."
   },
   {
     "name": "Szirmocska Rendezvényház",
@@ -1497,7 +1554,8 @@
     "contact_phone": null,
     "contact_email": null,
     "tier": 1,
-    "estimated_event_volume": "high"
+    "estimated_event_volume": "high",
+    "hook": "Miskolcon aktív FB-jelenléttel – láthatóan közeliek vagytok a közösséghez, nem csak egy 'tér a bérléshez'."
   },
   {
     "name": "Beat Étterem és Rendezvényterem",
@@ -1515,7 +1573,8 @@
     "contact_phone": null,
     "contact_email": null,
     "tier": 2,
-    "estimated_event_volume": "medium"
+    "estimated_event_volume": "medium",
+    "hook": "Felújított rendezvényterem Székesfehérvár belvárosában, rugalmas dekoráció – modern look, centrumlokáció."
   },
   {
     "name": "Castrum Hotel Székesfehérvár",
@@ -1533,7 +1592,8 @@
     "contact_phone": null,
     "contact_email": null,
     "tier": 2,
-    "estimated_event_volume": "medium"
+    "estimated_event_volume": "medium",
+    "hook": "Zárt árnyas kert szertartásra + stílusos szállás Székesfehérváron – full-package boutique hotel feeling."
   },
   {
     "name": "Sasfészek Étterem Kecskemét",
@@ -1551,7 +1611,8 @@
     "contact_phone": null,
     "contact_email": null,
     "tier": 2,
-    "estimated_event_volume": "medium"
+    "estimated_event_volume": "medium",
+    "hook": "Kecskemét egyik legkedveltebb étterme nagy parkolóval – kis és nagy rendezvény is, rugalmas kapacitás."
   },
   {
     "name": "Korona Hall Nyíregyháza",
@@ -1569,7 +1630,8 @@
     "contact_phone": null,
     "contact_email": null,
     "tier": 1,
-    "estimated_event_volume": "high"
+    "estimated_event_volume": "high",
+    "hook": "Műemlékké nyilvánított épület Nyíregyházán, Kodály teremmel – a város reprezentatív rendezvényhelyszíne."
   },
   {
     "name": "Nairam Rendezvényközpont",
@@ -1587,7 +1649,8 @@
     "contact_phone": null,
     "contact_email": null,
     "tier": 1,
-    "estimated_event_volume": "high"
+    "estimated_event_volume": "high",
+    "hook": "Holt-Tisza parton, két teremmel, szállással – vízparti esküvő Szolnok közelében, ritkán van ilyen kombó."
   },
   {
     "name": "Hertelendy Kastély Hévíz",
@@ -1605,7 +1668,8 @@
     "contact_phone": null,
     "contact_email": null,
     "tier": 1,
-    "estimated_event_volume": "medium-high"
+    "estimated_event_volume": "medium-high",
+    "hook": "Hévízi termál + kastély kombó – destination wedding után az esküvőéjszaka fürdőzéssel zárul, párok ezt imádják."
   },
   {
     "name": "Zichy Park Hotel",
@@ -1623,7 +1687,8 @@
     "contact_phone": null,
     "contact_email": null,
     "tier": 1,
-    "estimated_event_volume": "medium-high"
+    "estimated_event_volume": "medium-high",
+    "hook": "Kastélyhotel parkkal és lovaglással Tolna megyében – Bikács a vidéki luxury wedding egyik titkaira példa."
   },
   {
     "name": "Gödöllői Királyi Kastély",
@@ -1641,7 +1706,8 @@
     "contact_phone": null,
     "contact_email": null,
     "tier": 1,
-    "estimated_event_volume": "medium-high"
+    "estimated_event_volume": "medium-high",
+    "hook": "Magyarország legnagyobb barokk kastélya, Erzsébet királyné kedvenc nyaralója – a Sisi-kapcsolat önmagában PR."
   },
   {
     "name": "Kiskulacs Vendégház Székesfehérvár",
@@ -1659,7 +1725,8 @@
     "contact_phone": null,
     "contact_email": null,
     "tier": 2,
-    "estimated_event_volume": "low-medium"
+    "estimated_event_volume": "low-medium",
+    "hook": "Páratlan kilátás + gyönyörű rendezvényterem Székesfehérváron – kisebb, intim eseményekre a régió jó opciója."
   },
   {
     "name": "Houses of History Tihany",
@@ -1677,7 +1744,8 @@
     "contact_phone": null,
     "contact_email": null,
     "tier": 1,
-    "estimated_event_volume": "medium-high"
+    "estimated_event_volume": "medium-high",
+    "hook": "19. századi történelmi birtok a tihanyi félszigeten, szállással – Balaton felett, csöndes, exkluzív."
   },
   {
     "name": "Gróf Buttler Borászat és Rendezvényközpont",
@@ -1696,7 +1764,7 @@
     "status": "NOT_CONTACTED",
     "legitimacy": "GREEN_PRELIMINARY",
     "added": "2026-04-20",
-    "hook": null
+    "hook": "100+ éves egri pincéken, mediterrán hangulattal, panorámával Egerre, 150 fős kapacitással, civil szertartás helyszínen."
   },
   {
     "name": "Chateau Petrenya",
@@ -1715,7 +1783,7 @@
     "status": "NOT_CONTACTED",
     "legitimacy": "GREEN_PRELIMINARY",
     "added": "2026-04-20",
-    "hook": null
+    "hook": "65 hektáros szőlőültetvény, Mátra+Bükk kilátás, menyasszonyi lakosztály, 250 fő – all-in-one exkluzív csomag."
   },
   {
     "name": "Pro Village - Franciska Major",
@@ -1734,7 +1802,7 @@
     "status": "NOT_CONTACTED",
     "legitimacy": "GREEN_PRELIMINARY",
     "added": "2026-04-20",
-    "hook": null
+    "hook": "Hársfasor + vízparti pavilon, kizárólagos bérlet, kétnyelvű (HU/DE) – Sopron közelében határon-átnyúló potenciál."
   },
   {
     "name": "Hotel Szieszta Sopron",
@@ -1753,7 +1821,7 @@
     "status": "NOT_CONTACTED",
     "legitimacy": "GREEN_PRELIMINARY",
     "added": "2026-04-20",
-    "hook": null
+    "hook": "Sopron legnagyobb szállodája 5 hektáros történelmi parkban, 20-400 fős kapacitással – teljes range egy helyen."
   },
   {
     "name": "Nagyvillám Panoráma Étterem",
@@ -1772,7 +1840,7 @@
     "status": "NOT_CONTACTED",
     "legitimacy": "GREEN_PRELIMINARY",
     "added": "2026-04-20",
-    "hook": null
+    "hook": "Visegrádi Fellegvár felett, Dunakanyar-panorámával, 170 fős kapacitással – évtizedes esküvős tapasztalat."
   },
   {
     "name": "Patak Park Hotel Visegrád",
@@ -1791,7 +1859,7 @@
     "status": "NOT_CONTACTED",
     "legitimacy": "GREEN_PRELIMINARY",
     "added": "2026-04-20",
-    "hook": null
+    "hook": "Adults-only erdős-patakparti hotel Visegrádon, 70 fős intim esküvőkre – a Dunakanyar boutique vonulata."
   },
   {
     "name": "Achilles Park Győr",
@@ -1810,7 +1878,7 @@
     "status": "NOT_CONTACTED",
     "legitimacy": "GREEN_PRELIMINARY",
     "added": "2026-04-20",
-    "hook": null
+    "hook": "22 hektár, 4 szertartás-helyszín, szarvasok, nádas házikók, erdei tó – fairytale wedding kategória Győr mellett."
   },
   {
     "name": "Zátony Étterem & Kikötő",
@@ -1829,7 +1897,7 @@
     "status": "NOT_CONTACTED",
     "legitimacy": "GREEN_PRELIMINARY",
     "added": "2026-04-20",
-    "hook": null
+    "hook": "Mosoni-Duna parton, ~300 fős összkapacitás, hajózási programokkal – vízi rendezvény add-on egyedülálló."
   },
   {
     "name": "Egy Csipet Nádas",
@@ -1848,7 +1916,7 @@
     "status": "NOT_CONTACTED",
     "legitimacy": "GREEN_PRELIMINARY",
     "added": "2026-04-20",
-    "hook": null
+    "hook": "Természetvédelmi területen gourmet konyha Balatonnál, csak saját catering – a 'no compromise' szegmens."
   },
   {
     "name": "Balaton Hotel Siófok",
@@ -1867,6 +1935,160 @@
     "status": "NOT_CONTACTED",
     "legitimacy": "GREEN_PRELIMINARY",
     "added": "2026-04-20",
-    "hook": null
+    "hook": "Modern dizájn, füvesített udvar Balatonra néző panorámával Siófokon, max 400 fő – a déli part prémium pontja."
+  },
+  {
+    "id": 103,
+    "name": "Funky Budapest Bistro & Bar",
+    "website": "https://maisonvibe.com",
+    "location": "Budapest V., Mérleg utca 4. (Maison Vibe Hotel Downtown)",
+    "segment": "corporate + privát_rendezvény",
+    "type": "bistro + bár + hotel-háttér",
+    "capacity": "középméret, brunch + bár + DJ-tér",
+    "contact_phone": null,
+    "contact_email": null,
+    "source": "funzine.hu 2026-04-01 (9 új áprilisi hely)",
+    "status": "NOT_CONTACTED",
+    "legitimacy": "GREEN_PRELIMINARY",
+    "notes": "2026-Q1 nyitás. Maison Vibe Hotel Downtown belső bisztró+bár. 70-90-es évek Budapest vibe, neon, körhinta-pult, DJ est. Hotel-háttér = vendégéj összekapcsolható.",
+    "added": "2026-04-23",
+    "hook": "Maison Vibe Hotel körhinta-pult + neon koncept, hotel-háttérrel. Corporate after-work + product launch-re pont passzol a vibe — új hely, rendezvény-flow még alakul.",
+    "tier": 2,
+    "estimated_event_volume": "medium",
+    "trigger_events": [
+      "TR-002 new_opening 2026-04"
+    ]
+  },
+  {
+    "id": 104,
+    "name": "Marrakesh Budapest",
+    "website": null,
+    "location": "Budapest VII., Wesselényi utca 30. (Zsidó negyed)",
+    "segment": "tematikus_étterem + privát_rendezvény",
+    "type": "kóser marokkói étterem",
+    "capacity": "tagine-étterem + falafel bár, TBD",
+    "contact_phone": null,
+    "contact_email": null,
+    "source": "funzine.hu 2026-04-01 (9 új áprilisi hely)",
+    "status": "NOT_CONTACTED",
+    "legitimacy": "GREEN_PRELIMINARY",
+    "notes": "2026-Q1 nyitás. Kóser + észak-afrikai. Wesselényi utca, Zsidó negyed. Tagine, grill, sabich, shawarma. Tematikus vacsora-rendezvények, közösségi események.",
+    "added": "2026-04-23",
+    "hook": "Kóser + marokkói koncept a Zsidó negyedben — közösségi vacsorák, tematikus eseményvakok pont ide passzolnak. Új hely, rendezvény-oldal most épül.",
+    "tier": 3,
+    "estimated_event_volume": "low-medium",
+    "trigger_events": [
+      "TR-002 new_opening 2026-04"
+    ]
+  },
+  {
+    "id": 105,
+    "name": "LISZT Budapest",
+    "website": null,
+    "location": "Budapest V., Mérleg utca 10.",
+    "segment": "fine_dining + privát_rendezvény",
+    "type": "magyar komfort étterem",
+    "capacity": "TBD",
+    "contact_phone": null,
+    "contact_email": null,
+    "source": "funzine.hu 2026-04-01 (9 új áprilisi hely)",
+    "status": "NOT_CONTACTED",
+    "legitimacy": "GREEN_PRELIMINARY",
+    "notes": "2026-Q1 nyitás. Fine dining csapat új komfort-étel projekt, Lánchíd közelében. Hagyományos magyar (kaszinó tojás, paprikás csirke, tejberizs) megfizethető áron. V. kerület, Mérleg utca — corporate lunch + céges vacsora szempontból is prémium környék.",
+    "added": "2026-04-23",
+    "hook": "Lánchíd közelében új komfort-étterem, fine dining csapat a háttérben — ez a kombó (egyszerű+minőség) most ritkaság Budapesten. Corporate lunch + céges vacsora lead ideálisan illeszkedik.",
+    "tier": 2,
+    "estimated_event_volume": "medium",
+    "trigger_events": [
+      "TR-002 new_opening 2026-04"
+    ]
+  },
+  {
+    "id": 106,
+    "name": "Piros Paprika",
+    "website": null,
+    "location": "Budapest VII., Dohány utca 50.",
+    "segment": "étterem + privát_rendezvény",
+    "type": "magyar konyha családi receptek",
+    "capacity": "TBD",
+    "contact_phone": null,
+    "contact_email": null,
+    "source": "funzine.hu 2026-04-01 (9 új áprilisi hely)",
+    "status": "NOT_CONTACTED",
+    "legitimacy": "GREEN_PRELIMINARY",
+    "notes": "2026-Q1 nyitás. Családi receptek, gulyás, pörkölt. Dohány utca, VII. kerület — turistás + zsidó negyed. Kis-közepes rendezvények (névnap, születésnap, kis céges vacsora) célzott.",
+    "added": "2026-04-23",
+    "hook": "Dohány utca + családi magyar konyha — a VII. kerületi turisztikai flow mellett HU rendezvény-hagyomány (névnap, szülinap) is jó target. Új hely, még nincs beágyazott foglalási rendszer.",
+    "tier": 3,
+    "estimated_event_volume": "low-medium",
+    "trigger_events": [
+      "TR-002 new_opening 2026-04"
+    ]
+  },
+  {
+    "id": 107,
+    "name": "Páholy Café",
+    "website": null,
+    "location": "Budapest XIII., Szent István körút 12.",
+    "segment": "kávézó + privát_rendezvény",
+    "type": "specialty kávé + bisztró",
+    "capacity": "TBD (kisebb)",
+    "contact_phone": null,
+    "contact_email": null,
+    "source": "funzine.hu 2026-03-01 (8 új márciusi hely)",
+    "status": "NOT_CONTACTED",
+    "legitimacy": "GREEN_PRELIMINARY",
+    "notes": "2026-Q1 nyitás. Vígszínház közelében, XIII.ker. Herz New York kávé, fine pastries, fusion bisztró. Színház-közelség miatt pre/post-show vacsora/kávé rendezvények.",
+    "added": "2026-04-24",
+    "hook": "Vígszínház mellett új kávézó — színház-látogatói után-előtti eseményekre (premier afterparty, színészi találkozók) erős lokáció. Új hely, rendezvény-oldal még nincs beágyazva.",
+    "tier": 3,
+    "estimated_event_volume": "low",
+    "trigger_events": [
+      "TR-002 new_opening 2026-03"
+    ]
+  },
+  {
+    "id": 108,
+    "name": "Éclat Budapest",
+    "website": null,
+    "location": "Budapest IX., Lechner Ödön fasor 4.",
+    "segment": "corporate_breakfast + brunch",
+    "type": "upscale brunch venue",
+    "capacity": "TBD",
+    "contact_phone": null,
+    "contact_email": null,
+    "source": "funzine.hu 2026-03-01 (8 új márciusi hely)",
+    "status": "NOT_CONTACTED",
+    "legitimacy": "GREEN_PRELIMINARY",
+    "notes": "2026-Q1 nyitás. IX.ker Millenáris Dél / Rákóczi hídi irodaterület. Kontinentális reggeli, fixed-price unlimited konstrukció. Corporate breakfast + irodai reggeli rendezvények-re illik.",
+    "added": "2026-04-24",
+    "hook": "Lechner Ödön fasor = iroda-sűrű negyed, fix-áras unlimited brunch koncept — corporate breakfast event-ekre kifejezetten designed. Új nyitás, foglalási flow most épül.",
+    "tier": 2,
+    "estimated_event_volume": "medium",
+    "trigger_events": [
+      "TR-002 new_opening 2026-03"
+    ]
+  },
+  {
+    "id": 109,
+    "name": "Silly Bar",
+    "website": null,
+    "location": "Budapest VI., Teréz körút 37.",
+    "segment": "koktélbár + privát_rendezvény",
+    "type": "upscale casual cocktail bár",
+    "capacity": "TBD (kisebb-közepes)",
+    "contact_phone": null,
+    "contact_email": null,
+    "source": "funzine.hu 2026-03-01 (8 új márciusi hely)",
+    "status": "NOT_CONTACTED",
+    "legitimacy": "GREEN_PRELIMINARY",
+    "notes": "2026-Q1 nyitás. VI.ker Teréz körút, Oktogon közelében. Quality cocktails + non-alcohol specialties, elegant-yet-relaxed vibe. Privát koktélestek, céges team-closing.",
+    "added": "2026-04-24",
+    "hook": "Oktogon mellett új upscale koktélbár elérhető árszinten — privát céges afterwork, kis csapat-ünneplés erős pozíció. Új hely, még rugalmas lehet rendezvény-foglalás terén.",
+    "tier": 3,
+    "estimated_event_volume": "low-medium",
+    "trigger_events": [
+      "TR-002 new_opening 2026-03"
+    ]
   }
 ]

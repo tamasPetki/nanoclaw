@@ -22,5 +22,7 @@
       "containerPath": ".withings",
       "readonly": false
     }
-  ]
+  ],
+  "model": "opus",
+  "effort": "low"
 }

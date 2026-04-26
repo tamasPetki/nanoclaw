@@ -196,8 +196,9 @@ Futtasd végig ezen a listán:
 10. Tökéletes a központozás és nyelvtan? → hagyj benne egy apró lazaságot (rövid mondat, kötőszó-kihagyás)
 11. Olvasd fel magadban: úgy hangzik mint egy magyar vendéglátós-barát growth kolléga (Dani) aki Tomi alapító megbízásából írta össze? Ha nem, újra.
 12. **GDPR opt-out** a cold email végén? Ha cold email, KÖTELEZŐ.
+13. Olvasd a CÍMZETT szemszögéből — venue-tulaj / media-szerkesztő / referral-partner kapja meg ezt. Küldenéd? Ha cringe, idegen-stílusú, vagy úgy hangzik mintha sales-bot írta volna, **ÚJRA**.
 
-Ha mind a 12 tiszta, mehet.
+Ha mind a 13 tiszta, mehet.
 
 ## Szignatúra (email végére)
 

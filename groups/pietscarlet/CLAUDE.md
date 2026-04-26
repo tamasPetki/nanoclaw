@@ -11,7 +11,7 @@ E-mail: hello@pietscarlet.hu | Számlázás: penzugy@pietscarlet.hu
 
 ## Google Drive
 A cég Google Drive mappája elérhető: `/workspace/extra/pietscarlet-drive/` (read-only)
-15 percenként szinkronizálódik.
+Naponta egyszer szinkronizálódik (hajnali 3:00 CET).
 
 ### Keresési segédfájlok
 A drive gyökérben két segédfájl található a gyors kereséshez:

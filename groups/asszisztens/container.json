@@ -12,5 +12,7 @@
         "apt": [],
         "npm": []
     },
-    "additionalMounts": []
+    "additionalMounts": [],
+    "model": "opus",
+    "effort": "low"
 }

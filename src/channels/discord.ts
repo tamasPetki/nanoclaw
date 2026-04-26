@@ -33,6 +33,10 @@ registerChannelAdapter('discord', {
       botToken: env.DISCORD_BOT_TOKEN,
       extractReplyContext,
       supportsThreads: true,
+      // Agent already emits Discord-native markdown (angle-bracket autolinks,
+      // `<@id>` mentions, code blocks). `raw` skips the adapter's AST round
+      // trip that otherwise rewrites `<https://…>` as `[url](url)`.
+      sendAsRaw: true,
     });
   },
 });

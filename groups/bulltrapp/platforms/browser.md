@@ -10,6 +10,15 @@
 
 **A `stealth-browse` 2026-04-09-én frissült: headed Chrome Xvfb-en + WindMouse mouse mozgás + log-normal billentyűzet-dinamika + Linux Chrome 124 persona. Kötelező ezen keresztül menni minden olyan helyzetnél ahol bot-detekció van.**
 
+> 🛑 **`stealth-browse` residential proxy NÉLKÜL TILOS.** Bot-detektált oldalakon (Reddit, X, Bluesky web UI, regisztrációk, CF-védett site) a stealth Chrome és a residential proxy elválaszthatatlan páros. DC-IP + valós browser fingerprint kombináció **még feltűnőbb** mint a curl, mert egy "valódi" gépezet látszik furcsa hálózatról.
+>
+> Mielőtt `stealth-browse open ...`-t hívsz:
+> 1. **Forrásold** `/workspace/group/.secrets` — `source /workspace/group/.secrets`
+> 2. **Ellenőrizd** hogy van élő `REDDIT_PROXY` (vagy az adott platformhoz tartozó residential proxy var) — `[ -n "$REDDIT_PROXY" ] || { echo "NO PROXY — STOP"; exit 1; }`
+> 3. Ha proxy nincs / lejárt / nem betölthető → **STOP**, Discord-ping Tomi-nak.
+>
+> Ez minden bot-detektált platformra érvényes, nem csak Redditre.
+
 ## stealth-browse — Headed Chrome (Xvfb)
 
 ```bash

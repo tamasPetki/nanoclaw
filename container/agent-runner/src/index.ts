@@ -108,6 +108,8 @@ async function main(): Promise<void> {
     mcpServers,
     env: { ...process.env },
     additionalDirectories: additionalDirectories.length > 0 ? additionalDirectories : undefined,
+    model: process.env.NANOCLAW_MODEL || undefined,
+    effort: process.env.NANOCLAW_EFFORT || undefined,
   });
 
   await runPollLoop({

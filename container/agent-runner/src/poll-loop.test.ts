@@ -4,6 +4,7 @@ import { initTestSessionDb, closeSessionDb, getInboundDb, getOutboundDb } from '
 import { getPendingMessages, markCompleted } from './db/messages-in.js';
 import { getUndeliveredMessages } from './db/messages-out.js';
 import { formatMessages, extractRouting } from './formatter.js';
+import { extractRoutingWithSessionFallback, shouldFollowUpInclude } from './poll-loop.js';
 import { MockProvider } from './providers/mock.js';
 
 beforeEach(() => {
@@ -147,6 +148,68 @@ describe('routing', () => {
   });
 });
 
+describe('extractRoutingWithSessionFallback', () => {
+  // Regression guard: scheduled task rows carry no platform_id / channel_type /
+  // thread_id, so the single-destination shortcut reply would land in the
+  // parent channel instead of the session's own thread. The fallback must
+  // pull routing from session_routing when the message row is empty.
+  function insertSessionRouting(channelType: string, platformId: string, threadId: string | null) {
+    getInboundDb()
+      .prepare(
+        `INSERT OR REPLACE INTO session_routing (id, channel_type, platform_id, thread_id)
+         VALUES (1, ?, ?, ?)`,
+      )
+      .run(channelType, platformId, threadId);
+  }
+
+  it('uses message routing when it is populated (chat message)', () => {
+    insertSessionRouting('discord', 'chan-123', 'thread-session');
+    getInboundDb()
+      .prepare(
+        `INSERT INTO messages_in (id, kind, timestamp, status, platform_id, channel_type, thread_id, content)
+         VALUES ('m1', 'chat', datetime('now'), 'pending', 'chan-123', 'discord', 'thread-from-msg', '{"text":"hi"}')`,
+      )
+      .run();
+
+    const routing = extractRoutingWithSessionFallback(getPendingMessages());
+    expect(routing.platformId).toBe('chan-123');
+    expect(routing.channelType).toBe('discord');
+    expect(routing.threadId).toBe('thread-from-msg');
+    expect(routing.inReplyTo).toBe('m1');
+  });
+
+  it('falls back to session_routing when message routing is empty (task row)', () => {
+    insertSessionRouting('discord', 'chan-456', 'thread-session');
+    getInboundDb()
+      .prepare(
+        `INSERT INTO messages_in (id, kind, timestamp, status, process_after, content)
+         VALUES ('task-1', 'task', datetime('now'), 'pending', datetime('now'), '{"prompt":"run"}')`,
+      )
+      .run();
+
+    const routing = extractRoutingWithSessionFallback(getPendingMessages());
+    expect(routing.platformId).toBe('chan-456');
+    expect(routing.channelType).toBe('discord');
+    expect(routing.threadId).toBe('thread-session');
+    expect(routing.inReplyTo).toBe('task-1');
+  });
+
+  it('returns nulls when both message and session routing are empty', () => {
+    getInboundDb()
+      .prepare(
+        `INSERT INTO messages_in (id, kind, timestamp, status, process_after, content)
+         VALUES ('task-1', 'task', datetime('now'), 'pending', datetime('now'), '{"prompt":"run"}')`,
+      )
+      .run();
+
+    const routing = extractRoutingWithSessionFallback(getPendingMessages());
+    expect(routing.platformId).toBeNull();
+    expect(routing.channelType).toBeNull();
+    expect(routing.threadId).toBeNull();
+    expect(routing.inReplyTo).toBe('task-1');
+  });
+});
+
 describe('mock provider', () => {
   it('should produce init + result events', async () => {
     const provider = new MockProvider({}, (prompt) => `Echo: ${prompt}`);
@@ -260,6 +323,65 @@ describe('processQuery — initial batch completion on result', () => {
       .prepare("SELECT status FROM processing_ack WHERE message_id = 'm1'")
       .get() as { status: string };
     expect(row.status).toBe('completed');
+  });
+});
+
+describe('shouldFollowUpInclude — concurrent-polling filter', () => {
+  const notAdmin = () => false;
+  const discordThread = 'discord:g:c:t';
+
+  it('includes same-thread chat messages', () => {
+    expect(
+      shouldFollowUpInclude(
+        { kind: 'chat', channel_type: 'discord', thread_id: discordThread },
+        discordThread,
+        notAdmin,
+      ),
+    ).toBe(true);
+  });
+
+  it('excludes cross-thread chat messages', () => {
+    expect(
+      shouldFollowUpInclude(
+        { kind: 'chat', channel_type: 'discord', thread_id: 'discord:g:c:other' },
+        discordThread,
+        notAdmin,
+      ),
+    ).toBe(false);
+  });
+
+  it('excludes system messages regardless of thread', () => {
+    expect(
+      shouldFollowUpInclude(
+        { kind: 'system', channel_type: null, thread_id: null },
+        discordThread,
+        notAdmin,
+      ),
+    ).toBe(false);
+  });
+
+  it('includes agent-to-agent messages even when active turn has a discord thread', () => {
+    // Regression guard: agent-to-agent messages have channel_type='agent' and
+    // thread_id=null by construction. If the active turn was started by a
+    // Discord message (non-null threadId), the prior thread-only filter would
+    // drop these, leaving cross-agent replies pending forever.
+    expect(
+      shouldFollowUpInclude(
+        { kind: 'chat', channel_type: 'agent', thread_id: null },
+        discordThread,
+        notAdmin,
+      ),
+    ).toBe(true);
+  });
+
+  it('excludes admin chat messages (they need a fresh query)', () => {
+    expect(
+      shouldFollowUpInclude(
+        { kind: 'chat', channel_type: 'discord', thread_id: discordThread },
+        discordThread,
+        () => true,
+      ),
+    ).toBe(false);
   });
 });
 

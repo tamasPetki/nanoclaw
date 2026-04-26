@@ -56,3 +56,14 @@ tmp-crontab-v1-backup.txt
 __pycache__/
 *.pyc
 .venv/
+
+# Per-account session cookies (Reddit, FB, etc) — never commit
+groups/*/.reddit-cookies-*.json
+groups/*/.fb-cookies-*.json
+groups/*/.*-cookies-*.json
+
+# Vendored Python libs mounted into containers (not source)
+groups/*/pylibs/
+
+# Sensitive personal/legal documents — keep out of git
+groups/pietscarlet/*.docx

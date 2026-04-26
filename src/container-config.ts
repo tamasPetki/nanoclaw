@@ -38,6 +38,18 @@ export interface ContainerConfig {
   packages: { apt: string[]; npm: string[] };
   imageTag?: string;
   additionalMounts: AdditionalMountConfig[];
+  /**
+   * Per-group model override. Accepts an alias (`sonnet`, `opus`, `haiku`)
+   * or a full model ID. Omitted = SDK default. Plumbed to the container as
+   * NANOCLAW_MODEL; the agent-runner forwards it into the provider options.
+   */
+  model?: string;
+  /**
+   * Per-group reasoning effort. `'low' | 'medium' | 'high' | 'xhigh' | 'max'`.
+   * Omitted = SDK default (`'high'`). Plumbed to the container as
+   * NANOCLAW_EFFORT; the agent-runner forwards it into the provider options.
+   */
+  effort?: string;
 }
 
 function emptyConfig(): ContainerConfig {
@@ -71,6 +83,8 @@ export function readContainerConfig(folder: string): ContainerConfig {
       },
       imageTag: raw.imageTag,
       additionalMounts: raw.additionalMounts ?? [],
+      model: raw.model,
+      effort: raw.effort,
     };
   } catch (err) {
     console.error(`[container-config] failed to parse ${p}: ${String(err)}`);

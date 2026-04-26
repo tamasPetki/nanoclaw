@@ -21,8 +21,8 @@
     "status": "REPLIED",
     "sent": "2026-04-09",
     "followup": null,
-    "reply": "2026-04-09 \u2014 $550 paid listing offer, Bogdan @bdinu89 Telegram. Declined, proposed partnership.",
-    "notes": "Fizet\u0151s \u2014 Tomi d\u00f6nt\u00e9se sz\u00fcks\u00e9ges."
+    "reply": "2026-04-09 — $550 paid listing offer, Bogdan @bdinu89 Telegram. Declined, proposed partnership.",
+    "notes": "Fizetős — Tomi döntése szükséges."
   },
   {
     "site": "VentureBurn",
@@ -33,7 +33,7 @@
     "status": "REPLIED",
     "sent": "2026-04-09",
     "followup": null,
-    "reply": "2026-04-10 \u2014 paid listing $400-600. We replied declining, proposed editorial angle + partnership.",
+    "reply": "2026-04-10 — paid listing $400-600. We replied declining, proposed editorial angle + partnership.",
     "notes": "submit@memeburn.com was wrong address. Has '10 Best' listicle. PAID like CryptoAdventure."
   },
   {
@@ -45,8 +45,8 @@
     "status": "REPLIED",
     "sent": "2026-04-09",
     "followup": "2026-04-10",
-    "reply": "2026-04-10 \u2014 Ronak declined partnership, only $115 paid. Dead end unless Tomi wants to pay.",
-    "notes": "CLOSED \u2014 partnership declined, only paid option ($115). Not worth pursuing organically."
+    "reply": "2026-04-10 — Ronak declined partnership, only $115 paid. Dead end unless Tomi wants to pay.",
+    "notes": "CLOSED — partnership declined, only paid option ($115). Not worth pursuing organically."
   },
   {
     "site": "101 Blockchains",
@@ -70,7 +70,7 @@
     "sent": "2026-04-09",
     "followup": "2026-04-14",
     "reply": null,
-    "notes": "Already has Polymarket tools page \u2014 perfect fit. Follow-up #2 sent Apr 14 with <p> tags. 3rd contact attempt. Follow-up sent Apr 19. BOUNCED Apr 19: 550 headers fail syntax check.",
+    "notes": "Already has Polymarket tools page — perfect fit. Follow-up #2 sent Apr 14 with <p> tags. 3rd contact attempt. Follow-up sent Apr 19. BOUNCED Apr 19: 550 headers fail syntax check.",
     "followup_sent": "2026-04-19"
   },
   {
@@ -216,7 +216,7 @@
     "sent": null,
     "followup": null,
     "reply": null,
-    "notes": "Official Polymarket \u2014 try to get featured or mentioned."
+    "notes": "Official Polymarket — try to get featured or mentioned."
   },
   {
     "site": "PolymarketWhales",
@@ -240,7 +240,7 @@
     "sent": null,
     "followup": null,
     "reply": null,
-    "notes": "Competitor angle \u2014 prediction market ecosystem."
+    "notes": "Competitor angle — prediction market ecosystem."
   },
   {
     "site": "Milk Road",
@@ -296,11 +296,12 @@
     "contact_page": "coinbureau.com/contact/content-update-request",
     "category": "listicle",
     "priority": "HIGH",
-    "status": "CONTACTED",
+    "status": "FOLLOWED_UP",
     "sent": "2026-04-18",
     "followup": "2026-04-23",
     "reply": null,
-    "notes": "HUGE crypto review site (2.5M+ audience). Contact form submitted Apr 18 (Content Update Request for their portfolio tracker listicle). media@coinbureau.com found on Review Inquiry page. Content update fee $457 (paid). They may respond asking for payment. Also has Review Inquiry form (crypto project review with audits/tokens questions). Worth trying media@ directly if form doesn't get response."
+    "notes": "HUGE crypto review site (2.5M+ audience). Contact form submitted Apr 18 (Content Update Request for their portfolio tracker listicle). media@coinbureau.com found on Review Inquiry page. Content update fee $457 (paid). They may respond asking for payment. Also has Review Inquiry form (crypto project review with audits/tokens questions). Worth trying media@ directly if form doesn't get response.",
+    "followup_sent": "2026-04-22"
   },
   {
     "site": "Altcoin Daily",
@@ -383,7 +384,7 @@
     "status": "REPLIED",
     "sent": "2026-04-10",
     "followup": "2026-04-12",
-    "reply": "2026-04-13 \u2014 Nola Johnson. PAID: $100 regular post (do-follow, permanent), $80 link insert. PayPal/USDT/USDC. DR54/64. Waiting for Tomi decision.",
+    "reply": "2026-04-13 — Nola Johnson. PAID: $100 regular post (do-follow, permanent), $80 link insert. PayPal/USDT/USDC. DR54/64. Waiting for Tomi decision.",
     "notes": "Best Crypto Portfolio Trackers 2026 comparison. Financial news site. Cheapest paid option so far ($100). Decent domain authority."
   },
   {
@@ -444,7 +445,7 @@
     "status": "CLOSED",
     "sent": "2026-04-12",
     "followup": null,
-    "reply": "2026-04-17 \u2014 Swati Gupta. PAID options: ranked listing #1 $250, #2-4 $150, #5-6 $100. Also: 'organic' review article $250 (discounted from $350). All paths paid. Declined Apr 20: no paid budget.",
+    "reply": "2026-04-17 — Swati Gupta. PAID options: ranked listing #1 $250, #2-4 $150, #5-6 $100. Also: 'organic' review article $250 (discounted from $350). All paths paid. Declined Apr 20: no paid budget.",
     "notes": "CLOSED Apr 20. Politely declined, left door open. Swati CC'd swati@ymedia.io."
   },
   {
@@ -529,7 +530,7 @@
     "status": "REPLIED",
     "sent": "2026-04-13",
     "followup": null,
-    "reply": "2026-04-13 \u2014 PAID: $1,500/year for article inclusion. Waiting Tomi decision.",
+    "reply": "2026-04-13 — PAID: $1,500/year for article inclusion. Waiting Tomi decision.",
     "notes": "Established crypto data platform. '13 Best Crypto Tools 2026' article. Most expensive paid option. DR very high."
   },
   {
@@ -541,7 +542,7 @@
     "status": "CLOSED",
     "sent": "2026-04-15",
     "followup": null,
-    "reply": "2026-04-16 \u2014 Lindsey wants us on podcast. Tomi declined: angolnyelv + mikr\u00f3 csatorna (100-200 hallgat\u00f3). Ami \u00edrtunk el\u00e9g, ne nyomjuk tov\u00e1bb.",
+    "reply": "2026-04-16 — Lindsey wants us on podcast. Tomi declined: angolnyelv + mikró csatorna (100-200 hallgató). Ami írtunk elég, ne nyomjuk tovább.",
     "notes": "Small crypto/Web3 podcast (~19 eps, ~100-200 listeners). Not worth the effort. CLOSED per Tomi."
   },
   {
@@ -670,11 +671,12 @@
     "contact_page": "coindive.app",
     "category": "listicle",
     "priority": "HIGH",
-    "status": "CONTACTED",
+    "status": "FOLLOWED_UP",
     "sent": "2026-04-16",
     "followup": "2026-04-21",
     "reply": null,
-    "notes": "10 Best Crypto Portfolio Trackers listicle. German GbR (Sachpazidis & Birk), iOS+Android app, CoinGecko-backed. Legitimacy: GREEN. Sent to hello@ (from imprint). Partnership + Resources page offer."
+    "notes": "10 Best Crypto Portfolio Trackers listicle. German GbR (Sachpazidis & Birk), iOS+Android app, CoinGecko-backed. Legitimacy: GREEN. Sent to hello@ (from imprint). Partnership + Resources page offer.",
+    "followup_sent": "2026-04-22"
   },
   {
     "site": "CryptoManiaks",
@@ -682,11 +684,12 @@
     "contact_page": "cryptomaniaks.com",
     "category": "polymarket",
     "priority": "HIGH",
-    "status": "CONTACTED",
+    "status": "FOLLOWED_UP",
     "sent": "2026-04-16",
     "followup": "2026-04-21",
     "reply": null,
-    "notes": "Two Polymarket alternatives guides (2026). Perfect PM angle. 25+ yr team. Legitimacy: GREEN. Sent partnership email Apr 16."
+    "notes": "Two Polymarket alternatives guides (2026). Perfect PM angle. 25+ yr team. Legitimacy: GREEN. Sent partnership email Apr 16.",
+    "followup_sent": "2026-04-22"
   },
   {
     "site": "Laika Labs",
@@ -718,11 +721,12 @@
     "contact_page": "ecos.am",
     "category": "listicle",
     "priority": "MEDIUM",
-    "status": "CONTACTED",
+    "status": "FOLLOWED_UP",
     "sent": "2026-04-17",
     "followup": "2026-04-22",
     "reply": null,
-    "notes": "Crypto mining platform (Armenia, since 2017). YELLOW: aggressive ROI claims + mixed Trustpilot. But has 'Best Crypto Tracking Tools' listicle on blog. marketing@ecos.am verified from contacts page."
+    "notes": "Crypto mining platform (Armenia, since 2017). YELLOW: aggressive ROI claims + mixed Trustpilot. But has 'Best Crypto Tracking Tools' listicle on blog. marketing@ecos.am verified from contacts page.",
+    "followup_sent": "2026-04-22"
   },
   {
     "site": "CryptoSlate",
@@ -733,7 +737,7 @@
     "status": "REPLIED",
     "sent": "2026-04-17",
     "followup": null,
-    "reply": "2026-04-17 \u2014 Kate A (affiliates team). PAID: $4,999 review. No PM tools category exists yet, might create one. Replied: too expensive for bootstrapped beta, asked about lighter options (directory, future roundup).",
+    "reply": "2026-04-17 — Kate A (affiliates team). PAID: $4,999 review. No PM tools category exists yet, might create one. Replied: too expensive for bootstrapped beta, asked about lighter options (directory, future roundup).",
     "notes": "Major crypto media. tips@ forwarded to admin@ who forwarded to Kate (affiliates@). Media kit: cryptoslate.com/media-kit/. $4,999 minimum. Tomi decision if any paid option."
   },
   {
@@ -778,11 +782,12 @@
     "contact_page": "coingape.com",
     "category": "listicle",
     "priority": "HIGH",
-    "status": "CONTACTED",
+    "status": "FOLLOWED_UP",
     "sent": "2026-04-18",
     "followup": "2026-04-23",
     "reply": null,
-    "notes": "Best Crypto Portfolio Tracker article. Major crypto news, 9yr domain, GREEN. editor@coingape.com verified."
+    "notes": "Best Crypto Portfolio Tracker article. Major crypto news, 9yr domain, GREEN. editor@coingape.com verified.",
+    "followup_sent": "2026-04-22"
   },
   {
     "site": "Freenance.io",
@@ -790,11 +795,12 @@
     "contact_page": "freenance.io/about",
     "category": "listicle",
     "priority": "MEDIUM",
-    "status": "CONTACTED",
+    "status": "FOLLOWED_UP",
     "sent": "2026-04-18",
     "followup": "2026-04-23",
     "reply": null,
-    "notes": "Crypto Portfolio Tracker 2026 article (Mar 18). Personal finance platform, YELLOW. support@freenance.io from about page."
+    "notes": "Crypto Portfolio Tracker 2026 article (Mar 18). Personal finance platform, YELLOW. support@freenance.io from about page.",
+    "followup_sent": "2026-04-22"
   },
   {
     "site": "Event Horizon (Dustin Gouker)",
@@ -802,11 +808,12 @@
     "contact_page": "closinglineconsulting.com",
     "category": "newsletter",
     "priority": "HIGH",
-    "status": "CONTACTED",
+    "status": "FOLLOWED_UP",
     "sent": "2026-04-18",
     "followup": "2026-04-23",
     "reply": null,
-    "notes": "PM newsletter (Kalshi, Polymarket, PredictIt). Dustin Gouker. Email from consulting site. Very relevant to BullTrapp PM angle."
+    "notes": "PM newsletter (Kalshi, Polymarket, PredictIt). Dustin Gouker. Email from consulting site. Very relevant to BullTrapp PM angle.",
+    "followup_sent": "2026-04-22"
   },
   {
     "site": "FinanceFeeds",
@@ -958,8 +965,9 @@
     "contact_page": "https://www.blockpit.io/contact",
     "category": "listicle",
     "priority": "MEDIUM",
-    "status": "NOT_CONTACTED",
-    "notes": "Austrian crypto tax platform. Blog has portfolio tracker article. Legitimacy check needed."
+    "status": "CONTACTED",
+    "notes": "Austrian crypto tax platform. Blog has portfolio tracker article. Legitimacy check needed.",
+    "sent": "2026-04-21"
   },
   {
     "site": "WunderTrading",
@@ -967,8 +975,9 @@
     "contact_page": "https://wundertrading.com",
     "category": "listicle",
     "priority": "MEDIUM",
-    "status": "NOT_CONTACTED",
-    "notes": "Crypto trading automation. Blog has portfolio tracker comparison. Legitimacy check needed."
+    "status": "CONTACTED",
+    "notes": "Crypto trading automation. Blog has portfolio tracker comparison. Legitimacy check needed.",
+    "sent": "2026-04-21"
   },
   {
     "site": "Invezz",
@@ -976,8 +985,9 @@
     "contact_page": "https://invezz.com/about/contact/",
     "category": "listicle",
     "priority": "HIGH",
-    "status": "NOT_CONTACTED",
-    "notes": "UK fintech news site. Top 5 Portfolio Trackers article. High authority. Legitimacy check needed."
+    "status": "CONTACTED",
+    "notes": "UK fintech news site. Top 5 Portfolio Trackers article. High authority. Legitimacy check needed.",
+    "sent": "2026-04-21"
   },
   {
     "site": "Coinpedia",
@@ -985,8 +995,9 @@
     "contact_page": "https://coinpedia.org",
     "category": "listicle",
     "priority": "HIGH",
-    "status": "NOT_CONTACTED",
-    "notes": "Established crypto news agency. Crypto tracking tools article. Legitimacy check needed."
+    "status": "CONTACTED",
+    "notes": "Established crypto news agency. Crypto tracking tools article. Legitimacy check needed.",
+    "sent": "2026-04-21"
   },
   {
     "site": "Fortunly",
@@ -994,8 +1005,9 @@
     "contact_page": "https://fortunly.com/contact-us/",
     "category": "listicle",
     "priority": "MEDIUM",
-    "status": "NOT_CONTACTED",
-    "notes": "Personal finance review site. Feb 2026 portfolio tracker article. Legitimacy check needed."
+    "status": "CONTACTED",
+    "notes": "Personal finance review site. Feb 2026 portfolio tracker article hook. Legitimacy YELLOW (affiliate-heavy, pay-for-placement likely). Sent listicle-addition pitch with backlink-swap offer. If paid rate card comes back, decline per Tomi policy.",
+    "sent": "2026-04-23T11:18:00Z"
   },
   {
     "site": "WalletFinder.ai",
@@ -1035,12 +1047,14 @@
   },
   {
     "site": "DEXTools News",
-    "email": "media@dextools.io",
+    "email": "hello@dextools.io",
     "contact_page": "https://info.dextools.io/",
     "category": "listicle",
     "priority": "HIGH",
-    "status": "NOT_CONTACTED",
-    "notes": "DeFi analytics platform (Spain, Oviedo). Published 'Best Crypto Portfolio Trackers 2026 Top PnL Tools' article on dextools.io/news. Real team (CTO Pablo Ojanguren), CMC partnership. media@dextools.io from press section. Legitimacy: GREEN. Added Apr 20."
+    "status": "BOUNCED",
+    "notes": "DeFi analytics platform (Spain, Oviedo). Published 'Best Crypto Portfolio Trackers 2026 Top PnL Tools' article on dextools.io/news. Real team (CTO Pablo Ojanguren), CMC partnership. media@dextools.io from press section. Legitimacy: GREEN. Added Apr 20. BOUNCE: media@dextools.io 550 (account does not exist). Need correct email. media@ bounced 550. New: hello@dextools.io (general contact). hello@dextools.io ALSO 550 bounced (Apr 22). Both media@ and hello@ dead. Need contact form (info.dextools.io) or Twitter DM. Apr 22 13:00 exploration: info@dextools.io discovered as ALTERNATIVE general contact (not previously tested). Queued for Apr 23 new-outreach. Also: @DEXToolsApp X (dormant), @DEXToolsCommunity TG (warmup-restricted).",
+    "sent": "2026-04-22",
+    "followup": "2026-04-27"
   },
   {
     "site": "Token Metrics Blog",
@@ -1048,7 +1062,52 @@
     "contact_page": "https://tokenmetrics.com/blog/contact-us/",
     "category": "polymarket",
     "priority": "HIGH",
+    "status": "CONTACTED",
+    "notes": "AI crypto research platform. 'Top Crypto Prediction Markets 2026' guide on blog.tokenmetrics.com. Perfect PM angle. partnerships@tokenmetrics.com verified from help center. Crunchbase+ZoomInfo profiles. Legitimacy check needed. Added Apr 20.",
+    "sent": "2026-04-21"
+  },
+  {
+    "site": "QuickNode Builders Guide",
+    "email": null,
+    "contact_page": "https://www.quicknode.com/contact-us",
+    "category": "listicle",
+    "priority": "HIGH",
     "status": "NOT_CONTACTED",
-    "notes": "AI crypto research platform. 'Top Crypto Prediction Markets 2026' guide on blog.tokenmetrics.com. Perfect PM angle. partnerships@tokenmetrics.com verified from help center. Crunchbase+ZoomInfo profiles. Legitimacy check needed. Added Apr 20."
+    "sent": null,
+    "followup": null,
+    "reply": null,
+    "notes": "Dev-focused RPC provider with high-authority Builders Guide. Has \"Top 5 Crypto Portfolio Dashboards\", \"Top 10 Crypto Wallet Trackers\", \"Top 10 Prediction Market Analytics Tools\" listicles. BullTrapp should be on all 3. Contact via contact-us page (sales form) or partnership program. Preferred Partner Network: quicknode.com/preferred-partner. No direct press email found."
+  },
+  {
+    "site": "insights4vc Substack",
+    "email": null,
+    "contact_page": "https://insights4vc.substack.com",
+    "category": "newsletter",
+    "priority": "MEDIUM",
+    "status": "NOT_CONTACTED",
+    "sent": null,
+    "followup": null,
+    "reply": null,
+    "notes": "VC/investment insights Substack. Published \"Prediction Markets at Scale: 2026 Outlook\". PM-focused audience. No direct email found — contact via Substack. Legitimacy check needed."
+  },
+  {
+    "site": "DEXTools (info@)",
+    "email": "info@dextools.io",
+    "contact_page": "https://info.dextools.io/",
+    "category": "listicle",
+    "priority": "HIGH",
+    "status": "PENDING",
+    "notes": "Apr 22 exploration: info@ is DEXTools general inbox per public search results. NOT previously tried (media@ + hello@ both bounced). Third attempt queued for Apr 23 session. Partnership/backlink angle. Same company legitimacy check (GREEN). Fallback if bounces too: partnerships@dextools.io or abandon email channel for DEXTools.",
+    "sent": null,
+    "followup": null
+  },
+  {
+    "site": "insights4vc",
+    "email": "office@insights4.vc",
+    "contact_page": "https://insights4.vc/contact",
+    "category": "newsletter",
+    "priority": "HIGH",
+    "status": "RESEARCHED",
+    "notes": "Apr 22 19:00 exploration. 142K+ subscribers on Substack, publishes 'Prediction Markets at Scale: 2026 Outlook'. Management consulting + on-chain analytics firm, founded 2023. Substack at insights4vc.substack.com, site insights4.vc, LinkedIn company page. Contact email: office@insights4.vc. Legitimacy check NEEDED before outreach. Angle: BullTrapp unifies PM + spot crypto + stocks, potential research-data partnership or /resources backlink swap. Queue for Apr 24 after Apr 23 DEXTools attempt."
   }
 ]

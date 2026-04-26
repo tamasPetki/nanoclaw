@@ -238,6 +238,70 @@ Minden csoporthoz egy blokk. Formatum:
 
 ---
 
+## 2026-04-21 FB session discovery (vendéglátás + rendezvényhelyszín search)
+
+---
+
+### VENDÉGLÁTÓSOK ÉS VENDÉGEIK VLM
+- **URL:** https://www.facebook.com/groups/1431752517076984/
+- **Tagsag:** ~24k
+- **Tipus:** nyilvános
+- **Nyelv:** HU
+- **Kategoria:** B2C demand + B2B supply mix (vendéglátósok + vendégeik)
+- **Relevancia-score:** 3
+- **Csatlakozasi statusz:** NOT_YET_REQUESTED
+- **Discovered:** 2026-04-21 (FB internal search: "vendéglátás")
+- **Aktivitás:** 20+ bejegyzés/nap
+- **Jegyzet:** Vendor + fogyasztó mix, de 24k tag és aktív. Indirekt csatorna — inkább olvasásra mint outreachre. Phase 4-re halasztva.
+- **Phase-action:** Phase 4-re halasztva
+
+---
+
+### Rendezvények, rendezvényszervezés, koncertek, szolgáltatások, programok
+- **URL:** https://www.facebook.com/groups/202301403165786/
+- **Tagsag:** ~21k
+- **Tipus:** nyilvános
+- **Nyelv:** HU
+- **Kategoria:** B2C demand + B2B supply (rendezvényszervezők + szolgáltatók)
+- **Relevancia-score:** 4
+- **Csatlakozasi statusz:** NOT_YET_REQUESTED
+- **Discovered:** 2026-04-21 (FB internal search: "rendezvényhelyszín")
+- **Aktivitás:** 70+ bejegyzés/nap — nagyon aktív!
+- **Jegyzet:** Rendezvényszervezők és szolgáltatók mixed csoportja. 70+ poszt/nap = sok igény, sokat keresnek helyszínt. Rezerver szempontból a demand-oldal aktívan kommunikál itt. HIGH VALUE.
+- **Phase-action:** Phase 3-ra shortlisted (TOP 5 jelölt)
+
+---
+
+### Rendezvények és rendezvény közeli szállások Magyarországon
+- **URL:** https://www.facebook.com/groups/1072652926134887/
+- **Tagsag:** ~11k
+- **Tipus:** nyilvános
+- **Nyelv:** HU
+- **Kategoria:** B2C demand + B2B supply (rendezvény + szállás kombó)
+- **Relevancia-score:** 4
+- **Csatlakozasi statusz:** NOT_YET_REQUESTED
+- **Discovered:** 2026-04-21 (FB internal search: "rendezvényhelyszín")
+- **Aktivitás:** 20+ bejegyzés/nap
+- **Jegyzet:** Helyszín + szállás kombó — venue-k, akik szállást is kínálnak (kastélyek, kúriák, resort-ok) pont itt vannak. 11k tag, aktív. Rezerver sweet spot szegmens.
+- **Phase-action:** Phase 3-ra shortlisted (TOP 5 jelölt)
+
+---
+
+### Fesztiválok, rendezvények, szervezők, szolgáltatók, árusok
+- **URL:** https://www.facebook.com/groups/524467594334034/
+- **Tagsag:** ~48k
+- **Tipus:** nyilvános
+- **Nyelv:** HU
+- **Kategoria:** B2B supply + demand (szervező + szolgáltató mix)
+- **Relevancia-score:** 3
+- **Csatlakozasi statusz:** NOT_YET_REQUESTED
+- **Discovered:** 2026-04-21 (FB internal search: "rendezvényhelyszín")
+- **Aktivitás:** 40+ bejegyzés/nap
+- **Jegyzet:** Fesztivál + rendezvény fókusz, de 48k tag és sok szolgáltató. Inkább fesztivál/outdoor events, nem private venue. Helyszínes tartalom aránya ellenőrizendő.
+- **Phase-action:** Phase 4-re halasztva (fesztivál-fókusz, kevésbé venue-specifikus)
+
+---
+
 ## Korabbi placeholder-ek (meg nem verifikalt URL-lel)
 
 ### Ettermesek Kozossege

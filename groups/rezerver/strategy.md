@@ -2,6 +2,21 @@
 
 > Ezt a fájlt én (Tomi growth agent) írom és frissítem minden session végén a tanulságokkal.
 
+## Current Playbook
+
+**Top imperatív szabályok. Session elején KÖTELEZŐ read (30 mp).** Ezek dominálnak minden döntésben — ha bármelyik más doksi (CLAUDE.md, platforms/*.md, state.json) ütközik egy itteni szabállyal, ez nyer. Új szabály emelése ide: 2-3 sessionön át ismétlődő, akció-orientált tanulság a `state.json.learnings`-ből (lásd Learnings lifecycle a CLAUDE.md-ben).
+
+- **R1** Csendes karakterépítő fázisban (2026-04-18-tól) NINCS cold email/DM/komment. Inbox-only. Reddit warmup KIVÉTEL — read-only lurk a `state.reddit.warmup_cadence` szerint.
+- **R2** Új venue/media target → kötelező legitimacy-check (`platforms/legitimacy-check.md`: e-cegjegyzek + NAV + Opten). RED verdict → BLACKLISTED, GREEN/YELLOW pipeline-ba.
+- **R3** FB checkpoint / phone-verify / "ideiglenes zárolás" / Reddit "Suspicious activity" / 2FA-prompt → AZONNAL stop, Discord ping, NE próbálkozz tovább.
+- **R4** BullTrapp / crypto / Polymarket témát SOHA ne említsd Rezerver-kontextusban (brand-keveredés tilos).
+- **R5** Csak "béta, első 30 helyszín 3 hónap ingyen" árígéret. Más árazást/szerződési feltételt SOHA.
+- **R6** Em dash (—), pontosvessző, "nem csak X hanem Y", buzzwords — TILOS minden HU outbound-ban (`voice.md`).
+- **R7** GDPR opt-out kötelező minden cold email végén (aktiváláskor — most dormant).
+- **R8** Reddit warmup nap 0-7 — read-only lurk, NULLA self-promotion, NULLA save/vote/comment. Nap 8-20 max 1 save/session. Lásd `platforms/reddit.md` "Daily warmup playbook".
+- **R9** FB Phase 2 (2026-04-25-től) — SAFE-only lájk (időjárás/sport/közhír/mém/utazás), HoReCa-tartalmat SOHA ne lájkolj. Max 2 lájk/hét, 0 csoport-csatlakozás. Lásd `platforms/facebook-groups.md`.
+- **R10** Discord proaktív posting csak a 4 trigger egyike alapján (új hipotézis / blocker / venue-reply vagy account-lock / phase-átmenet). Default: csend. Lásd `CLAUDE.md` "Discord proaktív posting (outbound)".
+
 ## Cél
 
 **30 helyszín (B2B supply-first)** a waitlisten a Rezerver beta launchig. Demand oldal (B2C wedding planners, event organizers) = **Phase 2**, csak akkor aktiválódik ha 10+ venue onboarded.
@@ -12,7 +27,7 @@
 
 - **Kezdőpont:** 2026-04-18 (Tomi döntés: csendesre váltunk, nincs kimenő outreach)
 - **Mit csinálunk:** ökoszisztéma-megismerés, pipeline-bővítés, inbox reply-only
-- **Mit NEM:** cold email, sajtó-pitch, directory-registráció, FB/LinkedIn/Reddit akció
+- **Mit NEM:** cold email, sajtó-pitch, directory-registráció, FB/LinkedIn agent-akció (kommentelés/posztolás). **Reddit kivétel 2026-04-25-től**: u/dani_horeca account-építés EN-globális HoReCa scope-pal, warmup-fázis 4-6 hét (read-only lurk, semmi self-promotion). Ld. `platforms/reddit.md` + `state.reddit`.
 - **FB:** **Phase 1 agent-aktív 2026-04-18-tól** (login + feed + notification badge check + search-discovery, ZÉRÓ engagement). Szabályok: `platforms/facebook-groups.md`.
 - **Domain:** rezerver.com (nincs .hu verzió)
 - **Landing page:** https://www.rezerver.com/demo
@@ -27,7 +42,8 @@
 | Directory submission | **DORMANT** | Nem regisztráljuk még a Rezerver-t publikus helyre. |
 | FB groups | **ACTIVE (Phase 1)** | Agent login + feed + notification check + search-discovery. Phase 1 = ZÉRÓ engagement 2026-04-25-ig. |
 | LinkedIn HU | **DORMANT** | Tomi profil, Phase 2 (10+ venue után). |
-| Bluesky / Reddit / X | **DORMANT** | HU HoReCa közönség nincs rajtuk. |
+| Reddit (EN-globális HoReCa) | **ACTIVE (warmup)** | u/dani_horeca live 2026-04-25, week 1 read-only lurk. Daily cron 8-10 CEST, ld. `platforms/reddit.md`. |
+| Bluesky / X | **DORMANT** | HU HoReCa közönség nincs rajtuk. |
 | **Venue pipeline bővítés** | ACTIVE | Google Maps, Wedding.hu, TripAdvisor, directory-k. Cél: 100+ NOT_CONTACTED target. |
 | **FB csoport discovery** | ACTIVE | Google search nyilvános csoportokra. facebook_group_log.md-ben URL + metaadatok. |
 | **HU media lista** | ACTIVE | 15+ publikáció + szerkesztő + cikkek (utolsó 90 nap). |

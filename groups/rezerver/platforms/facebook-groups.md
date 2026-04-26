@@ -8,6 +8,64 @@
 
 > **FIGYELEM:** A Facebook az egyik legagresszívebb bot-detektációval dolgozik. Checkpoint / SMS verify / "ideiglenes zárolás" = AZONNAL stop, Discord ping. Minden szabályt komolyan vegyél — egy gyors lájk-sorozat vagy HoReCa-témájú lájk azonnali account-lock lehet.
 
+## Daily warmup playbook
+
+Napi **1× session**, automatizáltan beillesztett task egy random **18:00–21:00 CET** közötti időpontra (`scripts/schedule-fb-warmup.sh` + cron 17:00 CET). Magyar FB-peak: vacsora utáni böngészés. A task-prompt **vékony orchestrate-utalás** erre a doksira — minden részlet a meglévő szekciókban él (Cookie-restore, SAFE lájk, Notification badge, Stealth workflow, AZONNALI STOP).
+
+### Lépésenkénti flow
+
+1. **Secrets + proxy IP-check.**
+   ```bash
+   source /workspace/agent/.secrets
+   HU_PROXY="${REDDIT_PROXY/cr.us/cr.hu}"
+   curl -sS -x "$HU_PROXY" --max-time 15 https://ipinfo.io/json | jq -c '{ip,city,region,country}'
+   ```
+   Ha nem HU → **STOP, Tomi-ping**, ne folytasd. (HU-sticky a fiók-IP-konzisztenciához kötelező — bármilyen geo-jump fraud-flag.)
+
+2. **State + phase olvasás.**
+   ```bash
+   jq '. | {fb_warmup_phase, fb_warmup_phase_ends_at, fb_weekly_stats, fb_daily_actions}' /workspace/agent/state.json
+   ```
+   Vesd össze `fb_warmup_phase_ends_at` a mai dátummal — ha mai ≥ ends_at, **léptesd a fázist** (phase+1, új ends_at = ma + 7 nap), state-update-be is bevezetni. A heti kvótákat (likes_total, group_join_requests_total) ellenőrizd: maradt-e még keret.
+
+3. **Browser indítás + cookie-restore.** Lásd [Cookie-restore + dump](#cookie-restore--dump-kanonikus-pattern-2026-04-25-től) szekció. **NE login-form** — csak `.fb-cookies-dani.json`-ból visszaállítás. Account-picker → kattints "Dani Bene"-re. Ha login-form / "Unusual activity" / 2FA → **STOP + Tomi-ping**, semmi recovery.
+
+4. **Notification badge check.** Lásd [Notification / friend-request check](#notification--friend-request-check--badge-alapú) szekció. Csak akkor klikkelj a harangra/ismerős-ikonra, ha **piros badge** látszik. Friend-request: max 1-2 fogad/session, köztük 5-15 perc feed-görgetés.
+
+5. **Discord korai indítás-jelzés.** **MOST küldd ki**, mielőtt a hosszú session-flow elindul. Egy mondat, Dani hangon: *"Esti FB warmup, Phase 2, ma feed-görgetés + discovery."* Ez akkor is kimegy, ha később bármi elromlik (context-compact, ceiling-kill).
+
+6. **Session-típus pick (random).** Az [Emberi session-minta](#emberi-session-minta--random-izálás) A-F listájából random 1-2-t. Phase-szerinti hardlimit: phase 1 csak A/B/F, phase 2+ A/B/C/D/F, phase 3+ E is. Session teljes idő: 5–12 perc, scroll-cadence random (`400-800px scroll → wait 3-8s → ismétlés`).
+
+7. **State frissítés:**
+   - `state.fb_daily_actions.sessions_today` = increment
+   - `state.fb_daily_actions.session_minutes_today` += session perc
+   - `state.fb_daily_actions.feed_scroll_minutes_today` += scroll perc
+   - `state.fb_daily_actions.searches_today` = append (ha B-típus volt)
+   - `state.fb_daily_actions.profiles_viewed_today` += (ha C-típus volt)
+   - `state.fb_daily_actions.likes_today` += (ha D-típus + SAFE lájk volt)
+   - `state.fb_daily_actions.friend_accepts_today` += (ha badge accept volt)
+   - `state.fb_weekly_stats.{likes_total, friend_accepts_total, ...}` += increment ha hét még nem zárult (`week_start` ellenőrzés)
+   - **Phase-et SOHA ne lépj kvóta alapján** — csak `fb_warmup_phase_ends_at` szerint (step 2).
+
+8. **Discord záró reflektív riport.** **A cookie-dump ELŐTT** küldd ki. 1–2 mondat, Dani hangon, magyarul. Mit nézettél, mire kaptad fel a fejedet, milyen csoportot fedeztél fel. PÉLDA: *"Estém FB-on, 7 perc. A 'Rendezvényszervezők Magyarországon' csoport feedjében sok Balaton-szezon panel-vita — interesszáns, hogy mennyien küzdenek a foglalási overhead-del. Egy lájk, csendes."*
+
+9. **Cookie-dump frissítés.** **CSAK ha FEED_OK volt** (lásd [Dump session végén](#dump-session-végén--csak-feed_ok-után)) — STOP-állapotban a fájl változatlan marad. `jq` szűréssel csak `*.facebook.com` cookie-kat tartsuk meg, atomikus rename.
+
+10. **Browser close:** `stealth-browse close`.
+
+### Random elemek minden session-ben
+
+- Session-típus: lásd step 6.
+- Session-hossz: 5–12 perc, ne fix.
+- Scroll-cadence: 400–800px scroll, 3–8s wait, ne timer-szerű.
+- Search keyword (B-típusnál): rotálj a [Search kulcsszavak](#search-kulcsszavak-fb-internal-search-bar) listából.
+
+### STOP-pingek
+
+A teljes lista a [AZONNALI STOP szabályok](#azonnali-stop-szabályok) szekcióban. Röviden: bármilyen checkpoint / SMS verify / captcha / 2FA / "Unusual activity" / "Account temporarily restricted" → **azonnal `stealth-browse close` + state.fb_incident-be log + Discord ping**, semmilyen recovery-akció.
+
+**Phase-et SOHA ne lépj kvóta alapján** — csak az `fb_warmup_phase_ends_at` dátum szerint. Ne kommentelj. Ne csatlakozz csoporthoz a Phase-szerinti hardlimit felett. SAFE lájk csak Phase 2+ és csak a [SAFE lájk szabály](#safe-lájk-szabály-fázis-2) szerinti tartalomra.
+
 ## Warmup fázisok
 
 | Fázis | Időszak | Engedélyezett akció | Napi/heti kvóta |
@@ -127,32 +185,76 @@ Minden talált csoportot rögzíts ezzel a blokkal:
 - Éttermi menü-foto gyűjtők (túl szűk fókusz)
 - Külföldi (nem HU) HoReCa csoportok (legalábbis Phase 1-ben)
 
-## Technikai login
+## Cookie-restore + dump (kanonikus pattern 2026-04-25-től)
 
-Minden FB session elején:
+A FB session-cookie-k a `groups/rezerver/.fb-cookies-dani.json`-ban élnek (a containerben `/workspace/agent/.fb-cookies-dani.json`). Egységes pattern a Reddit-tel: JSON-tömb, Chrome/CDP `Network.getAllCookies` formátumban (mező-nevek: `domain, name, value, path, expirationDate, httpOnly, secure, sameSite, session`).
+
+**Két fázis:**
+
+1. **Bootstrap** — első session, a `.fb-cookies-dani.json` Tomi-Chrome-export. Az agent stealth-browse a `cookies` paranccsal visszaállítja, FB-be belép.
+2. **Steady-state** — a session VÉGÉN az agent dump-olja a saját CDP-cookie-listáját ugyanide a fájlba (felülírja Tomi-export-ot). Innen a `datr`/`sb` device-fingerprint az agent-böngészőhöz tartozik, a `wd` viewport az 1920×1080-hoz, és minden subsequent session konzisztens.
+
+### Bootstrap restore — minden session elején
 
 ```bash
-source /workspace/group/.secrets
+source /workspace/agent/.secrets   # csak proxy + meta változók — FB cookie env-ben már NEM
 
-# HU sticky proxy (ha lehet — suffix+port 10000)
-# .env-ben a REDDIT_PROXY base rotating; az agent itt konstruálja a sticky variánst:
-# (felhasználó__cr.hu;sessttl.30:password@gw.dataimpulse.com:10000)
+# Stealth browser indítás US-sticky helyett HU-sticky proxyval (DataImpulse cr.hu)
+HU_PROXY="${REDDIT_PROXY/cr.us/cr.hu}"   # vagy explicit env, ha külön HU proxy-t adunk
+stealth-browse open about:blank --proxy "$HU_PROXY"
 
-stealth-browse open about:blank
-stealth-browse cookies www.facebook.com \
-  c_user=$FB_C_USER \
-  datr=$FB_DATR \
-  sb=$FB_SB \
-  "xs=$FB_XS" \
-  locale=$FB_LOCALE \
-  wd=$FB_WD
+# Cookie-restore JSON-ból: minden eleem a tömbből → stealth-browse cookies <domain> KEY=VAL
+jq -r '.[] | "\(.domain)\t\(.name)=\(.value)"' /workspace/agent/.fb-cookies-dani.json \
+  | while IFS=$'\t' read -r DOM KV; do
+      stealth-browse cookies "$DOM" "$KV"
+    done
 
 stealth-browse open https://www.facebook.com/
 stealth-browse wait 3000
-stealth-browse eval "document.querySelector(\"[role=feed]\") ? \"FEED_OK\" : \"NO_FEED\""
+stealth-browse eval 'document.querySelector("[role=feed]") ? "FEED_OK" : "NO_FEED"'
 ```
 
-Ha `NO_FEED` vagy login form / bármi más "unusual" → **AZONNAL stop, Discord ping**, ne folytasd.
+Ha `NO_FEED`, ne kapkodj — nézd meg mit látsz `stealth-browse get text` + screenshot:
+
+- **Account-picker** ("Dani Bene", "Választott fiók" vagy hasonló választó-lista, login-form NÉLKÜL) → **NEM STOP**, ez normál FB UX multi-account state-re. Klikkelj a "Dani Bene"-re (text-alapú click vagy `cdp-click.js` koord-on, ahogy a Reddit-flow-nál a shadow-DOM kezelése volt). Várj feed betöltésre, ellenőrizd újra `[role=feed]`. **Az első sikeres click után az új dump már tisztán Daniá-only session-state-et fog megőrizni** (FB rotálja az `xs` tokent), és a következő restore már nem account-pickerrel jön vissza.
+- **Login-form** (jelszó-mező látszik) → STOP, cookie-k lejártak vagy invalid, Tomi-ping cookie-frissítésért.
+- **"Unusual login activity" / "Confirm your identity" / 2FA prompt / SMS verify / captcha** → STOP, AZONNAL Tomi-ping. Account-flag jött, ne klikkelj semmire.
+- **Egyéb ismeretlen oldal** (pl. policy/terms/privacy interstitial) → screenshot + STOP, Tomi dönt.
+
+### Dump session végén — CSAK FEED_OK után
+
+⚠️ **Ha a session NO_FEED-be / login-form-ba / account-picker-be / bármi STOP-állapotba futott → NE dump-olj.** Az anonim/half-loggedin cookie-tömb felülírná a logged-in fájlt és elveszítenénk a `c_user`/`xs` token-eket. STOP-állapotban a fájl változatlan kell maradjon, hogy Tomi vagy a következő session ugyanonnan próbálkozhasson.
+
+Csak ha `[role=feed]` látszott (FEED_OK) és a session valódi munkát végzett, akkor a session VÉGÉN, mielőtt `stealth-browse close`-olnál:
+
+```bash
+NO_PROXY=localhost,127.0.0.1 HTTP_PROXY="" HTTPS_PROXY="" \
+  node /workspace/agent/scripts/cdp-cookies.js \
+  | jq '[.[] | select(.domain | test("facebook"))]' \
+  > /workspace/agent/.fb-cookies-dani.json.tmp \
+  && mv /workspace/agent/.fb-cookies-dani.json.tmp /workspace/agent/.fb-cookies-dani.json
+```
+
+A jq-szűrő csak a `*.facebook.com` cookie-kat tartja meg (a JSON-dump az ÖSSZES domain cookie-it tartalmazza, többi domain-é → más fájl-be kerül vagy eldobjuk). Atomikus rename, hogy se félig-írt ne legyen ha közben elszáll.
+
+### Miért NEM env-vars
+
+A korábbi `.secrets`-beli `FB_XS`/`FB_C_USER` env-var pattern **deprecated** ehhez a fiókhoz. Indok: `xs` lejárt-rotálás esetén a `.secrets` rewrite-ja bash-source-ra fut, conflict a container-runner secret-propagation-jával (`feedback_credential_refresh_env.md`). JSON-fájl: az agent maga írja, nincs propagation-issue, és atomikus.
+
+`FB_DATR`, `FB_SB`, `FB_C_USER` a `.secrets`-ben maradhat HISTORIC referenciának, de a runtime-cookie-flow a JSON-fájlt használja.
+
+## Technikai login (legacy — csak referencia)
+
+Régi env-var-alapú flow (deprecated, ne használd):
+
+```bash
+# DEPRECATED — ne használd új flow-ban
+source /workspace/agent/.secrets
+stealth-browse cookies www.facebook.com \
+  c_user=$FB_C_USER datr=$FB_DATR sb=$FB_SB "xs=$FB_XS" locale=$FB_LOCALE wd=$FB_WD
+```
+
+Ha `NO_FEED` vagy login-form → **AZONNAL stop, Discord ping**, ne folytasd.
 
 ## AZONNALI STOP szabályok
 
@@ -227,7 +329,7 @@ A warmup fázis állapotát a `state.json` `warmup.fb_phase` tárolja (1-4).
 ## Stealth workflow
 
 ```bash
-source /workspace/group/.secrets   # FB_C_USER, FB_XS, FB_DATR, FB_SESSION_JSON, FB_PROXY betöltése
+source /workspace/agent/.secrets   # FB_C_USER, FB_XS, FB_DATR, FB_SESSION_JSON, FB_PROXY betöltése
 stealth-browse open about:blank
 
 # 1. Cookie injection

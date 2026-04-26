@@ -2,6 +2,7 @@ import { findByName, getAllDestinations, type DestinationEntry } from './destina
 import { getPendingMessages, markProcessing, markCompleted, type MessageInRow } from './db/messages-in.js';
 import { writeMessageOut } from './db/messages-out.js';
 import { touchHeartbeat, clearStaleProcessingAcks } from './db/connection.js';
+import { getSessionRouting } from './db/session-routing.js';
 import { getStoredSessionId, setStoredSessionId, clearStoredSessionId } from './db/session-state.js';
 import { formatMessages, extractRouting, categorizeMessage, stripInternalTags, type RoutingContext } from './formatter.js';
 import type { AgentProvider, AgentQuery, ProviderEvent } from './providers/types.js';
@@ -88,7 +89,7 @@ export async function runPollLoop(config: PollLoopConfig): Promise<void> {
     const ids = messages.map((m) => m.id);
     markProcessing(ids);
 
-    const routing = extractRouting(messages);
+    const routing = extractRoutingWithSessionFallback(messages);
 
     // Handle commands: categorize chat messages
     const adminUserIds = config.adminUserIds ?? new Set<string>();
@@ -314,19 +315,10 @@ export async function processQuery(
     if (done) return;
 
     // Skip system messages (MCP tool responses) and admin commands (need fresh query).
-    // Also defer messages whose thread_id differs from the active turn's routing
-    // — mixing threads into one streaming turn would send the reply to the wrong
-    // thread because `routing` is captured at turn start. The next turn will pick
-    // them up with fresh routing.
-    const newMessages = getPendingMessages().filter((m) => {
-      if (m.kind === 'system') return false;
-      if (m.kind === 'chat' || m.kind === 'chat-sdk') {
-        const cmd = categorizeMessage(m);
-        if (cmd.category === 'admin') return false;
-      }
-      if ((m.thread_id ?? null) !== (routing.threadId ?? null)) return false;
-      return true;
-    });
+    // Defer same-thread mismatches to the next turn (see shouldFollowUpInclude).
+    const newMessages = getPendingMessages().filter((m) =>
+      shouldFollowUpInclude(m, routing.threadId, (row) => categorizeMessage(row).category === 'admin'),
+    );
     if (newMessages.length > 0) {
       const newIds = newMessages.map((m) => m.id);
       markProcessing(newIds);
@@ -484,4 +476,52 @@ function sendToDestination(dest: DestinationEntry, body: string, routing: Routin
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * Predicate for the concurrent-polling follow-up filter. Returns true when the
+ * message should be pushed into the currently active query (i.e. included as a
+ * follow-up in the ongoing turn).
+ *
+ * Agent-to-agent messages (channel_type='agent', always thread_id=null) are
+ * thread-less by construction — the reply goes via `send_message(to="<name>")`
+ * through destinations, not through the turn's `routing`. Accepting them
+ * regardless of the active thread prevents them from sitting pending until the
+ * host's absolute-ceiling kill.
+ */
+export function shouldFollowUpInclude(
+  msg: { kind: string; channel_type: string | null; thread_id: string | null },
+  activeThreadId: string | null,
+  isAdmin: (m: MessageInRow) => boolean,
+): boolean {
+  if (msg.kind === 'system') return false;
+  if (msg.kind === 'chat' || msg.kind === 'chat-sdk') {
+    if (isAdmin(msg as MessageInRow)) return false;
+  }
+  if (msg.channel_type === 'agent') return true;
+  if ((msg.thread_id ?? null) !== (activeThreadId ?? null)) return false;
+  return true;
+}
+
+/**
+ * extractRouting fallback: task / webhook rows carry no platform_id /
+ * channel_type / thread_id of their own, so replies written via the
+ * single-destination shortcut would land in the parent channel instead of
+ * the thread the session is bound to. When the extracted routing is missing
+ * either identifier, fall back to `session_routing` (host-written at every
+ * wake) so replies stick to the session's own thread.
+ *
+ * The `send_message` MCP tool already does this via resolveRouting in
+ * mcp-tools/core.ts; this keeps the shortcut-reply path consistent.
+ */
+export function extractRoutingWithSessionFallback(messages: MessageInRow[]): RoutingContext {
+  const r = extractRouting(messages);
+  if (r.platformId && r.channelType) return r;
+  const s = getSessionRouting();
+  return {
+    platformId: r.platformId ?? s.platform_id,
+    channelType: r.channelType ?? s.channel_type,
+    threadId: r.threadId ?? s.thread_id,
+    inReplyTo: r.inReplyTo,
+  };
 }

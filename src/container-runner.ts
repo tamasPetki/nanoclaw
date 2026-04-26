@@ -300,6 +300,16 @@ async function buildContainerArgs(
     args.push('-e', `NANOCLAW_ADMIN_USER_IDS=${Array.from(adminUserIds).join(',')}`);
   }
 
+  // Per-group model override from container.json. Alias (`sonnet`, `opus`)
+  // or full model ID. Omitted = SDK default.
+  const cfg = readContainerConfig(agentGroup.folder);
+  if (cfg.model) {
+    args.push('-e', `NANOCLAW_MODEL=${cfg.model}`);
+  }
+  if (cfg.effort) {
+    args.push('-e', `NANOCLAW_EFFORT=${cfg.effort}`);
+  }
+
   // OneCLI gateway — injects HTTPS_PROXY + certs so container API calls
   // are routed through the agent vault for credential injection.
   // Must ensureAgent first for non-admin groups, otherwise applyContainerConfig

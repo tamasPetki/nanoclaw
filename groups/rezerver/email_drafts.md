@@ -7,10 +7,13 @@
 1. [Venue cold outreach — lazább éttermes (HTML)](#1-venue-cold-outreach--lazább-éttermes-html)
 2. [Venue cold outreach — fine dining / rendezvényközpont (HTML)](#2-venue-cold-outreach--fine-dining--rendezvényközpont-html)
 3. [Venue follow-up (5 nap no-reply)](#3-venue-follow-up-5-nap-no-reply)
+3b. [Venue follow-up (10 nap — utolsó próbálkozás)](#3b-venue-follow-up-10-nap--utolsó-próbálkozás)
 4. [HU media pitch — HoReCa szakmai (HTML)](#4-hu-media-pitch--horeca-szakmai-html)
 5. [HU media pitch — startup sajtó (HTML)](#5-hu-media-pitch--startup-sajtó-html)
 6. [Reply pozitív venue érdeklődéshez (demo)](#6-reply-pozitív-venue-érdeklődéshez)
 7. [Signature (minden email végére)](#signature-minden-email-végére)
+8. [Referral partner outreach — fotós / koordinátor](#8-referral-partner-outreach--fotós--koordinátor)
+9. [Subject line variánsok szegmensenként](#9-subject-line-variánsok-szegmensenként)
 
 ---
 
@@ -190,6 +193,87 @@ dani@rezerver.com</p>
 ```
 <p style="font-size: 11px; color: #888;">Ha nem kívánsz további ilyen levelet, válaszolj vissza hogy "kivenni" és törllek a listáról.</p>
 ```
+
+---
+
+## 3b. Venue follow-up (10 nap no-reply — utolsó próbálkozás)
+
+**Subject:** `Re: {{original_subject}}`
+
+**Body (plain text):**
+```
+Szia,
+
+Utolsó próbálkozás részemről — ha a timing nem jó, vagy más okból nem illeszkedik, szólj egy sort és nem zavarunk tovább.
+
+Ha bármikor visszatérnél a témához, itt vagyok: dani@rezerver.com
+
+Üdv,
+Dani
+
+Ha nem kívánsz több levelet, válaszolj vissza hogy "kivenni".
+```
+
+---
+
+## 8. Referral partner outreach — fotós / koordinátor
+
+> Cél: esküvős fotósok, rendezvényszervezők, event koordinátorok, akik helyszíneket ajánlanak ügyfeleiknek. Informális "ha adódik" partnerség, nem szerződés.
+
+**Subject opciók:**
+- "Rövid kérdés a rendezvényfoglalásról"
+- "Helyszínajánlás + Rezerver béta — érdeklődsz?"
+- "Együttműködési ötlet rendezvényhelyszínekhez"
+
+**Body:**
+```html
+<p>Szia {{name}},</p>
+
+<p>{{personal_hook — pl. "Láttam az Instagramodat, gyönyörű fotók a Fenyőharaszt kastélyból."}}</p>
+
+<p>Dani vagyok a Rezerver-től. Self-service rendezvényfoglalási rendszert építünk HU helyszíneknek — a vendég online lát árat, lefoglalja a helyszínt és fizet előleget. Béta fázis, az első 30 helyszín 3 hónapig ingyen.</p>
+
+<p>Arra gondoltam: te sok helyszínnel dolgozol együtt. Ha valamelyiknél eszedbe jut hogy jól jönne egy ilyen rendszer és megemlíted a Rezervervt — mi is szívesen ajánlunk téged a helyszínünk ügyfelei felé.</p>
+
+<p>Semmi kötöttség, semmi struktúra — csak "ha adódik" jellegű partnerség. Megér-e erről 2 percet?</p>
+
+{{SIGNATURE}}
+
+{{GDPR_OPT_OUT}}
+```
+
+---
+
+## 9. Subject line variánsok szegmensenként
+
+> Az 1-2-es template subject-jei általános esetre vonatkoznak. Az alábbiakban szegmensspecifikus A/B variánsok küldés előtti kiválasztáshoz.
+
+### Fine dining / upscale étterem
+- "Kérdés a {{venue_name}} rendezvény-foglalási folyamatáról" *(direkt, nem reklám)*
+- "Real-time ár a {{venue_name}} weboldalán — megvalósítható?" *(konkrét érték)*
+- "{{venue_name}} — rendezvényfoglalás emailváltás nélkül" *(probléma-fókusz)*
+
+### Kastély / kúria / vidéki helyszín
+- "{{venue_name}} — rendezvény-foglalás online is" *(soft, nem nyomulós)*
+- "Kevesebb emailváltás a {{venue_name}}-nak is — van rá rendszer" *(konkrét)*
+- "{{venue_name}} + automatikus foglalás: érdemes ránézni?" *(kíváncsiság-trigger)*
+
+### Rendezvényközpont / konferencia
+- "{{venue_name}} — self-service rendezvény-foglalás béta ajánlat" *(befogadható vállalati hangon)*
+- "Rendezvényközpont + auto-foglalás: mi csináltuk meg, ti próbáljátok" *(builder hangon)*
+- "{{venue_name}} — az emailes ajánlatkérés automatizálása" *(pain-point naming)*
+
+### Hotel bankett / rendezvényszint
+- "{{venue_name}} bankett — béta rendezvény-foglalási ajánlat" *(formálisabb)*
+- "Hotel rendezvényszervező inbox: van ennél jobb megoldás?" *(pain-point)*
+- "{{venue_name}} rendezvény — online foglalás bevezetése" *(action-oriented)*
+
+### Garden / kültéri / szezonális helyszín
+- "{{venue_name}} — szezon előtt érdemes beállítani" *(urgency, timing)*
+- "Kültéri rendezvényfoglalás automatizálása — béta ajánlat" *(szegmens-specifikus)*
+- "{{venue_name}} — idén online foglalás is?" *(nyitott kérdés)*
+
+---
 
 ## Placeholder-ek (használat előtt mindet cseréld!)
 

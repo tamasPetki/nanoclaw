@@ -28,8 +28,19 @@
         "@cocal/google-calendar-mcp"
       ],
       "env": {
-        "GOOGLE_OAUTH_CREDENTIALS": "/home/node/.claude/gcp-oauth.keys.json",
-        "GOOGLE_CALENDAR_MCP_TOKEN_PATH": "/home/node/.claude/gcal_tokens.json"
+        "GOOGLE_OAUTH_CREDENTIALS": "/workspace/extra/google-oauth/gcp-oauth.keys.json",
+        "GOOGLE_CALENDAR_MCP_TOKEN_PATH": "/workspace/extra/google-oauth/gcal_tokens.json"
+      }
+    },
+    "google-drive": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@piotr-agier/google-drive-mcp"
+      ],
+      "env": {
+        "GOOGLE_DRIVE_OAUTH_CREDENTIALS": "/workspace/extra/google-oauth/gcp-oauth.keys.json",
+        "GOOGLE_DRIVE_MCP_TOKEN_PATH": "/workspace/extra/google-oauth/drive_tokens.json"
       }
     }
   },
@@ -37,5 +48,18 @@
     "apt": [],
     "npm": []
   },
-  "additionalMounts": []
+  "additionalMounts": [
+    {
+      "hostPath": "/root/data/gdrive-pietscarlet",
+      "containerPath": "pietscarlet-drive",
+      "readonly": true
+    },
+    {
+      "hostPath": "/root/nanoclaw-v2/data/shared/google-oauth",
+      "containerPath": "google-oauth",
+      "readonly": false
+    }
+  ],
+  "model": "opus",
+  "effort": "low"
 }
