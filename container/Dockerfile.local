@@ -1,0 +1,96 @@
+# syntax=docker/dockerfile:1.7
+# NanoClaw Downstream Extensions
+# ─────────────────────────────────────────────────────────────────────────────
+# Layered on top of the upstream-built base image. Keeping all downstream
+# customizations in this file means the upstream `container/Dockerfile` stays
+# pristine and never conflicts on merge.
+#
+# Sourced by `container/build.sh` after the base image is built. If this file
+# is removed, `build.sh` skips the second stage and the base becomes the
+# final `:latest`.
+#
+# Contents are install-specific:
+#   - apt extras (xvfb, fluxbox, jq, poppler) for stealth-browse + pdf tools
+#   - Python venv with telethon, yt-dlp, etc. (used by skills + MCPs)
+#   - utility scripts under /opt/scripts (telegram-read.py, pdf-filler.cjs, …)
+#   - pdf-lib + /usr/local/bin/pdf-filler wrapper
+#   - per-host MCP servers (quick, todoist, withings)
+#   - skill binaries (stealth-browse, pdf-reader)
+# ─────────────────────────────────────────────────────────────────────────────
+
+ARG BASE_IMAGE
+FROM ${BASE_IMAGE}
+
+USER root
+
+# ---- Extra apt packages for downstream skills / MCPs ------------------------
+# xvfb + dbus-x11 + fluxbox + x11-utils: headed Chrome via stealth-browse
+# python3-venv/pip: Python-based MCP servers (todoist, withings)
+# jq: skill scripting
+# poppler-utils: pdftotext (used by pdf-reader skill)
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    apt-get update && apt-get install -y --no-install-recommends \
+        xvfb \
+        dbus-x11 \
+        fluxbox \
+        x11-utils \
+        python3-venv \
+        python3-pip \
+        jq \
+        poppler-utils \
+    && rm -rf /var/lib/apt/lists/*
+
+# ---- uv + Python venv -------------------------------------------------------
+# uv/uvx for mcp-email-server and similar publicly-installed Python MCPs
+RUN curl -LsSf https://astral.sh/uv/install.sh | env UV_INSTALL_DIR=/usr/local/bin sh
+
+# Python venv at /opt/pyenv with deps used by skills
+# (telethon for Telegram read, youtube-transcript-api for YT, yt-dlp for media)
+RUN python3 -m venv /opt/pyenv && \
+    /opt/pyenv/bin/pip install --no-cache-dir telethon youtube-transcript-api requests yt-dlp
+ENV PATH="/opt/pyenv/bin:$PATH"
+
+# ---- Utility scripts --------------------------------------------------------
+# telegram-read.py, telegram-auth.py, youtube-transcript.py, pdf-filler.cjs
+COPY _scripts/ /opt/scripts/
+RUN chmod +x /opt/scripts/*.py 2>/dev/null || true
+
+# ---- pdf-lib + pdf-filler wrapper -------------------------------------------
+RUN --mount=type=cache,target=/root/.cache/pnpm \
+    pnpm install -g "pdf-lib@1.17.1"
+
+# pdf-filler wrapper — CJS script at /opt/scripts/pdf-filler.cjs uses pdf-lib
+# via NODE_PATH pointing at pnpm global root.
+RUN printf '#!/bin/bash\nNODE_PATH=%s node /opt/scripts/pdf-filler.cjs "$@"\n' "$(pnpm root -g)" > /usr/local/bin/pdf-filler && \
+    chmod +x /usr/local/bin/pdf-filler
+
+# ---- MCP servers (per-group container.json picks which to use) --------------
+# Custom-code MCPs only — published MCPs (mcp-email-server, google-calendar,
+# youtube-transcript) install on first use via uvx/npx.
+COPY mcp-servers/ /opt/mcp-servers/
+
+# Quick (riport.app) — Node MCP
+RUN cd /opt/mcp-servers/quick && npm install --production --no-audit --no-fund 2>&1 | tail -20
+
+# Todoist — Python MCP
+RUN cd /opt/mcp-servers/todoist && \
+    python3 -m venv .venv && \
+    .venv/bin/pip install --no-cache-dir mcp httpx pydantic
+
+# Withings — Python MCP (editable install)
+RUN cd /opt/mcp-servers/withings && \
+    python3 -m venv .venv && \
+    .venv/bin/pip install --no-cache-dir -e .
+
+# Precache uvx mcp-email-server — first-call download avoided at runtime.
+RUN uvx mcp-email-server@latest --help 2>/dev/null || true
+
+# ---- Skill binaries (PATH-installed) ----------------------------------------
+COPY skills/stealth-browser/stealth-browse /usr/local/bin/stealth-browse
+COPY skills/pdf-reader/pdf-reader /usr/local/bin/pdf-reader
+RUN chmod +x /usr/local/bin/stealth-browse /usr/local/bin/pdf-reader
+
+# Restore non-root user from base. Base sets ENTRYPOINT + WORKDIR — inherited.
+USER node
+WORKDIR /workspace/group

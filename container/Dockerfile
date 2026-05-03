@@ -51,32 +51,10 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
         git \
         tini \
         unzip \
-        xvfb \
-        dbus-x11 \
-        fluxbox \
-        x11-utils \
-        python3-venv \
-        python3-pip \
-        jq \
-        poppler-utils \
     && if [ "$INSTALL_CJK_FONTS" = "true" ]; then \
         apt-get install -y --no-install-recommends fonts-noto-cjk; \
        fi \
     && rm -rf /var/lib/apt/lists/*
-
-# ---- Python runtime + uv (for Python-based MCPs and scripts) -----------------
-# uv/uvx for mcp-email-server and similar publicly-installed Python MCPs
-RUN curl -LsSf https://astral.sh/uv/install.sh | env UV_INSTALL_DIR=/usr/local/bin sh
-
-# Python venv at /opt/pyenv with common deps used by skills
-# (telethon for Telegram read, youtube-transcript-api for YT, yt-dlp for media).
-RUN python3 -m venv /opt/pyenv && \
-    /opt/pyenv/bin/pip install --no-cache-dir telethon youtube-transcript-api requests yt-dlp
-ENV PATH="/opt/pyenv/bin:$PATH"
-
-# Utility scripts copied from build context (telegram-read.py, youtube-transcript.py, pdf-filler.cjs)
-COPY _scripts/ /opt/scripts/
-RUN chmod +x /opt/scripts/*.py 2>/dev/null || true
 
 # Chromium path for agent-browser / Playwright consumers
 ENV AGENT_BROWSER_EXECUTABLE_PATH=/usr/bin/chromium
@@ -125,41 +103,6 @@ RUN --mount=type=cache,target=/root/.cache/pnpm \
 
 RUN --mount=type=cache,target=/root/.cache/pnpm \
     pnpm install -g "@anthropic-ai/claude-code@${CLAUDE_CODE_VERSION}"
-
-# pdf-lib for the pdf-filler CJS wrapper.
-RUN --mount=type=cache,target=/root/.cache/pnpm \
-    pnpm install -g "pdf-lib@1.17.1"
-
-# pdf-filler wrapper — CJS script at /opt/scripts/pdf-filler.cjs uses pdf-lib
-# via NODE_PATH pointing at pnpm global root.
-RUN printf '#!/bin/bash\nNODE_PATH=%s node /opt/scripts/pdf-filler.cjs "$@"\n' "$(pnpm root -g)" > /usr/local/bin/pdf-filler && \
-    chmod +x /usr/local/bin/pdf-filler
-
-# ---- MCP servers (per-group container.json picks which to use) --------------
-# Custom-code MCPs only — published MCPs (mcp-email-server, google-calendar,
-# youtube-transcript) install on first use via uvx/npx.
-COPY mcp-servers/ /opt/mcp-servers/
-
-# Quick (riport.app) — Node MCP
-RUN cd /opt/mcp-servers/quick && npm install --production --no-audit --no-fund 2>&1 | tail -20
-
-# Todoist — Python MCP
-RUN cd /opt/mcp-servers/todoist && \
-    python3 -m venv .venv && \
-    .venv/bin/pip install --no-cache-dir mcp httpx pydantic
-
-# Withings — Python MCP (editable install)
-RUN cd /opt/mcp-servers/withings && \
-    python3 -m venv .venv && \
-    .venv/bin/pip install --no-cache-dir -e .
-
-# Precache uvx mcp-email-server — first-call download avoided at runtime.
-RUN uvx mcp-email-server@latest --help 2>/dev/null || true
-
-# ---- Skill binaries (PATH-installed) ----------------------------------------
-COPY skills/stealth-browser/stealth-browse /usr/local/bin/stealth-browse
-COPY skills/pdf-reader/pdf-reader /usr/local/bin/pdf-reader
-RUN chmod +x /usr/local/bin/stealth-browse /usr/local/bin/pdf-reader
 
 # ---- Entrypoint --------------------------------------------------------------
 COPY entrypoint.sh /app/entrypoint.sh

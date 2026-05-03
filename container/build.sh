@@ -32,7 +32,9 @@ if [ "${INSTALL_CJK_FONTS:-false}" = "true" ]; then
     BUILD_ARGS+=(--build-arg INSTALL_CJK_FONTS=true)
 fi
 
-# Copy utility scripts into build context (Python + Node helpers used by skills and MCPs)
+# Copy utility scripts into build context — only needed by the downstream
+# extension layer (Dockerfile.local). Cheap to do unconditionally so the
+# layer is always reproducible.
 rm -rf "$SCRIPT_DIR/_scripts"
 mkdir -p "$SCRIPT_DIR/_scripts"
 cp "$SCRIPT_DIR/../scripts/telegram-read.py" \
@@ -41,10 +43,32 @@ cp "$SCRIPT_DIR/../scripts/telegram-read.py" \
    "$SCRIPT_DIR/../scripts/pdf-filler.cjs" \
    "$SCRIPT_DIR/_scripts/" 2>/dev/null || true
 
-echo "Building NanoClaw agent container image..."
-echo "Image: ${IMAGE_NAME}:${TAG}"
+# ── Stage 1: build the upstream base image ──────────────────────────────────
+# Always tagged ":base"; an extension layer (if Dockerfile.local exists) will
+# overwrite ":latest" after stage 2. If there's no extension layer, the base
+# is re-tagged as ":latest" directly.
+BASE_TAG="${IMAGE_NAME}:base"
 
-${CONTAINER_RUNTIME} build "${BUILD_ARGS[@]}" -t "${IMAGE_NAME}:${TAG}" .
+echo "Building NanoClaw agent container image..."
+echo "Stage 1 (upstream base): ${BASE_TAG}"
+
+${CONTAINER_RUNTIME} build "${BUILD_ARGS[@]}" -t "${BASE_TAG}" -f Dockerfile .
+
+# ── Stage 2: optional downstream extension ──────────────────────────────────
+# Dockerfile.local stays out of the upstream merge surface. Add per-host
+# MCPs, skill binaries, and apt extras there. Build it on top of ":base" and
+# tag the result as the requested ":${TAG}" (default :latest), which is what
+# the host code resolves via getDefaultContainerImage().
+if [ -f "$SCRIPT_DIR/Dockerfile.local" ]; then
+    echo "Stage 2 (downstream extension): ${IMAGE_NAME}:${TAG}"
+    ${CONTAINER_RUNTIME} build \
+        --build-arg "BASE_IMAGE=${BASE_TAG}" \
+        -t "${IMAGE_NAME}:${TAG}" \
+        -f Dockerfile.local .
+else
+    echo "No Dockerfile.local — re-tagging base as ${IMAGE_NAME}:${TAG}"
+    ${CONTAINER_RUNTIME} tag "${BASE_TAG}" "${IMAGE_NAME}:${TAG}"
+fi
 
 # Clean up temp script copy
 rm -rf "$SCRIPT_DIR/_scripts"
