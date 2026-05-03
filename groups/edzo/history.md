@@ -28,6 +28,13 @@
 ### 5. hét (márc. 15-21)
 <!-- Agent: töltsd ki a Withings adatok alapján -->
 
+### 11. hét (ápr. 25 - máj 1) — tracking szétesik
+- Súly: csak 2 mérés (hétfő 97.3, máj 2 reggel 97.2), 5 napos lyuk
+- Edzés: zéró visszajelzés egész héten (Upper A, Lower A, kardió, Upper B, Lower B)
+- Hideg fürdő: ismeretlen
+- Alvás: matrac valószínűleg Szandráé, kivéve péntek (05-01) éjjel — magas pulzus (avg 85) és 13p horkolás → Tomi visszatérhetett a saját ágyba
+- Konklúzió: a tracking-rendszer nem működik visszajelzés nélkül, csak a mérleg adat él
+
 ### 10. hét (ápr. 18-24) — visszatérés a linkeskedés után
 - Súly: 97.5 → 96.9 kg, heti átlag ~97.2 kg (azonos induló súllyal)
 - Edzés: 1 megerősített (csüt. bringa 30p), Upper A/Lower A/Upper B/Lower B mind ismeretlen
@@ -50,6 +57,11 @@
 2026-04-22 reggel — súly 97.2 kg, AHI 16.8 (Szandra adata, Tomi más matracon alszik még pár hétig), REM 1h33m, mai fókusz: kardió (szobabicikli 30-40p)
 2026-04-23 reggel — súly 96.4 kg (reggel 8:13-kor mérve), alvásadat nem Tomi (matrac Szandráé), mai fókusz: Upper B húzó edzés | este — edzés: bringa 30p (kardió), Upper B: ismeretlen, hideg fürdő: ismeretlen
 2026-04-24 reggel — súly n/a (tegnap 96.4 kg), alvásadat nem Tomi, mai fókusz: Lower B csípődominás edzés
+2026-04-27 reggel — súly 97.3 kg (vissza, a 96.4 outlier volt), alvásadat nem Tomi, mai fókusz: Upper A nyomó edzés (új hét, hétfő)
+2026-04-28 reggel — súly nem mért, alvásadat nem Tomi, mai fókusz: Lower A
+2026-04-29 reggel — súly 2 napja nem mért, alvásadat nem Tomi, mai fókusz: szerda kardió (aktív pihenő)
+2026-04-30 reggel — súly 3 napja nem mért (legutóbbi 97.3), alvásadat nem Tomi, mai fókusz: Upper B húzó edzés
+2026-05-01 reggel — súly 4 napja nem mért (legutóbbi hétfő 97.3), alvásadat: magas pulzus (avg 85, max 101) és 13p horkolás 3 epizódban → lehet Tomi visszatért a matracra? (de AHI 0.0), mai fókusz: Lower B csípődominás
 
 ## Fontos megfigyelések
 

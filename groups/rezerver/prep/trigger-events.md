@@ -96,3 +96,23 @@ Hozzáadva 2026-04-22: a media-cikkek nem venue-specifikusak, de pitch-hook-kén
 
 - [ ] Tomi: van-e kedvenc forrás ami én nem láttam (pl. privát HU HoReCa newsletter)?
 - [ ] Mennyi ideig "friss" egy trigger event — 2 hét, 1 hónap?
+
+#### TR-006 — Anyák napja közelít (2026-05-04 vasárnap)
+- **Dátum észlelés:** 2026-04-27
+- **Esemény dátuma:** 2026-05-04 (anyák napja, HU első vasárnap)
+- **Típus:** `season_start` (al-kategória: HU családi-naptár csúcsnap)
+- **Venue:** étterem + cukrászda + brunchhely + Balaton-szezon-előtti kis-rendezvényhelyszínek
+- **Forrás:** általános HU naptár — első vasárnap május
+- **Hook-mondat:** *"Anyák napja vasárnap, a brunch- és kétfős-asztal-foglalások most állnak be sűrűn. Ha az online foglaláson akadás van, a béta első 30 helyszínének 3 hónapig ingyen — szólok."*
+- **Megjegyzés:** Egy hetes ablak, csendes fázisban nem küldjük. Aktiváláskor szűrés `tags ~ ['brunch','desszert','családi','romantikus']`. NEM Balaton-fókusz, hanem Budapest+vidék étterem-cukrászda mix.
+- **Pipeline ID:** venue_pipeline.json — szűrhető `segment in ['restaurant','cafe','patisserie']` + `family_friendly = true`
+
+#### TR-007 — Gault&Millau HU 2026 kalauz (várható publikálás május közepe)
+- **Dátum észlelés:** 2026-04-27
+- **Esemény dátuma:** ~2026-05-15 (utóbbi évek mintája szerint)
+- **Típus:** `industry_award` (új kategória)
+- **Venue:** kalauzba bekerült éttermek + sapka-emelést kapók
+- **Forrás:** Gault&Millau HU kalauz éves megjelenés
+- **Hook-mondat:** *"Láttam hogy a frissen megjelent Gault&Millau-ban [N] sapkát kaptatok — gratulálok. A foglalási hullám most fog beindulni, a béta első 30 helyszín 3 hónap ingyen ha kíváncsiak vagytok."*
+- **Megjegyzés:** Award-után 2-3 hetes booking-spike a tapasztalat. Csendes fázisban nem aktiváljuk — feljegyezve ablakra. Forráscikk megjelenéskor a media_pipeline-ban Hermann Zsuzsanna (Trademagazin) szokott írni róla, dual-purpose hook.
+- **Pipeline ID:** dynamic — a kalauz megjelenése után a venue_pipeline-ban `gault_millau_2026 = true` flag setelendő.

@@ -352,3 +352,8 @@ A kovetkezo csoportok a legmagasabb prioritasuak a Phase 3 csatlakozasra:
 3. **Kevesbe ehezo vendeglatosok** (score: 5) -- vendeglatos tulajdonosok/vezetok, velemenyformaló kozosseg
 4. **Vendeglatos Csoport HORECA -- GASZTRO, Adok-veszek** (score: 4) -- HoReCa szakma, aktiv
 5. **Vendeglatos Csoport 2025** (score: 4) -- altalanos vendeglatos, evente frissitett
+
+## 2026-04-26 FB session discovery (esküvőszervező search)
+
+- https://www.facebook.com/groups/mindenamirendezvenyesszervezes/ -- "Minden ami rendezvény és szervezés! Rendezvényszervezők szakmai csoportja." -- discovered, NOT joined (Phase 2 tilalom)
+- https://www.facebook.com/groups/707694661916866/ -- "Rendezvényt szervezek - szolgáltatót keresek!" -- discovered, NOT joined (Phase 2 tilalom)

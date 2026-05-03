@@ -30,7 +30,7 @@ Napi **1× session**, automatizáltan beillesztett task egy random **18:00–21:
 
 3. **Browser indítás + cookie-restore.** Lásd [Cookie-restore + dump](#cookie-restore--dump-kanonikus-pattern-2026-04-25-től) szekció. **NE login-form** — csak `.fb-cookies-dani.json`-ból visszaállítás. Account-picker → kattints "Dani Bene"-re. Ha login-form / "Unusual activity" / 2FA → **STOP + Tomi-ping**, semmi recovery.
 
-4. **Notification badge check.** Lásd [Notification / friend-request check](#notification--friend-request-check--badge-alapú) szekció. Csak akkor klikkelj a harangra/ismerős-ikonra, ha **piros badge** látszik. Friend-request: max 1-2 fogad/session, köztük 5-15 perc feed-görgetés.
+4. **Notification badge check.** Lásd [Notification / friend-request check](#notification--friend-request-check--badge-alapú) szekció. Csak akkor klikkelj a harangra/ismerős-ikonra, ha **piros badge** látszik. **Friend-request: várt esemény — Tomi kéri meg ismerőseit Dani bejelölésére, tehát fogadd el.** Max 1-2/session, köztük 5-15 perc feed-görgetés. Ha "új bejelentkezés ismeretlen helyről" típusú értesítést látsz a notification-fülben (feed tölt, nincs modal) → SOFT notice, folytasd, csak logold (ld. [STOP-pingek](#stop-pingek)).
 
 5. **Discord korai indítás-jelzés.** **MOST küldd ki**, mielőtt a hosszú session-flow elindul. Egy mondat, Dani hangon: *"Esti FB warmup, Phase 2, ma feed-görgetés + discovery."* Ez akkor is kimegy, ha később bármi elromlik (context-compact, ceiling-kill).
 
@@ -62,7 +62,7 @@ Napi **1× session**, automatizáltan beillesztett task egy random **18:00–21:
 
 ### STOP-pingek
 
-A teljes lista a [AZONNALI STOP szabályok](#azonnali-stop-szabályok) szekcióban. Röviden: bármilyen checkpoint / SMS verify / captcha / 2FA / "Unusual activity" / "Account temporarily restricted" → **azonnal `stealth-browse close` + state.fb_incident-be log + Discord ping**, semmilyen recovery-akció.
+A teljes lista (HARD vs SOFT) a [AZONNALI STOP szabályok](#azonnali-stop-szabályok--hard-checkpoint-vs-soft-notice) szekcióban. Röviden: **HARD checkpoint** (modal overlay: captcha / SMS verify / 2FA / "Unusual activity"-modal / "Account restricted" / `/checkpoint/` URL) → `stealth-browse close` + log + Discord ping, semmilyen recovery. **SOFT notice** (notification fülben "új bejelentkezés ismeretlen helyről", feed tölt, nincs modal) → folytasd, csak logold — ez rutinszerű residential proxy IP-rotációnál.
 
 **Phase-et SOHA ne lépj kvóta alapján** — csak az `fb_warmup_phase_ends_at` dátum szerint. Ne kommentelj. Ne csatlakozz csoporthoz a Phase-szerinti hardlimit felett. SAFE lájk csak Phase 2+ és csak a [SAFE lájk szabály](#safe-lájk-szabály-fázis-2) szerinti tartalomra.
 
@@ -79,7 +79,7 @@ A teljes lista a [AZONNALI STOP szabályok](#azonnali-stop-szabályok) szekciób
 
 ## Notification / friend-request check — BADGE-alapú
 
-Tomi megkér pár ismerőst, hogy jelöljék be Dani-t. Egy üres-ismerős fiók önmagában gyanús, 5-10 barát sokkal hitelesítőbb. **Minden fázisban aktív**, már Phase 1-től.
+**Tomi aktívan megkéri ismerőseit, hogy jelöljék be Dani-t** — tehát a friend-requestek **várt események**, nem véletlenek. Egy üres-ismerős fiók önmagában gyanús, 5-10 barát sokkal hitelesítőbb. **Minden fázisban aktív**, már Phase 1-től. **Ha van friend-request, fogadd el** (ld. limit alább).
 
 ### Szabály — CSAK badge-re reagálj
 
@@ -89,7 +89,8 @@ Session elején a feed betöltése után snapshot-old a **felső nav-sávot** (j
 
 Kattints az ikonra, snapshot-old a megnyíló listát:
 
-- **Friend-request:** fogadj el 1-2-t. **Max 2/session, max 3/nap, max 8/hét.** Ha 2-t egy session-ben, köztük 5-15 perc feed-görgetés. **Bárki elfogadható** (Tomi ismerősei + ismeretlenek is — a fiók még üres, nincs mit védeni).
+- **Friend-request:** **fogadd el** — Tomi várja ezeket (ő kérte meg az ismerőseit). **Max 2/session, max 3/nap, max 8/hét.** Ha 2-t egy session-ben, köztük 5-15 perc feed-görgetés. Ha többen vannak: a kvóta szerint vidd, a maradék marad pendingben a következő sessionre. **Bárki elfogadható** (Tomi ismerősei + ismeretlenek is — a fiók még üres, nincs mit védeni). Magas relevancia-jelnél (sok közös ismerős, HU név, plauzibilis profil) preferenciában — de bárki, aki bejön, accept.
+- **"Új bejelentkezés / új helyszín" típusú értesítés** (notification fülben, NEM modal): SOFT notice, FB rutinszerűen küldi residential proxy IP-rotációra. **NE klikkelj rá** (a "ti voltatok-e" megerősítés újabb device-fingerprint-et küldene FB-nak). Logold `state.fb_incidents`-be `type: soft_login_notice`. Folytasd a session-t. Részletek: [AZONNALI STOP szabályok](#azonnali-stop-szabályok--hard-checkpoint-vs-soft-notice).
 - **Komment / említés / lájk Dani posztjára:** olvasd el, **NE reagálj** (ne lájkold, ne válaszolj). Csendes fázis szabálya.
 - **Csoport-kérelem visszaigazolása** (admin elfogadta): logold `facebook_group_log.md`-be "JOINED" státusszal, utána 1 hét passzív olvasás (Phase 3 szabály).
 - **Egyéb értesítés** (barát posztja, emlékek, rendezvény-javaslat): átnézheted passzívan, NE reagálj.
@@ -256,19 +257,47 @@ stealth-browse cookies www.facebook.com \
 
 Ha `NO_FEED` vagy login-form → **AZONNAL stop, Discord ping**, ne folytasd.
 
-## AZONNALI STOP szabályok
+## AZONNALI STOP szabályok — HARD checkpoint vs SOFT notice
 
-Ha BÁRMELYIK ezek közül: stop, session close, NE próbálj újra, Discord ping Tomi-nak:
+Két élesen különböző jelzés-osztály van. **Ne keverd össze őket** — egy soft notice rutinszerű, egy hard checkpoint account-flag.
 
-- "Unusual login activity" / "Please confirm your identity"
-- SMS verify kérés
-- Captcha bárhol
+### HARD checkpoint — STOP, session close, Discord ping, NE próbálj újra
+
+Ezek **blokkolják** a fiókot vagy a feed-et. Ha BÁRMELYIK megjelenik (rendszerint **modal-overlay**, nem fülben):
+
+- "Unusual login activity" / "Please confirm your identity" **modal** (overlay, ami eltakarja a feedet)
+- SMS verify kérés / phone-confirm modal
+- Captcha bárhol (FunCaptcha / hCaptcha overlay)
 - 2FA prompt amit nem vártunk
 - "Account temporarily restricted" / "Account disabled"
-- Checkpoint bármilyen típusa
+- Checkpoint bármilyen típusa (`/checkpoint/` URL-be navigál)
 - Feed nem tölt be + login form jelenik meg
+- "We've temporarily limited your account" / "Help us confirm your identity"
 
-Utána NE próbáld helyrehozni automatikusan — Tomi dönti el a következő lépést.
+→ `stealth-browse close` + `state.fb_incidents` log (`type: hard_checkpoint`) + `fb_daily_actions.checkpoint_encountered: true` + Discord ping. **Cookie-dump TILOS.** Tomi dönt.
+
+### SOFT notice — folytasd, csak logold
+
+Ezek **informatív értesítések** a notification-fülben (vagy emailben), nem blokkolnak semmit. Ezekre a session NEM áll le:
+
+- "Egy olyan készülékről / helyszínről észleltünk bejelentkezést, amelyet te nem szoktál használni" (notification fülben, **nincs modal**, feed tölt)
+- "New login from <City>, <Country>" típusú új-IP/új-böngésző értesítés
+- "Most logged in from a new device" jellegű info
+
+**Miért nem STOP:** ez minden új IP-re kimegy, főleg fiatal fióknál + residential proxy IP-rotáció esetén. Rutinszerű, nem account-flag. A residential proxy IP heti rotációja velejárója a setupnak.
+
+→ Folytasd a session-t **változatlan terv szerint**. NE klikkelj a notification-ra ("ti voltatok-e" megerősítés újabb device-fingerprint-et küldene FB-nak — kontraproduktív). Logold `state.fb_incidents`-be (`type: soft_login_notice`). Cookie-dump session végén OK, ha FEED_OK.
+
+### Döntési fa
+
+```
+Megjelent egy figyelmeztető szöveg?
+├── MODAL overlay van + feed eltakarva  → HARD checkpoint → STOP
+├── Feed tölt + szöveg notification fülben  → SOFT notice → folytasd, logold
+└── /checkpoint/ URL-ben vagyok  → HARD checkpoint → STOP
+```
+
+Kétséges esetben (pl. nem világos modal-e vagy banner) → screenshot + STOP, Tomi dönt. Inkább false-pozitív STOP, mint folytatni egy igazi checkpoint mellett.
 
 ## Emberi session-minta — random-izálás
 
