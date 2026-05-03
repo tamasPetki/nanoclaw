@@ -7,11 +7,10 @@ import { log } from './log.js';
 import type { AgentGroup } from './types.js';
 
 /**
- * Recursively chown a tree to uid/gid. Follows the same pattern as
- * session-manager's session-folder chown: only runs when host uid is 0
- * (root), idempotent, swallows errors per-entry. Does not dereference
- * symlinks (chownSync on a symlink target would be wrong for the
- * dangling `.claude-global.md` link).
+ * Recursively chown a tree to uid/gid. Only runs when host uid is 0 (root),
+ * idempotent, swallows errors per-entry. Does not dereference symlinks.
+ * Required when the host runs as root (e.g. Linux systemd) so the container
+ * node user (uid 1000) can write into the group dir.
  */
 function chownRecursiveAsRoot(root: string, uid: number, gid: number): void {
   if (process.getuid?.() !== 0) return;
@@ -31,18 +30,6 @@ function chownRecursiveAsRoot(root: string, uid: number, gid: number): void {
   walk(root);
 }
 
-// Container path where groups/global is mounted. The symlink we drop
-// into each group's dir resolves to this target inside the container.
-// It's a dangling symlink on the host — that's fine, host tools don't
-// follow it and the container mount makes it valid at read time.
-const GLOBAL_MEMORY_CONTAINER_PATH = '/workspace/global/CLAUDE.md';
-
-// Symlink name inside the group's dir. Claude Code's @-import only
-// follows paths inside cwd, so we can't reference /workspace/global
-// directly — we symlink into the group dir and import the symlink.
-export const GLOBAL_MEMORY_LINK_NAME = '.claude-global.md';
-export const GLOBAL_CLAUDE_IMPORT = `@./${GLOBAL_MEMORY_LINK_NAME}`;
-
 const DEFAULT_SETTINGS_JSON =
   JSON.stringify(
     {
@@ -61,13 +48,17 @@ const DEFAULT_SETTINGS_JSON =
  * every step is gated on the target not already existing, so re-running on
  * an already-initialized group is a no-op.
  *
- * Called once per group lifetime: at creation, or defensively from
- * `buildMounts()` for groups that pre-date this code path. After init, the
- * host never overwrites any of these paths automatically — agents own them.
- * To pull in upstream changes, use the host-mediated reset/refresh tools.
+ * Called once per group lifetime at creation, or defensively from
+ * `buildMounts()` for groups that pre-date this code path.
+ *
+ * Source code and skills are shared RO mounts — not copied per-group.
+ * Skill symlinks are synced at spawn time by container-runner.ts.
+ *
+ * The composed `CLAUDE.md` is NOT written here — it's regenerated on every
+ * spawn by `composeGroupClaudeMd()` (see `claude-md-compose.ts`). Initial
+ * per-group instructions (if provided) seed `CLAUDE.local.md`.
  */
 export function initGroupFilesystem(group: AgentGroup, opts?: { instructions?: string }): void {
-  const projectRoot = process.cwd();
   const initialized: string[] = [];
 
   // 1. groups/<folder>/ — group memory + working dir
@@ -77,29 +68,13 @@ export function initGroupFilesystem(group: AgentGroup, opts?: { instructions?: s
     initialized.push('groupDir');
   }
 
-  // groups/<folder>/.claude-global.md — symlink into the group dir so
-  // Claude Code's @-import can follow it. Uses lstat to avoid tripping
-  // existsSync on a dangling symlink (target only resolves inside the
-  // container).
-  const globalLinkPath = path.join(groupDir, GLOBAL_MEMORY_LINK_NAME);
-  let linkExists = false;
-  try {
-    fs.lstatSync(globalLinkPath);
-    linkExists = true;
-  } catch {
-    /* missing — recreate */
-  }
-  if (!linkExists) {
-    fs.symlinkSync(GLOBAL_MEMORY_CONTAINER_PATH, globalLinkPath);
-    initialized.push('.claude-global.md');
-  }
-
-  // groups/<folder>/CLAUDE.md — written once, then owned by the group
-  const claudeMdFile = path.join(groupDir, 'CLAUDE.md');
-  if (!fs.existsSync(claudeMdFile)) {
-    const body = [GLOBAL_CLAUDE_IMPORT, '', opts?.instructions ?? `# ${group.name}`].join('\n') + '\n';
-    fs.writeFileSync(claudeMdFile, body);
-    initialized.push('CLAUDE.md');
+  // groups/<folder>/CLAUDE.local.md — per-group agent memory, auto-loaded by
+  // Claude Code. Seeded with caller-provided instructions on first creation.
+  const claudeLocalFile = path.join(groupDir, 'CLAUDE.local.md');
+  if (!fs.existsSync(claudeLocalFile)) {
+    const body = opts?.instructions ? opts.instructions + '\n' : '';
+    fs.writeFileSync(claudeLocalFile, body);
+    initialized.push('CLAUDE.local.md');
   }
 
   // groups/<folder>/container.json — empty container config, replaces the
@@ -122,32 +97,22 @@ export function initGroupFilesystem(group: AgentGroup, opts?: { instructions?: s
     initialized.push('settings.json');
   }
 
+  // Skills directory — created empty here; symlinks are synced at spawn
+  // time by container-runner.ts based on container.json skills selection.
   const skillsDst = path.join(claudeDir, 'skills');
   if (!fs.existsSync(skillsDst)) {
-    const skillsSrc = path.join(projectRoot, 'container', 'skills');
-    if (fs.existsSync(skillsSrc)) {
-      fs.cpSync(skillsSrc, skillsDst, { recursive: true });
-      initialized.push('skills/');
-    }
-  }
-
-  // 3. data/v2-sessions/<id>/agent-runner-src/ — per-group source copy
-  const groupRunnerDir = path.join(DATA_DIR, 'v2-sessions', group.id, 'agent-runner-src');
-  if (!fs.existsSync(groupRunnerDir)) {
-    const agentRunnerSrc = path.join(projectRoot, 'container', 'agent-runner', 'src');
-    if (fs.existsSync(agentRunnerSrc)) {
-      fs.cpSync(agentRunnerSrc, groupRunnerDir, { recursive: true });
-      initialized.push('agent-runner-src/');
-    }
+    fs.mkdirSync(skillsDst, { recursive: true });
+    initialized.push('skills/');
   }
 
   // If the host runs as root, chown the group-owned trees to uid 1000 (the
   // container's node user) so the container can write state.json, logs, etc.
   // Idempotent — runs every spawn, cheap when already correct. Downstream
   // customization mirroring session-manager's session-folder chown.
+  // (No groupRunnerDir chown — agent-runner-src is shared RO under the
+  // project root since the shared-source refactor.)
   chownRecursiveAsRoot(groupDir, 1000, 1000);
   chownRecursiveAsRoot(claudeDir, 1000, 1000);
-  chownRecursiveAsRoot(groupRunnerDir, 1000, 1000);
 
   if (initialized.length > 0) {
     log.info('Initialized group filesystem', {

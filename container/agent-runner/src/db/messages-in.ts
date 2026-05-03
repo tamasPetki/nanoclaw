@@ -7,7 +7,8 @@
  * The container never writes to inbound.db — all status tracking goes through
  * processing_ack. The host reads processing_ack to sync message lifecycle.
  */
-import { getInboundDb, getOutboundDb } from './connection.js';
+import { getConfig } from '../config.js';
+import { openInboundDb, getOutboundDb } from './connection.js';
 
 export interface MessageInRow {
   id: string;
@@ -26,14 +27,16 @@ export interface MessageInRow {
   content: string;
 }
 
-// Cap on how many messages reach the agent in one prompt, including any
-// accumulated-but-not-triggered context. Host controls the cap via the
-// NANOCLAW_MAX_MESSAGES_PER_PROMPT env var; default mirrors the host's
-// config.ts default of 10.
-const MAX_MESSAGES_PER_PROMPT = Math.max(
-  1,
-  parseInt(process.env.NANOCLAW_MAX_MESSAGES_PER_PROMPT || '10', 10) || 10,
-);
+// Cap on how many messages reach the agent in one prompt. Read from
+// container.json; falls back to 10.
+function getMaxMessagesPerPrompt(): number {
+  try {
+    return getConfig().maxMessagesPerPrompt;
+  } catch {
+    // Config not loaded yet (e.g. test harness) — use default
+    return 10;
+  }
+}
 
 /**
  * Fetch pending messages that are due for processing.
@@ -47,31 +50,35 @@ const MAX_MESSAGES_PER_PROMPT = Math.max(
  * trigger=1 separately (see src/db/session-db.ts).
  */
 export function getPendingMessages(): MessageInRow[] {
-  const inbound = getInboundDb();
+  const inbound = openInboundDb();
   const outbound = getOutboundDb();
 
-  const pending = inbound
-    .prepare(
-      `SELECT * FROM messages_in
-       WHERE status = 'pending'
-         AND (process_after IS NULL OR datetime(process_after) <= datetime('now'))
-       ORDER BY seq DESC
-       LIMIT ?`,
-    )
-    .all(MAX_MESSAGES_PER_PROMPT) as MessageInRow[];
+  try {
+    const pending = inbound
+      .prepare(
+        `SELECT * FROM messages_in
+         WHERE status = 'pending'
+           AND (process_after IS NULL OR datetime(process_after) <= datetime('now'))
+         ORDER BY seq DESC
+         LIMIT ?`,
+      )
+      .all(getMaxMessagesPerPrompt()) as MessageInRow[];
 
-  if (pending.length === 0) return [];
+    if (pending.length === 0) return [];
 
-  // Filter out messages already acknowledged in outbound.db
-  const ackedIds = new Set(
-    (outbound.prepare('SELECT message_id FROM processing_ack').all() as Array<{ message_id: string }>).map(
-      (r) => r.message_id,
-    ),
-  );
+    // Filter out messages already acknowledged in outbound.db
+    const ackedIds = new Set(
+      (outbound.prepare('SELECT message_id FROM processing_ack').all() as Array<{ message_id: string }>).map(
+        (r) => r.message_id,
+      ),
+    );
 
-  // Reverse: we fetched DESC to take the most recent N, but the agent
-  // should see them in chronological order (oldest first).
-  return pending.filter((m) => !ackedIds.has(m.id)).reverse();
+    // Reverse: we fetched DESC to take the most recent N, but the agent
+    // should see them in chronological order (oldest first).
+    return pending.filter((m) => !ackedIds.has(m.id)).reverse();
+  } finally {
+    inbound.close();
+  }
 }
 
 /** Mark messages as processing — writes to processing_ack in outbound.db. */
@@ -109,7 +116,12 @@ export function markFailed(id: string): void {
 
 /** Get a message by ID (read from inbound.db). */
 export function getMessageIn(id: string): MessageInRow | undefined {
-  return getInboundDb().prepare('SELECT * FROM messages_in WHERE id = ?').get(id) as MessageInRow | undefined;
+  const inbound = openInboundDb();
+  try {
+    return inbound.prepare('SELECT * FROM messages_in WHERE id = ?').get(id) as MessageInRow | undefined;
+  } finally {
+    inbound.close();
+  }
 }
 
 /**
@@ -117,19 +129,23 @@ export function getMessageIn(id: string): MessageInRow | undefined {
  * Reads from inbound.db, checks processing_ack to skip already-handled responses.
  */
 export function findQuestionResponse(questionId: string): MessageInRow | undefined {
-  const inbound = getInboundDb();
+  const inbound = openInboundDb();
   const outbound = getOutboundDb();
 
-  const response = inbound
-    .prepare("SELECT * FROM messages_in WHERE status = 'pending' AND content LIKE ?")
-    .get(`%"questionId":"${questionId}"%`) as MessageInRow | undefined;
+  try {
+    const response = inbound
+      .prepare("SELECT * FROM messages_in WHERE status = 'pending' AND content LIKE ?")
+      .get(`%"questionId":"${questionId}"%`) as MessageInRow | undefined;
 
-  if (!response) return undefined;
+    if (!response) return undefined;
 
-  // Check it hasn't been acked already
-  const acked = outbound.prepare('SELECT 1 FROM processing_ack WHERE message_id = ?').get(response.id);
-  if (acked) return undefined;
+    // Check it hasn't been acked already
+    const acked = outbound.prepare('SELECT 1 FROM processing_ack WHERE message_id = ?').get(response.id);
+    if (acked) return undefined;
 
-  return response;
+    return response;
+  } finally {
+    inbound.close();
+  }
 }
 

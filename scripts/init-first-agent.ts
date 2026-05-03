@@ -1,16 +1,13 @@
 /**
  * Init the first (or Nth) NanoClaw v2 agent for a DM channel.
  *
- * Wires a real DM channel (discord, telegram, etc.) to a new agent group
- * (and the local CLI channel as a convenience bonus), then hands a welcome
- * message to the running service via its CLI socket. The service routes
- * that message into the DM session, which wakes the container synchronously —
- * the agent processes the welcome and DMs the operator through the normal
- * delivery path.
+ * Wires a real DM channel (discord, telegram, etc.) to a new agent group,
+ * then hands a welcome message to the running service via the CLI socket
+ * (admin transport). The service routes that message into the DM session,
+ * which wakes the container synchronously — the agent processes the welcome
+ * and DMs the operator through the normal delivery path.
  *
- * For the CLI-only scratch agent used during `/new-setup`, see
- * `scripts/init-cli-agent.ts` — that's a distinct flow and doesn't run
- * through here.
+ * CLI channel wiring is handled separately by `scripts/init-cli-agent.ts`.
  *
  * Creates/reuses: user, owner grant (if none), agent group + filesystem,
  * messaging group(s), wiring.
@@ -28,7 +25,7 @@
  *     --display-name "Gavriel" \
  *     [--agent-name "Andy"] \
  *     [--welcome "System instruction: ..."] \
- *     [--no-cli-bonus]
+ *     [--role owner|admin|member]    # default: owner
  *
  * For direct-addressable channels (telegram, whatsapp, etc.), --platform-id
  * is typically the same as the handle in --user-id, with the channel prefix.
@@ -47,36 +44,36 @@ import {
 } from '../src/db/messaging-groups.js';
 import { runMigrations } from '../src/db/migrations/index.js';
 import { normalizeName } from '../src/modules/agent-to-agent/db/agent-destinations.js';
-import { grantRole, hasAnyOwner } from '../src/modules/permissions/db/user-roles.js';
+import { addMember } from '../src/modules/permissions/db/agent-group-members.js';
+import { getUserRoles, grantRole } from '../src/modules/permissions/db/user-roles.js';
 import { upsertUser } from '../src/modules/permissions/db/users.js';
 import { initGroupFilesystem } from '../src/group-init.js';
+import { namespacedPlatformId } from '../src/platform-id.js';
 import type { AgentGroup, MessagingGroup } from '../src/types.js';
 
+type Role = 'owner' | 'admin' | 'member';
+
 interface Args {
-  noCliBonus: boolean;
   channel: string;
   userId: string;
   platformId: string;
   displayName: string;
   agentName: string;
   welcome: string;
+  role: Role;
 }
 
 const DEFAULT_WELCOME =
   'System instruction: run /welcome to introduce yourself to the user on this new channel.';
 
-const CLI_CHANNEL = 'cli';
-const CLI_PLATFORM_ID = 'local';
+const DEFAULT_ROLE: Role = 'owner';
 
 function parseArgs(argv: string[]): Args {
-  const out: Partial<Args> = { noCliBonus: false };
+  const out: Partial<Args> = {};
   for (let i = 0; i < argv.length; i++) {
     const key = argv[i];
     const val = argv[i + 1];
     switch (key) {
-      case '--no-cli-bonus':
-        out.noCliBonus = true;
-        break;
       case '--channel':
         out.channel = (val ?? '').toLowerCase();
         i++;
@@ -101,6 +98,18 @@ function parseArgs(argv: string[]): Args {
         out.welcome = val;
         i++;
         break;
+      case '--role': {
+        const raw = (val ?? '').toLowerCase();
+        if (raw !== 'owner' && raw !== 'admin' && raw !== 'member') {
+          console.error(
+            `Invalid --role: ${raw} (expected 'owner', 'admin', or 'member')`,
+          );
+          process.exit(2);
+        }
+        out.role = raw;
+        i++;
+        break;
+      }
     }
   }
 
@@ -115,13 +124,13 @@ function parseArgs(argv: string[]): Args {
   }
 
   return {
-    noCliBonus: out.noCliBonus ?? false,
     channel: out.channel!,
     userId: out.userId!,
     platformId: out.platformId!,
     displayName: out.displayName!,
     agentName: out.agentName?.trim() || out.displayName!,
     welcome: out.welcome?.trim() || DEFAULT_WELCOME,
+    role: out.role ?? DEFAULT_ROLE,
   };
 }
 
@@ -129,30 +138,8 @@ function namespacedUserId(channel: string, raw: string): string {
   return raw.includes(':') ? raw : `${channel}:${raw}`;
 }
 
-function namespacedPlatformId(channel: string, raw: string): string {
-  return raw.startsWith(`${channel}:`) ? raw : `${channel}:${raw}`;
-}
-
 function generateId(prefix: string): string {
   return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-}
-
-function ensureCliMessagingGroup(now: string): MessagingGroup {
-  let cliMg = getMessagingGroupByPlatform(CLI_CHANNEL, CLI_PLATFORM_ID);
-  if (cliMg) return cliMg;
-
-  cliMg = {
-    id: generateId('mg'),
-    channel_type: CLI_CHANNEL,
-    platform_id: CLI_PLATFORM_ID,
-    name: 'Local CLI',
-    is_group: 0,
-    unknown_sender_policy: 'public',
-    created_at: now,
-  };
-  createMessagingGroup(cliMg);
-  console.log(`Created CLI messaging group: ${cliMg.id}`);
-  return cliMg;
 }
 
 function wireIfMissing(mg: MessagingGroup, ag: AgentGroup, now: string, label: string): void {
@@ -196,17 +183,8 @@ async function main(): Promise<void> {
     created_at: now,
   });
 
-  let promotedToOwner = false;
-  if (!hasAnyOwner()) {
-    grantRole({
-      user_id: userId,
-      role: 'owner',
-      agent_group_id: null,
-      granted_by: null,
-      granted_at: now,
-    });
-    promotedToOwner = true;
-  }
+  // Owner grant is deferred until after the agent group is resolved, since
+  // an admin grant is scoped to that group. See step 2b.
 
   // 2. Agent group + filesystem.
   const folder = `dm-with-${normalizeName(args.displayName)}`;
@@ -232,6 +210,53 @@ async function main(): Promise<void> {
       'When the user first reaches out (or you receive a system welcome prompt), introduce yourself briefly and invite them to chat. Keep replies concise.',
   });
 
+  // 2b. Assign the user a role for this agent group. The caller picks via
+  // --role; the channel drivers default to 'owner' for the self-host case.
+  //  - owner:  global owner (agent_group_id=null). Cross-channel access.
+  //  - admin:  scoped admin for this agent group only.
+  //  - member: no role grant, just the membership row below.
+  // grantRole inserts a new row per call — idempotence check against
+  // getUserRoles prevents duplicates on re-runs.
+  const existingRoles = getUserRoles(userId);
+  if (args.role === 'owner') {
+    const alreadyOwner = existingRoles.some(
+      (r) => r.role === 'owner' && r.agent_group_id === null,
+    );
+    if (!alreadyOwner) {
+      grantRole({
+        user_id: userId,
+        role: 'owner',
+        agent_group_id: null,
+        granted_by: null,
+        granted_at: now,
+      });
+    }
+  } else if (args.role === 'admin') {
+    const alreadyAdmin = existingRoles.some(
+      (r) => r.role === 'admin' && r.agent_group_id === ag.id,
+    );
+    if (!alreadyAdmin) {
+      grantRole({
+        user_id: userId,
+        role: 'admin',
+        agent_group_id: ag.id,
+        granted_by: null,
+        granted_at: now,
+      });
+    }
+  }
+
+  // Always add a membership row so the access gate has a straightforward
+  // yes/no even for users without a role grant. INSERT OR IGNORE, so this
+  // is a no-op when the row already exists (e.g. re-runs, owners whose
+  // access already passes via role).
+  addMember({
+    user_id: userId,
+    agent_group_id: ag.id,
+    added_by: null,
+    added_at: now,
+  });
+
   // 3. DM messaging group.
   const platformId = namespacedPlatformId(args.channel, args.platformId);
   let dmMg = getMessagingGroupByPlatform(args.channel, platformId);
@@ -252,29 +277,31 @@ async function main(): Promise<void> {
     console.log(`Reusing messaging group: ${dmMg.id} (${platformId})`);
   }
 
-  // 4. Wire DM (auto-creates companion agent_destinations row) and,
-  // unless suppressed, also wire the CLI channel so `pnpm run chat` works
-  // against the new agent immediately. `/new-setup-2` sets --no-cli-bonus
-  // so the scratch CLI agent from `/new-setup` keeps owning CLI routing.
+  // 4. Wire DM messaging group to the agent.
   wireIfMissing(dmMg, ag, now, 'dm');
-  if (!args.noCliBonus) {
-    const cliMg = ensureCliMessagingGroup(now);
-    wireIfMissing(cliMg, ag, now, 'cli-bonus');
-  }
 
   // 5. Welcome delivery over the CLI socket. Router picks up the line,
   // writes the message into the DM session's inbound.db, and wakes the
-  // container synchronously — no sweep wait.
-  await sendWelcomeViaCliSocket(dmMg, args.welcome);
+  // container synchronously — no sweep wait. The paired user's identity is
+  // passed so the sender resolver sees the real owner, not cli:local.
+  await sendWelcomeViaCliSocket(dmMg, args.welcome, {
+    senderId: userId,
+    sender: args.displayName,
+  });
+
+  const roleLabel =
+    args.role === 'owner'
+      ? 'owner (global)'
+      : args.role === 'admin'
+        ? `admin (scoped to ${ag.id})`
+        : 'member';
 
   console.log('');
   console.log('Init complete.');
-  console.log(`  owner:   ${userId}${promotedToOwner ? ' (promoted on first owner)' : ''}`);
+  console.log(`  user:    ${userId}`);
+  console.log(`  role:    ${roleLabel}`);
   console.log(`  agent:   ${ag.name} [${ag.id}] @ groups/${folder}`);
   console.log(`  channel: ${args.channel} ${dmMg.platform_id}`);
-  if (!args.noCliBonus) {
-    console.log(`  cli:     cli/${CLI_PLATFORM_ID} wired — try \`pnpm run chat hi\``);
-  }
   console.log('');
   console.log('Welcome DM queued — the agent will greet you shortly.');
 }
@@ -288,7 +315,11 @@ async function main(): Promise<void> {
  * Throws if the socket isn't reachable — this script requires the service
  * to be running.
  */
-async function sendWelcomeViaCliSocket(dmMg: MessagingGroup, welcome: string): Promise<void> {
+async function sendWelcomeViaCliSocket(
+  dmMg: MessagingGroup,
+  welcome: string,
+  identity: { senderId: string; sender: string },
+): Promise<void> {
   const sockPath = path.join(DATA_DIR, 'cli.sock');
 
   await new Promise<void>((resolve, reject) => {
@@ -318,10 +349,12 @@ async function sendWelcomeViaCliSocket(dmMg: MessagingGroup, welcome: string): P
       const payload =
         JSON.stringify({
           text: welcome,
+          senderId: identity.senderId,
+          sender: identity.sender,
           to: {
             channelType: dmMg.channel_type,
             platformId: dmMg.platform_id,
-            threadId: null,
+            threadId: dmMg.platform_id,
           },
         }) + '\n';
       socket.write(payload, (err) => {

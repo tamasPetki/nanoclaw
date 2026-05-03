@@ -28,12 +28,37 @@ let _inbound: Database | null = null;
 let _outbound: Database | null = null;
 let _heartbeatPath: string = DEFAULT_HEARTBEAT_PATH;
 
-/** Inbound DB — container opens read-only (host is the sole writer). */
+/**
+ * Avoid all cached db reads; open inbound.db read-only with mmap and page cache disabled. 
+ * 
+ * Use this (not getInboundDb) for readers that need to see host-written rows
+ * promptly — e.g. messages_in polling. Caller must .close() the returned
+ * connection (try/finally).
+ *
+ * Needed for mounts where host writes don't reliably invalidate
+ * SQLite's caches: virtiofs (Colima, Lima, Podman Machine, Apple
+ * Container), NFS. 
+ * 
+ * Cost is microseconds per query, so safe for universal use.
+ */
+export function openInboundDb(): Database {
+  const db = new Database(DEFAULT_INBOUND_PATH, { readonly: true });
+  db.exec('PRAGMA busy_timeout = 5000');
+  db.exec('PRAGMA mmap_size = 0');
+  return db;
+}
+
+/**
+ * Inbound DB — long-lived singleton, OK for tables the host writes once
+ * at spawn and never again (destinations, session_routing). For
+ * messages_in polling — where the host writes continuously and a stale
+ * view causes the pollHandle hang — use `openInboundDb()` instead.
+ */
 export function getInboundDb(): Database {
   if (!_inbound) {
-    const dbPath = process.env.SESSION_INBOUND_DB_PATH || DEFAULT_INBOUND_PATH;
-    _inbound = new Database(dbPath, { readonly: true });
+    _inbound = new Database(DEFAULT_INBOUND_PATH, { readonly: true });
     _inbound.exec('PRAGMA busy_timeout = 5000');
+    _inbound.exec('PRAGMA mmap_size = 0');
   }
   return _inbound;
 }
@@ -41,8 +66,7 @@ export function getInboundDb(): Database {
 /** Outbound DB — container owns this file (sole writer). */
 export function getOutboundDb(): Database {
   if (!_outbound) {
-    const dbPath = process.env.SESSION_OUTBOUND_DB_PATH || DEFAULT_OUTBOUND_PATH;
-    _outbound = new Database(dbPath);
+    _outbound = new Database(DEFAULT_OUTBOUND_PATH);
     _outbound.exec('PRAGMA journal_mode = DELETE');
     _outbound.exec('PRAGMA busy_timeout = 5000');
     _outbound.exec('PRAGMA foreign_keys = ON');
@@ -122,7 +146,7 @@ export function clearContainerToolInFlight(): void {
  * A file touch is cheaper and avoids cross-boundary DB write contention.
  */
 export function touchHeartbeat(): void {
-  const p = process.env.SESSION_HEARTBEAT_PATH || _heartbeatPath;
+  const p = _heartbeatPath;
   const now = new Date();
   try {
     fs.utimesSync(p, now, now);
