@@ -84,5 +84,9 @@
     }
   ],
   "model": "opus",
-  "effort": "low"
+  "effort": "low",
+  "skills": "all",
+  "groupName": "PietScarlet",
+  "assistantName": "PietScarlet",
+  "agentGroupId": "ag-pietscarlet"
 }
