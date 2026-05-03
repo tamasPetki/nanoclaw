@@ -171,10 +171,22 @@ export function migrateGroupsToClaudeLocal(): void {
     }
   }
 
+  // DOWNSTREAM PATCH: keep groups/global/ when it has user-authored content.
+  // Upstream removes it unconditionally assuming the content is already in
+  // container/CLAUDE.md (the shared base). Our install uses groups/global/
+  // for downstream-specific shared memory + references that aren't in the
+  // upstream shared base, and container-runner.ts still mounts it RO at
+  // /workspace/global. Skip removal whenever the dir contains anything
+  // beyond the deprecated CLAUDE.md (or has subdirs / references).
   const globalDir = path.join(GROUPS_DIR, 'global');
   if (fs.existsSync(globalDir)) {
-    fs.rmSync(globalDir, { recursive: true, force: true });
-    actions.push('groups/global/ removed');
+    const entries = fs.readdirSync(globalDir);
+    const isEmpty =
+      entries.length === 0 || (entries.length === 1 && entries[0] === 'CLAUDE.md' && fs.statSync(path.join(globalDir, 'CLAUDE.md')).size === 0);
+    if (isEmpty) {
+      fs.rmSync(globalDir, { recursive: true, force: true });
+      actions.push('groups/global/ removed');
+    }
   }
 
   if (actions.length > 0) {
