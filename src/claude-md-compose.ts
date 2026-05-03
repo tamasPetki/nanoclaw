@@ -182,7 +182,8 @@ export function migrateGroupsToClaudeLocal(): void {
   if (fs.existsSync(globalDir)) {
     const entries = fs.readdirSync(globalDir);
     const isEmpty =
-      entries.length === 0 || (entries.length === 1 && entries[0] === 'CLAUDE.md' && fs.statSync(path.join(globalDir, 'CLAUDE.md')).size === 0);
+      entries.length === 0 ||
+      (entries.length === 1 && entries[0] === 'CLAUDE.md' && fs.statSync(path.join(globalDir, 'CLAUDE.md')).size === 0);
     if (isEmpty) {
       fs.rmSync(globalDir, { recursive: true, force: true });
       actions.push('groups/global/ removed');
