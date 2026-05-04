@@ -1,7 +1,13 @@
 import fs from 'fs';
 import path from 'path';
 
-import { query as sdkQuery, type HookCallback, type PreCompactHookInput } from '@anthropic-ai/claude-agent-sdk';
+import {
+  query as sdkQuery,
+  type HookCallback,
+  type PostToolUseFailureHookInput,
+  type PreCompactHookInput,
+  type Query,
+} from '@anthropic-ai/claude-agent-sdk';
 
 import { clearContainerToolInFlight, setContainerToolInFlight } from '../db/connection.js';
 import { registerProvider } from './provider-registry.js';
@@ -178,6 +184,65 @@ const postToolUseHook: HookCallback = async () => {
   return { continue: true };
 };
 
+/**
+ * Auto-recover from MCP-disconnect failures. The Claude Code SDK does not
+ * reconnect a child MCP server when its stdio pipe dies (long-idle IMAP
+ * timeout, child crash, OOM). The whole session sees `mcp__*` tools as
+ * disconnected for the rest of the run, blocking workflows like the email
+ * pre-filter / delegate pattern.
+ *
+ * Hook listens for PostToolUseFailure on `mcp__*` tools, detects disconnect
+ * patterns in the error string, then calls `query.reconnectMcpServer(name)`.
+ * On success, returns `additionalContext` so the agent retries the failed
+ * tool call instead of giving up.
+ *
+ * `getQuery` is a closure-captured lazy reference because the Query handle
+ * is only available AFTER the sdkQuery({...}) call returns — but the hooks
+ * are passed in as part of that very call's options.
+ */
+function createMcpRecoveryHook(getQuery: () => Query | null): HookCallback {
+  return async (input) => {
+    if (input.hook_event_name !== 'PostToolUseFailure') return {};
+    const failure = input as PostToolUseFailureHookInput;
+    const toolName = failure.tool_name ?? '';
+    if (!toolName.startsWith('mcp__')) return {};
+
+    const errorMsg = String(failure.error ?? '').toLowerCase();
+    if (!/disconnect|not available|not connected|server.*not.*running|broken pipe|epipe|connection.*(closed|reset|lost)/i.test(errorMsg)) {
+      return {};
+    }
+
+    // Tool name pattern: mcp__<server>__<tool>. Server names may contain
+    // single underscores (we use a non-greedy match up to `__`).
+    const match = toolName.match(/^mcp__(.+?)__/);
+    const serverName = match?.[1];
+    if (!serverName) return {};
+
+    const q = getQuery();
+    if (!q) return {};
+
+    try {
+      const statuses = await q.mcpServerStatus();
+      const target = statuses.find((s) => s.name === serverName);
+      if (target?.status === 'connected') return {};
+
+      log(`[mcp-recovery] ${serverName} status=${target?.status ?? 'unknown'} (error=${errorMsg.slice(0, 80)}), reconnecting…`);
+      await q.reconnectMcpServer(serverName);
+      log(`[mcp-recovery] ${serverName} reconnect OK`);
+
+      return {
+        hookSpecificOutput: {
+          hookEventName: 'PostToolUseFailure',
+          additionalContext: `MCP server "${serverName}" was disconnected and has been auto-reconnected. Please retry the failed tool call once.`,
+        },
+      } as ReturnType<HookCallback>;
+    } catch (err) {
+      log(`[mcp-recovery] ${serverName} reconnect failed: ${err instanceof Error ? err.message : String(err)}`);
+      return {};
+    }
+  };
+}
+
 function createPreCompactHook(assistantName?: string): HookCallback {
   return async (input) => {
     const preCompact = input as PreCompactHookInput;
@@ -273,6 +338,12 @@ export class ClaudeProvider implements AgentProvider {
 
     const instructions = input.systemContext?.instructions;
 
+    // Forward reference: hooks need the Query handle (for reconnectMcpServer)
+    // but the handle only exists AFTER sdkQuery({...}) returns. Closure +
+    // lazy getter sidesteps the chicken-and-egg.
+    let queryHandle: Query | null = null;
+    const mcpRecoveryHook = createMcpRecoveryHook(() => queryHandle);
+
     const sdkResult = sdkQuery({
       prompt: stream,
       options: {
@@ -293,11 +364,12 @@ export class ClaudeProvider implements AgentProvider {
         hooks: {
           PreToolUse: [{ hooks: [preToolUseHook] }],
           PostToolUse: [{ hooks: [postToolUseHook] }],
-          PostToolUseFailure: [{ hooks: [postToolUseHook] }],
+          PostToolUseFailure: [{ hooks: [postToolUseHook, mcpRecoveryHook] }],
           PreCompact: [{ hooks: [createPreCompactHook(this.assistantName)] }],
         },
       },
     });
+    queryHandle = sdkResult;
 
     let aborted = false;
 

@@ -32,11 +32,18 @@ registerChannelAdapter('discord', {
       concurrency: 'concurrent',
       botToken: env.DISCORD_BOT_TOKEN,
       extractReplyContext,
-      supportsThreads: true,
+      // Threads disabled — single-user install. session_mode is `shared`
+      // anyway, so threads added visual noise without changing session
+      // boundaries. New conversations stay in the channel.
+      supportsThreads: false,
       // Agent already emits Discord-native markdown (angle-bracket autolinks,
       // `<@id>` mentions, code blocks). `raw` skips the adapter's AST round
       // trip that otherwise rewrites `<https://…>` as `[url](url)`.
       sendAsRaw: true,
+      // Discord caps a single message at 2000 chars and silently truncates
+      // beyond that. Bridge splits on paragraph → line → hard boundaries
+      // and posts multiple messages so nothing gets cut off.
+      maxTextLength: 2000,
     });
   },
 });
