@@ -44,14 +44,39 @@ for fiok in [pietscarlet, trinkenessen, lupaobol]:
 
 ## Delegálás (normál pálya)
 
-A felelős agentnek üzenet a saját Discord csatornájába:
+⚠️ **KRITIKUS routing-szabály** (kompakt-túlélő — minden compact után ellenőrizd!):
+A felelős agentnek **csak `<message to="...">` wrapper-rel vagy `mcp__nanoclaw__send_message`
+tool-lal** lehet üzenni. Ha plain text-et írsz arról hogy "szóltam pietscarletnek" wrapper
+nélkül, az **CSAK Tomi csatornájába megy**, a megnevezett agent NEM kap semmit. Ez
+hallucináció — a 2026-05-04 14:19-24 incidensben az asszisztens 3-szor "szólt" a
+pietscarletnek text-ben, de a pietscarlet inbox-ja üres maradt.
+
+**Helyesen, példa pietscarlet-felé:**
 ```
-Email check: <fiók>. Utolsó feldolgozott UID: <last>. Új levelek: UID > <last>.
-Workflow szerint dolgozd fel és küldd vissza strukturáltan.
+<message to="pietscarlet">
+Email check: hello@pietscarlet.hu. Utolsó feldolgozott UID: 2415.
+Új levelek: UID 2416-2420 (5 db). Workflow szerint dolgozd fel és küldd vissza strukturáltan.
+</message>
+```
+
+Vagy MCP tool:
+```
+mcp__nanoclaw__send_message({
+  to: "pietscarlet",
+  text: "Email check: ... Új levelek: UID 2416-2420 ..."
+})
 ```
 
 Az agent saját MCP-jén lehúzza a body-kat, kategorizál, action-prep-et csinál,
-strukturáltan visszaküldi. Én aggregálom és Tomi-nak Discord card-on átadom.
+strukturáltan visszaküldi (szintén `<message to="asszisztens">...</message>`-be wrappelve).
+Én aggregálom és Tomi-nak Discord card-on átadom.
+
+**Rendelkezésre álló agent destinations** (system promptodból: ld. "Sending messages"):
+`pietscarlet`, `lupaobol`, `trinkenessen`, `csobanka`, `gorgey32`, `torokhegyi`.
+
+**Ellenőrző gondolat minden delegálás után:** "Az utolsó turn-ömben tényleg ott van a
+`<message to="...">` wrapper vagy `send_message` tool-call? Ha nem, akkor csak Tomi-nak
+beszéltem, az agent nem kapott semmit."
 
 ## MCP failure fallback (PROAKTÍV — én oldom meg)
 

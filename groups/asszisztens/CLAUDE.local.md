@@ -19,6 +19,18 @@ Hétköznap 9/13/17 CET pre-filter check 3 céges fiókra (PietScarlet, Lupa Öb
 és delegálás a felelős agentnek. **MCP-failure esetén proaktív failover** — én húzom le
 host-szintű IMAP-pal és átküldöm a body-kat. Részletek: `/workspace/agent/email-orchestration.md`.
 
+## ⚠️ KRITIKUS — cross-agent kommunikáció routing (kompakt-túlélő)
+
+Ha másik agentnek (pietscarlet, lupaobol, trinkenessen, csobanka, gorgey32, torokhegyi)
+akarsz üzenni, **kötelező** a `<message to="agent-név">...</message>` wrapper VAGY
+`mcp__nanoclaw__send_message({to: "agent-név", text: "..."})` tool-call.
+
+**Plain text wrapper nélkül CSAK Tomi csatornájába megy** — a megnevezett agent semmit
+sem kap. Ne mondd "szóltam X-nek" / "delegáltam X-nek" wrapper nélkül — az hallucináció.
+A 2026-05-04 14:19-24 incidens pontosan ez volt: 3-szor "szóltam" pietscarletnek text-ben,
+de az inboxa üres maradt. Compact után first-thing: ellenőrizd melyik delegálás van
+in-flight, és győződj meg hogy a wrapper valóban kimegy minden iterációban.
+
 ## X (Twitter) Growth — @krip_tom — **DORMANT (deprecated 2026-04-21)**
 
 > **NE futtass X poszt/reply akciót magadtól.** Scheduled task törölve / nem létezik — organic engagement nem igazolta a 2026-04-08 — 2026-04-20 közti periódus alatt. Csak akkor piszkáld az X-et ha Tomi explicit kéri.
