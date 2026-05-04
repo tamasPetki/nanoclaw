@@ -106,6 +106,7 @@ Hozzáadva 2026-04-22: a media-cikkek nem venue-specifikusak, de pitch-hook-kén
 - **Hook-mondat:** *"Anyák napja vasárnap, a brunch- és kétfős-asztal-foglalások most állnak be sűrűn. Ha az online foglaláson akadás van, a béta első 30 helyszínének 3 hónapig ingyen — szólok."*
 - **Megjegyzés:** Egy hetes ablak, csendes fázisban nem küldjük. Aktiváláskor szűrés `tags ~ ['brunch','desszert','családi','romantikus']`. NEM Balaton-fókusz, hanem Budapest+vidék étterem-cukrászda mix.
 - **Pipeline ID:** venue_pipeline.json — szűrhető `segment in ['restaurant','cafe','patisserie']` + `family_friendly = true`
+- **Retrospektíva 2026-05-04:** Ablak MA aktív, csendes fázis miatt NEM aktiváltuk — várt-és-elhalasztott. Calibration-szempontból: launch utáni első anyák napja (2027-05-02) lesz az első éles teszt erre a hookra; addig megfigyelési mód. FB-feed-ben semmilyen anyák-napi venue-aktivitás nem jött szembe a HU lurk-ben (Phase 2 warmup sessions), de a target-venue-okat nem követjük közvetlenül még.
 
 #### TR-007 — Gault&Millau HU 2026 kalauz (várható publikálás május közepe)
 - **Dátum észlelés:** 2026-04-27

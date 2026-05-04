@@ -6,13 +6,28 @@
         "-y",
         "@kimtaeyoon83/mcp-server-youtube-transcript"
       ]
+    },
+    "todoist": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "https://ai.todoist.net/mcp"
+      ],
+      "env": {}
     }
   },
   "packages": {
     "apt": [],
     "npm": []
   },
-  "additionalMounts": [],
+  "additionalMounts": [
+    {
+      "hostPath": "/root/nanoclaw-v2/groups/asszisztens/.mcp-auth",
+      "containerPath": ".mcp-auth",
+      "readonly": false
+    }
+  ],
   "model": "opus",
   "effort": "low",
   "skills": "all",

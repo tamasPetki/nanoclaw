@@ -13,6 +13,16 @@ Tomi privát személyes asszisztens csatornája. Csak Tomi és Lloyd van itt.
 - Személyes ügyek intézése
 - Bármi más ami nem cégspecifikus
 
+## Todoist (személyes task-tracker)
+
+Todoist MCP elérhető (`mcp__todoist__*`) — Tomi személyes task-jai. Használd:
+- Új feladat felvétele ami Tomi-ra vonatkozik (NEM céges, az a céges agentek dolga)
+- Tervezéskor / heti összefoglaláskor ami éppen aktív
+- Email-orchestration során, ha egy levélből személyes teendő születik
+
+A céges fiókok task-jai (PietScarlet/Lupa Öböl/Trinken Essen) az adott céges agent dolga
+— azoknak saját Todoist hozzáférésük van. NE duplikáld.
+
 ## Email orchestration (céges fiókok pre-filter + delegálás)
 
 Hétköznap 9/13/17 CET pre-filter check 3 céges fiókra (PietScarlet, Lupa Öböl, Trinken Essen)
