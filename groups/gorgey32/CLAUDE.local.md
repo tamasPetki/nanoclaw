@@ -13,8 +13,9 @@ PietScarlet Kft. társasházat épít Vác, Görgey Arthur utca 32. szám alatt.
 
 ## Fájlok
 - `status.md` — Aktuális állapot és következő teendők (frissítsd, ha Tomi új infót ad)
+- `alvallalkozok.md` — Görgey 32 aktív/inaktív alvállalkozók (kontaktok, kik dolgoznak ténylegesen)
 - Google Drive: `/workspace/extra/pietscarlet-drive/Ingatlanok/Vác, Görgey u. 32./`
-- Alvállalkozók: `/workspace/global/references/alvallalkozok.md` (42 alvállalkozó)
+- Általános alvállalkozó adatbázis: `/workspace/global/references/alvallalkozok.md` (42 alvállalkozó)
 
 ## Google Drive írás — KÖTELEZŐ scope-szabály
 Drive módosítás a `google-drive` MCP-vel történik (upload/update tool-ok). **CSAK az `Ingatlanok/Vác, Görgey u. 32./` mappa alatti fájlokat szabad módosítani**. Más projekt (Csobánka, Felső Törökhegy) mappáiban, vagy a gyökér `/Pénzügyek`, `/Szerződések` stb. ágakon **csak olvasás** (rclone mount-on keresztül) engedélyezett — írni azokba tilos. Ha mégis szükséges lenne, ping Tominak és ő dönt.

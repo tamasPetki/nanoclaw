@@ -61,5 +61,9 @@
     }
   ],
   "model": "opus",
-  "effort": "low"
+  "effort": "low",
+  "skills": "all",
+  "groupName": "Csobánka",
+  "assistantName": "Csobánka",
+  "agentGroupId": "ag-csobanka"
 }

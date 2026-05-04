@@ -1,18 +1,22 @@
 {
-    "mcpServers": {
-        "youtube-transcript": {
-            "command": "npx",
-            "args": [
-                "-y",
-                "@kimtaeyoon83/mcp-server-youtube-transcript"
-            ]
-        }
-    },
-    "packages": {
-        "apt": [],
-        "npm": []
-    },
-    "additionalMounts": [],
-    "model": "opus",
-    "effort": "low"
+  "mcpServers": {
+    "youtube-transcript": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@kimtaeyoon83/mcp-server-youtube-transcript"
+      ]
+    }
+  },
+  "packages": {
+    "apt": [],
+    "npm": []
+  },
+  "additionalMounts": [],
+  "model": "opus",
+  "effort": "low",
+  "skills": "all",
+  "groupName": "Asszisztens",
+  "assistantName": "Asszisztens",
+  "agentGroupId": "ag-asszisztens"
 }

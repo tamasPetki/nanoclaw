@@ -61,5 +61,9 @@
     }
   ],
   "model": "opus",
-  "effort": "low"
+  "effort": "low",
+  "skills": "all",
+  "groupName": "Görgey 32",
+  "assistantName": "Görgey 32",
+  "agentGroupId": "ag-gorgey32"
 }

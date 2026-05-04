@@ -28,5 +28,9 @@
   },
   "additionalMounts": [],
   "model": "opus",
-  "effort": "low"
+  "effort": "low",
+  "skills": "all",
+  "groupName": "Rezerver",
+  "assistantName": "Rezerver",
+  "agentGroupId": "ag-rezerver"
 }

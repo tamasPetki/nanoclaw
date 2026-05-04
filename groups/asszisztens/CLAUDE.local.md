@@ -13,6 +13,12 @@ Tomi privát személyes asszisztens csatornája. Csak Tomi és Lloyd van itt.
 - Személyes ügyek intézése
 - Bármi más ami nem cégspecifikus
 
+## Email orchestration (céges fiókok pre-filter + delegálás)
+
+Hétköznap 9/13/17 CET pre-filter check 3 céges fiókra (PietScarlet, Lupa Öböl, Trinken Essen)
+és delegálás a felelős agentnek. **MCP-failure esetén proaktív failover** — én húzom le
+host-szintű IMAP-pal és átküldöm a body-kat. Részletek: `/workspace/agent/email-orchestration.md`.
+
 ## X (Twitter) Growth — @krip_tom — **DORMANT (deprecated 2026-04-21)**
 
 > **NE futtass X poszt/reply akciót magadtól.** Scheduled task törölve / nem létezik — organic engagement nem igazolta a 2026-04-08 — 2026-04-20 közti periódus alatt. Csak akkor piszkáld az X-et ha Tomi explicit kéri.

@@ -61,5 +61,9 @@
     }
   ],
   "model": "opus",
-  "effort": "low"
+  "effort": "low",
+  "skills": "all",
+  "groupName": "Törökhegyi",
+  "assistantName": "Törökhegyi",
+  "agentGroupId": "ag-torokhegyi"
 }

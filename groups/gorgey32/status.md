@@ -1,24 +1,29 @@
 # Aktuális állapot
-_Frissítve: 2026. április 23. (H9)_
+_Frissítve: 2026. május 4._
 
 ## Tetőszerkezet
-✅ Kész. Fóliázás szinte kész. Alvállalkozó: **Horgász Csaba**.
+Szerkezet kész, fóliázás kész. **Horgász Csabáék ezen a héten kezdik a cserepezést.**
 
 ## Homlokzat
-Folyamatban — EPS ragasztás tart, az épület **egyik oldala felállványozva**.
-Terv szerint H8-ra (ápr. 20.) kellett volna kész lenni → **kb. 1-2 hét csúszás**.
+EPS ragasztás kb. az épület felénél tart. Egyik oldal felállványozva.
 
-## Villanyszerelés (alap, rough-in)
-Folyamatban — még tart.
-Terv szerint H5-re (ápr. 7.) kellett volna kész lenni → **~3 hét csúszás**.
+## Villanyszerelés
+- Alap (rough-in): A&D Vill (**Salgovári Attila** csapata) — ezen a héten ígérte a folytatást.
+- **Betáplálás (fővezeték rákötés):** ügyintézés alatt. Tomi múlt héten elküldte az adatokat az ügyintézőnek, várjuk a visszajelzést.
+  - Emlékeztető ütemezve: ha 2026-05-06 (szerda) reggelig nincs előrelépés.
 
 ## Gépészet
-Letfusz és Fia — jövő hétfőn (ápr. 27.) jönnek vissza, folytatják az alap szerelést.
-Terv szerint H8-ra (ápr. 20.) kellett volna kész lenni → **~1+ hét csúszás**.
+**TLK Invest (Bérczy Gergely)** — folytatja a munkát.
+~~Letfusz és Fia~~ — csak alapszerelést, kész, NEM dolgoznak már.
+
+## Tomi mai mozgások
+- Most hívja TLK Invest-et és A&D Vill-t telefonon (kezdik-e tényleg ezen a héten?)
+- Helyszínen: 13:00-13:30
 
 ## Következő teendők
-1. EPS ragasztás befejezése (2. állvány oldal)
-2. Villany rough-in befejezése (A&D Vill)
-3. Gépészek visszajönnek ápr. 27. (hétfő)
-4. Cserépezés (Unitető) — mikor indul a 2. oldal után?
-5. Bádogos munkák (Bádog Varázs) — ütemezés egyeztetés
+1. Cserepezés indul (Horgász Csaba) — ezen a héten
+2. EPS ragasztás 2. fele
+3. Villany rough-in folytatás (Salgovári Attila / A&D Vill)
+4. Gépészet folytatás (Bérczy Gergely / TLK Invest)
+5. Villany betáplálás ügyintézés visszajelzés (deadline szerda)
+6. Bádogos munkák (Bádog Varázs) — ütemezés

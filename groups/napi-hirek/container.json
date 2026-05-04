@@ -1,4 +1,14 @@
 {
+  "mcpServers": {},
+  "packages": {
+    "apt": [],
+    "npm": []
+  },
+  "additionalMounts": [],
   "model": "opus",
-  "effort": "low"
+  "effort": "low",
+  "skills": "all",
+  "groupName": "Napi Hírek",
+  "assistantName": "Napi Hírek",
+  "agentGroupId": "ag-napi-hirek"
 }
