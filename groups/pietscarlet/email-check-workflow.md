@@ -6,7 +6,7 @@
 
 ## Lépések
 
-1. **Lehúzás** — új levelek a megadott UID óta.
+1. **Lehúzás** — új levelek a megadott UID óta. **Body-fetch a saját email MCP-vel a default eljárás** (`mcp__email__list_emails_metadata` + `get_emails_content`). Header-only elemzést TILOS adni — ha nincs body, nincs feldolgozás (lásd Hibakezelés).
 2. **Kategorizálás** levelenként:
    - **számla** — díjbekérő, fizetési felszólítás, banki pénzmozgás értesítő → akció: továbbítás Erikának (cím: `email-assistant` skillből), előkészített továbbítási szöveggel.
    - **válaszra vár** — partner/ügyfél/hatóság konkrét kérdése v. kérése → akció: válasz draft.
@@ -29,8 +29,65 @@
 
 ## Tilalmak
 
-- **NEM küldök ki semmit partnernek a saját szakállamra.** Csak előkészítek; Tomi gombnyomással hagyja jóvá.
+- **NEM küldök ki semmit partnernek a saját szakállamra.** Csak előkészítek; Tomi szöveges jóváhagyásával megy ki.
 - Nem hallucinálok kontextust. Ha nincs adat, kérdezek.
+
+## Card UX (Tomi 1-klikkes jóváhagyás)
+
+Discord card UX **támogatott** — az `mcp__nanoclaw__ask_user_question` MCP tool-lal Tomi
+embed-et kap button-okkal. Blokkoló call (max 300s timeout default), gombnyomás után az
+agent visszakapja a `value`-t.
+
+**Tool szignatúra:**
+```
+mcp__nanoclaw__ask_user_question({
+  title: "<rövid card-cím>",
+  question: "<a kérdés szöveg, részletekkel — markdown OK>",
+  options: [
+    { label: "<gomb-szöveg>", selectedLabel: "<post-click szöveg>", value: "<callback-érték>" },
+    ...
+  ]
+})
+```
+
+**Példa (számla továbbítás Erikának):**
+```
+mcp__nanoclaw__ask_user_question({
+  title: "Számla továbbítás: MVM 47 600 Ft",
+  question: "**MVM elektromos áram** — 47 600 Ft, határidő 2026-05-15.\nDraft kész:\n\n> Szia Erika, csatolva küldöm az MVM számlát...\n\nTovábbítsam Erikának (penzugy@pietscarlet.hu)?",
+  options: [
+    { label: "Igen, küldd",     selectedLabel: "✅ Erikának küldve",  value: "forward" },
+    { label: "Várj, megnézem",  selectedLabel: "⏸️ Várok",            value: "wait" },
+    { label: "Ne küldd",        selectedLabel: "❌ Eldobva",           value: "cancel" }
+  ]
+})
+```
+
+**Mikor használj card-ot:**
+- számla továbbítás Erikának (`Küldd / Várj / Mégsem`)
+- válasz draft jóváhagyás (`Küldd / Módosítok / Eldobom`)
+- bármilyen kétséges kategória (`A / B / Megnézem`)
+- engedélyek, alvállalkozói bekért egyeztetések — egyértelmű igen/nem
+
+**Mikor NE card:**
+- pure tájékoztató (csak summary)
+- failure-jelentés
+- batch összesítő egyedi döntés nélkül
+
+A szöveges jóváhagyás (számozott "2-es mehet, 4-est módosítsd X-re") továbbra is működik
+mint fallback ha sokszor egyszerre kell döntés.
+
+## Akció végrehajtás (Tomi jóváhagyás után)
+
+Az asszisztens (vagy a card-button közvetlenül) delegálja a végrehajtást.
+
+Végrehajtáskor:
+1. Saját email MCP-vel küldöm (`mcp__email__send_email`, `html: true`, aláírás blokk, threading `in_reply_to`).
+2. Visszaigazolás az asszisztensnek **konkrét evidenciával** — nem csak ✅:
+   - Message-ID (a tool-válaszból)
+   - Küldési időbélyeg
+   - A `mcp__email__send_email` tool-válasz lényegi mezői (siker/hiba, recipient, subject)
+3. Hiba esetén: konkrét hibaüzenet, NEM „nem ment".
 
 ## UID state
 

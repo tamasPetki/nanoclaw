@@ -38,6 +38,48 @@ Saját UID state-et tárolok itt: `/workspace/agent/trinkenessen-last-uid.txt`
    - urgency: high / med / low
    - kérdések Tomihoz, ha vannak
 
+## Card UX (1-klikkes jóváhagyás)
+
+Discord card UX **támogatott** — az `mcp__nanoclaw__ask_user_question` MCP tool-lal Tomi
+embed-et kap button-okkal. Blokkoló call (max 300s timeout default), gombnyomás után az
+agent visszakapja a `value`-t.
+
+**Tool szignatúra:**
+```
+mcp__nanoclaw__ask_user_question({
+  title: "<rövid card-cím>",
+  question: "<a kérdés szöveg, markdown OK>",
+  options: [
+    { label: "<gomb-szöveg>", selectedLabel: "<post-click szöveg>", value: "<callback-érték>" },
+    ...
+  ]
+})
+```
+
+**Példa (válasz-draft jóváhagyás):**
+```
+mcp__nanoclaw__ask_user_question({
+  title: "Beszállító válasz: Coca-Cola HU",
+  question: "Áremelés-értesítő, +6%. Draft:\n\n> Köszönjük a tájékoztatást, kérjük az új árlistát PDF-ben...\n\nKüldjem ki?",
+  options: [
+    { label: "Küldd el",     selectedLabel: "✅ Elküldve",   value: "send" },
+    { label: "Módosítok",    selectedLabel: "✏️ Várok mod.", value: "edit" },
+    { label: "Eldobom",      selectedLabel: "❌ Eldobva",     value: "cancel" }
+  ]
+})
+```
+
+**Mikor használj card-ot:**
+- számla továbbítás Erikának
+- válasz draft jóváhagyás
+- archiválás vagy Todoist task döntés
+- bármilyen kétséges kategória
+
+**Mikor NE card:**
+- pure tájékoztató ami nem igényel akciót
+- failure-jelentés (sima text)
+- batch összesítő egyedi döntés nélkül
+
 ## Hiba esetén — MCP failure fallback
 
 Ha a saját email MCP nem elérhető (`mcp__email__*` toolok disconnected, IMAP timeout, egyéb

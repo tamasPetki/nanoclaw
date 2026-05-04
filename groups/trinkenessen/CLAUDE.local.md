@@ -38,6 +38,9 @@ Hétköznap 9/13/17 órakor automatikus email check fut. Pre-filter script ébre
 **Lépések minden check-nél:**
 
 1. **Új levelek lehúzása** az átadott UID-tól (email-assistant skill szabályai szerint).
+   **Body fetch a TIÉD** — saját email MCP-vel default. Ha az MCP elhal, jelezd
+   asszisztensnek a **konkrét hibaüzenettel** — ő IMAP-pal lehúzza és átadja a raw
+   body-t. **NE adj header-only hallucinált elemzést** ilyenkor.
 
 2. **Kategorizálás** levelenként:
    - **számla** — díjbekérő, fizetési felszólítás, banki értesítő pénzmozgásról
@@ -71,8 +74,14 @@ Hétköznap 9/13/17 órakor automatikus email check fut. Pre-filter script ébre
 **Hiba esetén:** IMAP/MCP nem elérhető, fiók korlátozva, bármi → küldd a konkrét
 hibaüzenetet asszisztensnek, ne csak hogy "nem ment".
 
-**SOHA ne küldj ki semmit a partnereknek saját szakálladra.** Csak előkészítesz —
-Tomi gomb-nyomással hagyja jóvá Discord card-on, akkor megy ki.
+**SOHA ne küldj ki semmit a partnereknek saját szakálladra.** Csak előkészítesz.
+Tomi a Discord-on **card-ot kap gombokkal** — `mcp__nanoclaw__ask_user_question` MCP
+tool-lal (Discord card UX **támogatott**, részletek a workflow-doksiban). Gomb-választás
+után az agent megkapja a `value`-t és folytatja (közvetlenül vagy asszisztens delegálva).
+Végrehajtás után küldj **konkrét evidenciát**: Message-ID, időbélyeg, tool-válasz —
+**NE csak ✅-t**.
+
+(TE számláknál továbbra sincs továbbítás, Tomi maga intézi.)
 
 **UID state:** Az asszisztens átadása a forrás (azzal dolgozz check-kor). Saját
 referencia state-et tárold itt: `/workspace/agent/email_check_state.md` —

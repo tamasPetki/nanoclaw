@@ -40,8 +40,11 @@ Ne használd közvetlenül az MCP email toolokat a skill workflow megkerülésé
 Hétköznap 9/13/17 CET az asszisztens email check kérést küld (UID-dal). Teljes workflow:
 `/workspace/agent/email-check-workflow.md` — kategorizálás (számla / válaszra vár / tájékoztató / egyéb),
 kontextusgyűjtés (múltbeli emailek, Drive, Todoist, projekt-memória), strukturált visszaküldés
-asszisztensnek urgency taggel. **Tilos partnernek kiküldeni** — csak draft előkészítés Tomi
-gomb-jóváhagyására. Hibát konkrét üzenettel jelezni.
+asszisztensnek urgency taggel. **Tilos partnernek kiküldeni** Tomi jóváhagyása nélkül —
+preferált a card UX (`mcp__nanoclaw__ask_user_question`, Discord-on **támogatott**), szöveges
+jóváhagyás (számozott akció) fallback. Body-fetch a saját email MCP-vel default; ha disconnected
+→ failover kérés az asszisztenstől (nem header-only hallucináció). Akció végrehajtásnál konkrét
+evidencia (Message-ID, timestamp, tool-válasz), nem csak ✅.
 
 ## Kommunikáció
 - Magyar nyelv, tegezés
