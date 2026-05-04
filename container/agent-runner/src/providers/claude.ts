@@ -282,7 +282,25 @@ function createPreCompactHook(assistantName?: string): HookCallback {
     } catch (err) {
       log(`Failed to archive transcript: ${err instanceof Error ? err.message : String(err)}`);
     }
-    return {};
+
+    // Compaction-survivor reminder: re-emit the most load-bearing routing
+    // invariant the agent commonly forgets after compact. The system prompt
+    // already carries it (destinations.ts), but compaction can dilute LLM
+    // attention to it — this systemMessage gives a short, fresh nudge in
+    // the post-compact context.
+    return {
+      systemMessage: [
+        '⚠️ POST-COMPACTION REMINDER',
+        '',
+        'Cross-agent communication requires explicit routing:',
+        '- `<message to="agent-name">...</message>` wrapper, OR',
+        '- `mcp__nanoclaw__send_message({ to: "agent-name", text: "..." })` tool call',
+        '',
+        'Plain text WITHOUT a wrapper goes ONLY to your user channel — the named agent receives nothing.',
+        'Before claiming "I told X" / "I delegated to X", verify the wrapper/tool call is in your output.',
+        'Re-read the "Sending messages" section of your system prompt for the full destination list.',
+      ].join('\n'),
+    };
   };
 }
 
