@@ -40,7 +40,18 @@ const SDK_DISALLOWED_TOOLS = [
   'ExitWorktree',
 ];
 
-// Tool allowlist for NanoClaw agent containers
+// Tool allowlist for NanoClaw agent containers.
+//
+// Notable omissions (intentional, do NOT re-add without thinking):
+//
+// - SendMessage / TeamCreate / TeamDelete: SDK-native Claude Code "team
+//   messaging" — sends to internal SDK state with a fake "@target" address,
+//   returns success:true, but is NOT wired to NanoClaw's inbound.db routing.
+//   Agents that use it think they delegated; the named agent's inbox stays
+//   empty. Cross-agent communication must go through `<message to="...">`
+//   wrappers or `mcp__nanoclaw__send_message`. (2026-05-04 incident:
+//   asszisztens used SendMessage 3+ times to pietscarlet/lupaobol; both
+//   inboxes empty for an hour.)
 const TOOL_ALLOWLIST = [
   'Bash',
   'Read',
@@ -53,9 +64,6 @@ const TOOL_ALLOWLIST = [
   'Task',
   'TaskOutput',
   'TaskStop',
-  'TeamCreate',
-  'TeamDelete',
-  'SendMessage',
   'TodoWrite',
   'ToolSearch',
   'Skill',
