@@ -19,6 +19,8 @@ PietScarlet Kft. társasházat épít Vác, Görgey Arthur utca 32. szám alatt.
 ## Google Drive írás — KÖTELEZŐ scope-szabály
 Drive módosítás a `google-drive` MCP-vel történik (upload/update tool-ok). **CSAK az `Ingatlanok/Vác, Görgey u. 32./` mappa alatti fájlokat szabad módosítani**. Más projekt (Csobánka, Felső Törökhegy) mappáiban, vagy a gyökér `/Pénzügyek`, `/Szerződések` stb. ágakon **csak olvasás** (rclone mount-on keresztül) engedélyezett — írni azokba tilos. Ha mégis szükséges lenne, ping Tominak és ő dönt.
 
+A *hogyan* (updateFile vs createTextFile, fileId lookup) a `google-drive-write` skillben — Drive-ra íráshoz nyisd meg.
+
 ## Plugin skillek
 - `gorgey-koltsegvetes` — költségvetés tracker (xlsx + QuiCK)
 - `gorgey-utemterv` — Gantt chart, fázisok, függőségek

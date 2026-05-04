@@ -10,15 +10,9 @@ Részletes cégadatok: `/workspace/global/references/cegadatok.md`
 E-mail: hello@pietscarlet.hu | Számlázás: penzugy@pietscarlet.hu
 
 ## Google Drive
-A cég Google Drive mappája elérhető: `/workspace/extra/pietscarlet-drive/` (read-only)
-Naponta egyszer szinkronizálódik (hajnali 3:00 CET).
 
-### Keresési segédfájlok
-A drive gyökérben két segédfájl található a gyors kereséshez:
-- `PIETSCARLET_INDEX.md` — Teljes mappastruktúra index, gyors navigációhoz
-- `PIETSCARLET_CATALOG.md` — 1007 PDF szöveges kivonata, tartalom alapján kereshető
-
-**Mindig először ezeket nézd meg**, mielőtt `ls` / `find` parancsokkal keresgélnél — gyakran elég belőlük kideríteni, melyik mappában és fájlban van a keresett információ.
+- **Olvasás:** `/workspace/extra/pietscarlet-drive/` (rclone mount, naponta 3:00 CET sync). Keresési flow + INDEX/CATALOG segédfájlok: `pietscarlet-kontextus` skill.
+- **Írás:** a `google-drive` MCP-vel. Mint cég-szintű asszisztens **bármelyik mappába írhatsz** (Pénzügyek, Szerződések, Számlák, Partnerek, Bankkivonatok stb.) — de tartsd tiszteletben a leányagentek hatókörét: konkrét projekt-mappa (Görgey 32, Csobánka, Felső Törökhegy) frissítését inkább bízd az adott projekt-agentre, hacsak Tomi nem kér mást. *Hogyan*: `google-drive-write` skill (updateFile vs createTextFile, fileId lookup).
 
 ## Projektek
 
