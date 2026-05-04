@@ -42,6 +42,15 @@
         "GOOGLE_DRIVE_OAUTH_CREDENTIALS": "/workspace/extra/google-oauth/gcp-oauth.keys.json",
         "GOOGLE_DRIVE_MCP_TOKEN_PATH": "/workspace/extra/google-oauth/drive_tokens.json"
       }
+    },
+    "todoist": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "https://ai.todoist.net/mcp"
+      ],
+      "env": {}
     }
   },
   "packages": {
@@ -49,6 +58,11 @@
     "npm": []
   },
   "additionalMounts": [
+    {
+      "hostPath": "/root/nanoclaw-v2/groups/csobanka/.mcp-auth",
+      "containerPath": ".mcp-auth",
+      "readonly": false
+    },
     {
       "hostPath": "/root/data/gdrive-pietscarlet",
       "containerPath": "pietscarlet-drive",

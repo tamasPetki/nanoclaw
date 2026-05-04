@@ -357,3 +357,14 @@ A kovetkezo csoportok a legmagasabb prioritasuak a Phase 3 csatlakozasra:
 
 - https://www.facebook.com/groups/mindenamirendezvenyesszervezes/ -- "Minden ami rendezvény és szervezés! Rendezvényszervezők szakmai csoportja." -- discovered, NOT joined (Phase 2 tilalom)
 - https://www.facebook.com/groups/707694661916866/ -- "Rendezvényt szervezek - szolgáltatót keresek!" -- discovered, NOT joined (Phase 2 tilalom)
+
+## 2026-05-04 FB session discovery ("rendezvényhelyszín Magyarország" search)
+
+Narrow keyword bejött — első éles HU venue-side csoport-batch. NOT joined (Phase 2 tilalom), shortlist-jelölt:
+
+- https://www.facebook.com/groups/1072652926134887/ — "Rendezvények és rendezvény közeli szállások Magyarországon" — venue + accommodation directory, valószínű B2C demand (foglaló oldal). Score: 4.
+- https://www.facebook.com/groups/202301403165786/ — "Rendezvények, rendezvényszervezés, koncertek, szolgáltatások, programok" — supply + szolgáltatók mix. Score: 4.
+- https://www.facebook.com/groups/533196806715223/ — "Rendezvénykereső és Rendezvényszervező Ajánlók" — directory/ajánló, B2B + B2C híd. Score: 5 (potenciális Phase 3 első target).
+- https://www.facebook.com/groups/254791949698374/ — "Rendezvények, szolgáltatók, helyszínek" — vendor+venue marketplace. Score: 4.
+- https://www.facebook.com/groups/rendezvenyre/ — "Rendezvényszervezés Falunap, Fesztivál, Fellépő, Rendezvény 2026" — falunap/fesztivál fókusz, részben tangenciális (kis-település). Score: 3.
+- Kihagyva (kontextusból nem ICP): "RENDEZVÉNYEK MAGYARORSZÁGON" (event-listing fogyasztói), "Fesztiválok/Koncertek..." (zenei), "Magyarország értékei" (általános), "Szálláshelyek Magyarország" (accommodation-only).

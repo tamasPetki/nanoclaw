@@ -1,29 +1,37 @@
 # Aktuális állapot
-_Frissítve: 2026. május 4._
+_Frissítve: 2026. május 4. (este)_
 
-## Tetőszerkezet
-Szerkezet kész, fóliázás kész. **Horgász Csabáék ezen a héten kezdik a cserepezést.**
+## Tetőszerkezet / cserepezés
+- Cserepezés folytatódik. **Tetőablakok az egyik oldalon benn vannak.**
+- Várhatóan **1, max 2 héten belül** kész az egyik oldal → utána **átállványozás** az épület másik oldalára.
 
 ## Homlokzat
-EPS ragasztás kb. az épület felénél tart. Egyik oldal felállványozva.
+EPS ragasztás kb. az épület felénél. Egyik oldal felállványozva.
+
+## Vízszerelés / gépészet — TLK Invest, Bérczy Gergely
+- **Holnap (máj. 5) folytatják.**
+- Pár héten belül végeznek → **nyomáspróba**.
+- Utána szervezhető a **padlószigetelés** az 1. emeleten.
+
+## Padlószigetelés / aljzat (1. emelet) — sorrend víz után
+1. Padlószigetelés
+2. Fólia + háló
+3. **Fűtéscsövek** letekerése
+4. **Estrich** az 1. szintre — cél: **május vége**, ha minden jól megy.
 
 ## Villanyszerelés
-- Alap (rough-in): A&D Vill (**Salgovári Attila** csapata) — ezen a héten ígérte a folytatást.
-- **Betáplálás (fővezeték rákötés):** ügyintézés alatt. Tomi múlt héten elküldte az adatokat az ügyintézőnek, várjuk a visszajelzést.
-  - Emlékeztető ütemezve: ha 2026-05-06 (szerda) reggelig nincs előrelépés.
+- **Rough-in (A&D Vill / Salgovári Attila):** **jövő hét második felében** kezdik a folytatást.
+- **Közműcsatlakozás (E.ON):** Tomi intézte. **Műszaki-gazdasági tájékoztatót várjuk az E.ON-tól**, csak utána tudunk lépni. Valószínűleg **térítésmentesen, saját költségen** kell rákötnünk.
 
-## Gépészet
-**TLK Invest (Bérczy Gergely)** — folytatja a munkát.
-~~Letfusz és Fia~~ — csak alapszerelést, kész, NEM dolgoznak már.
-
-## Tomi mai mozgások
-- Most hívja TLK Invest-et és A&D Vill-t telefonon (kezdik-e tényleg ezen a héten?)
-- Helyszínen: 13:00-13:30
+## Számlák / QuiCK
+- Tominak címkézni kell a számlákat QuiCK-ben — emlékeztető a héten.
 
 ## Következő teendők
-1. Cserepezés indul (Horgász Csaba) — ezen a héten
+1. Cserepezés folytatás (1-2 hét) → átállványozás
 2. EPS ragasztás 2. fele
-3. Villany rough-in folytatás (Salgovári Attila / A&D Vill)
-4. Gépészet folytatás (Bérczy Gergely / TLK Invest)
-5. Villany betáplálás ügyintézés visszajelzés (deadline szerda)
-6. Bádogos munkák (Bádog Varázs) — ütemezés
+3. Vízszerelés befejezés + nyomáspróba (TLK Invest)
+4. Padlószigetelés → fólia/háló → fűtéscső → estrich 1. emelet (máj. vége cél)
+5. Villany rough-in folytatás (A&D Vill, jövő hét 2. fele)
+6. E.ON műszaki-gazdasági tájékoztató bevárása → betáplálás
+7. Bádogos munkák (Bádog Varázs) — ütemezés
+8. **QuiCK számla-címkézés (Tomi, ezen a héten)**
