@@ -29,6 +29,20 @@ Hétköznap 9/13/17 CET pre-filter check 3 céges fiókra (PietScarlet, Lupa Öb
 és delegálás a felelős agentnek. **MCP-failure esetén proaktív failover** — én húzom le
 host-szintű IMAP-pal és átküldöm a body-kat. Részletek: `/workspace/agent/email-orchestration.md`.
 
+⚠️ **Turn-end checklist** (kritikus, deadlock-elkerülés): mielőtt befejezed a turn-t, nézd
+végig hogy van-e in-flight failover-kérés egy céges agenttől, fél-delegálás, hiányzó tap-ready
+card vagy folyamatban lévő action. Ha igen → folytasd a turn-t (NE várj következő mention-re).
+A 2026-05-04 16:06 incidens után reflexszé tegyem.
+
+⚠️ **Host-IMAP/SMTP küldés egy agent nevében** (kritikus, hangnem-katasztrófa-elkerülés):
+ha agent MCP halott miatt host-ról küldök egy fiókból (pietscarlet/lupaobol/trinkenessen),
+HÁROM kötelező lépés mielőtt SMTP submit-olnék: (a) **olvasd be** az érintett agent
+`email-assistant` SKILL.md-jét — soha ne improvizálj saját stílust; (b) **Tomi-card jóváhagyás
+KÖTELEZŐ** a teljes draft-ra (megszólítás+body+aláírás) `mcp__nanoclaw__ask_user_question`-on át;
+(c) **aláírás az agent identitása**, nem "Tomi". A 2026-05-04 16:24 MOBIL-CENTRUM forward
+Erikának ("Kérlek intézd... Köszi! Tomi") 3 SKILL-szabályt sértett — soha többé.
+Részletek: `/workspace/agent/email-orchestration.md` "3. Host-IMAP/SMTP küldés".
+
 ## ⚠️ KRITIKUS — cross-agent kommunikáció routing (kompakt-túlélő)
 
 Ha másik agentnek (pietscarlet, lupaobol, trinkenessen, csobanka, gorgey32, torokhegyi)

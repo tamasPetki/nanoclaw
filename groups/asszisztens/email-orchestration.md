@@ -105,12 +105,78 @@ c. A felelős agent a body-átvétel után csinálja meg a kategorizálást + ac
 Példa: ma (2026-05-04 13:32-kor) PietScarlet failure-t jelzett, én átküldtem az 5 emailt
 full body-val, és helyesen feldolgozta. **Ez a deklarált pattern, nem improvizáció.**
 
+### 3. Host-IMAP/SMTP KÜLDÉS egy agent nevében (KÖTELEZŐ szabályok)
+
+Ha az agent email MCP-je tartósan le van és én **küldök ki** levelet host-IMAP/SMTP-vel
+az agent fiókjából (pl. `mail.pietscarlet.hu:587` STARTTLS, `hello@pietscarlet.hu`-ról),
+az **HÁROM kötelező lépés**:
+
+**(a) Olvasd be az érintett agent email-skilljét ELŐBB.**
+A `/home/node/.claude/skills/email-assistant/SKILL.md` (mountolva minden agentnek
+a `data/v2-sessions/<group>/.claude-shared/skills/email-assistant/SKILL.md`-ből) tartalmazza
+az adott fiók hangnem-szabályait, megszólítás-formulát, aláírás blokkot. **Soha ne improvizálj
+saját kapásból** — a SKILL utolsó word a stílusra. A 2026-05-04 16:24 incidens (MOBIL-CENTRUM
+forward Erikának: "Kérlek intézd a csatolt számlát. Köszi! Tomi") **3 SKILL-szabályt sértett**
+(utasítás, hiányzó kedves zárás, rossz aláírás). Tomi felháborodott, jogosan.
+
+**(b) Készíts draft-ot Tomi-card-on JÓVÁHAGYÁSRA mielőtt küldenél.**
+Soha NE küldj host-IMAP-pal anélkül hogy Tomi explicit gombot nyomott volna. A draft-ban
+mutasd meg a teljes szöveget (megszólítás, body, aláírás) — Tomi a card-on lássa pontosan
+mi megy ki. `mcp__nanoclaw__ask_user_question` opciók: "✅ Küldd", "✏️ Módosítok",
+"❌ Mégsem".
+
+**(c) Aláírás az AGENT identitása, NEM "Tomi".**
+Ha pietscarlet nevében küldök, az aláírás `PietScarlet Kft.` (vagy az agent
+SKILL-jében meghatározott pontos forma) — nem `Tomi`, nem üresen. Az email a fiók
+identitásával megy ki, az aláírásnak ezt tükröznie kell.
+
+Ezeket akkor is be kell tartani ha sietsz / akkor is ha "csak gyors" forward — Tomi
+inkább vár 30 másodpercet a card-jóváhagyással mint hogy hibás hangnemű email partnernek
+menjen ki.
+
 ### 3. Mikor SEM failover
 
 - **NONAUTH / hitelesítési hiba** — host-szintről is ugyanazzal a credentiallal megy.
   Ha a host-szintű IMAP-pal nálam is fail, jelezz Tomira (jelszó-rotáció / fiók-zár).
 - **IMAP-szerver lent** (host nem éri el a mail-szervert) — Tomira eszkalálni.
 - **Több mint 3 nap óta failure** ugyanannál a fióknál — nem-tranziens probléma, Tomi-eszkalálás.
+
+## ⚠️ Turn-end checklist (KÖTELEZŐ minden válasz előtt mielőtt befejezed a turn-t)
+
+A NanoClaw agent reactive — `end_turn` után csak a következő inbound message
+ébreszt fel. Ha félbehagyott in-flight workflow van és lezárod a turn-t, az
+egész orchestration deadlock-ban marad amíg Tomi újra nem mention-el. A
+2026-05-04 16:06 incidens pont ez volt: lezártam a turn-t miközben pietscarletnek
+és lupaobolnak failover-t kellett volna küldenem, mindenki egymásra várt.
+
+**Mielőtt a turn-t lezárod, MENJ VÉGIG a következőkön:**
+
+1. **In-flight failover-kérés van-e?**
+   Olvasd vissza a saját utolsó turn-edet és minden bejövő agent-üzenetet.
+   Ha bármelyik céges agent `failover-kérést` jelzett (mintázat: `⚠️ Email MCP
+   nem elérhető — failover`, vagy bármi `disconnected`/`tool unavailable`/
+   `body átküldését kéri`), akkor **TE vagy a felelős** — host-IMAP-pal lehúzni
+   a body-t és `<message to="agent">` wrapperrel átküldeni.
+
+2. **Fél-delegálás van-e?**
+   Ha egy delegáláshoz csak részben jött válasz (pl. 2-ből 1 agent reagált),
+   ne várj passzívan a másikra — küldj nudge-ot vagy ellenőrizd hogy ki kell-e
+   még valamit küldened.
+
+3. **Tomi-card hiányzik-e döntésre?**
+   Ha minden agent-válasz megérkezett, készítsd el a `mcp__nanoclaw__ask_user_question`
+   tap-ready card-okat MIELŐTT lezárod a turn-t. Sima text-üzenet ahol döntésre
+   van szükség = következő kör vesztett.
+
+4. **Action végrehajtás folyamatban?**
+   Ha card-választás után delegáltál action végrehajtást, ne fejezd be a turn-t
+   amíg evidencia (Message-ID + Sent-mappa-UID + tool-válasz) vissza nem érkezik.
+
+**Ha bármelyik checklist-pont aktívnak bizonyul, FOLYTASD a turn-t** — küldd ki
+a hiányzó üzenetet/cardot/tool-call-t MOST, NE várj következő mention-re. Csak
+akkor zárhatod le a turn-t ha:
+- Minden in-flight failover teljesítve, VAGY
+- Egyértelműen Tomi-bemenetre vár valami (és ezt ki is mondod neki)
 
 ## Logging
 
