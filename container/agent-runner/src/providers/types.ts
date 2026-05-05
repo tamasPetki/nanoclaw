@@ -89,4 +89,12 @@ export type ProviderEvent =
    * event (tool call, thinking, partial message, anything) so the
    * poll-loop's idle timer stays honest during long tool runs.
    */
-  | { type: 'activity' };
+  | { type: 'activity' }
+  /**
+   * Provider compacted its conversation context. The poll-loop ends the
+   * current stream on this so the next iteration starts a fresh query
+   * from the persisted continuation — works around an SDK state where
+   * push()-ed follow-ups after a compact silently produce no further
+   * events (heartbeat freezes, container only recovers via stuck-kill).
+   */
+  | { type: 'compact'; preTokens?: number };

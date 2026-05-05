@@ -265,8 +265,9 @@ async function processQuery(
   // will kill the container and messages get reset to pending.
   let pollInFlight = false;
   let endedForCommand = false;
+  let endedForCompact = false;
   const pollHandle = setInterval(() => {
-    if (done || pollInFlight || endedForCommand) return;
+    if (done || pollInFlight || endedForCommand || endedForCompact) return;
     pollInFlight = true;
 
     void (async () => {
@@ -366,6 +367,17 @@ async function processQuery(
         if (event.text) {
           dispatchResultText(event.text, routing);
         }
+      } else if (event.type === 'compact') {
+        // SDK auto-compacted context. Pushing follow-ups into the stream
+        // after this point sometimes produces no further events — the
+        // event-loop appears to stall and the heartbeat freezes, leaving
+        // recovery to host-sweep's claim-stuck kill (60s+ visible delay).
+        // End the stream so the outer loop opens a fresh query that
+        // resumes from the persisted continuation. Initial batch is
+        // already marked completed (the real result event preceded this).
+        log(`Compact boundary${event.preTokens ? ` (${event.preTokens.toLocaleString()} tokens)` : ''} — ending stream so outer loop restarts query`);
+        endedForCompact = true;
+        query.end();
       }
     }
   } finally {
@@ -389,6 +401,9 @@ function handleEvent(event: ProviderEvent, _routing: RoutingContext): void {
       break;
     case 'progress':
       log(`Progress: ${event.message}`);
+      break;
+    case 'compact':
+      log(`Compact: ${event.preTokens ? `${event.preTokens.toLocaleString()} tokens` : 'preTokens unknown'}`);
       break;
   }
 }
