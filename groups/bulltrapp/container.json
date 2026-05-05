@@ -8,7 +8,7 @@
       ],
       "env": {
         "MCP_EMAIL_SERVER_ACCOUNT_NAME": "bulltrapp",
-        "MCP_EMAIL_SERVER_FULL_NAME": "Lloyd @ BullTrapp",
+        "MCP_EMAIL_SERVER_FULL_NAME": "\"Lloyd @ BullTrapp\"",
         "MCP_EMAIL_SERVER_EMAIL_ADDRESS": "lloyd@bulltrapp.com",
         "MCP_EMAIL_SERVER_IMAP_HOST": "imap.zoho.eu",
         "MCP_EMAIL_SERVER_IMAP_PORT": "993",

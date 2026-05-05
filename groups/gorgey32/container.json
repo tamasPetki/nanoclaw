@@ -8,7 +8,7 @@
       ],
       "env": {
         "MCP_EMAIL_SERVER_ACCOUNT_NAME": "pietscarlet",
-        "MCP_EMAIL_SERVER_FULL_NAME": "PietScarlet Kft.",
+        "MCP_EMAIL_SERVER_FULL_NAME": "\"PietScarlet Kft.\"",
         "MCP_EMAIL_SERVER_EMAIL_ADDRESS": "hello@pietscarlet.hu",
         "MCP_EMAIL_SERVER_IMAP_HOST": "mail.pietscarlet.hu",
         "MCP_EMAIL_SERVER_IMAP_PORT": "993",

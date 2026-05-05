@@ -42,6 +42,21 @@ for fiok in [pietscarlet, trinkenessen, lupaobol]:
     delegate(felelős_agent_for(fiok), last, current_uids)
 ```
 
+## Hiányzó / olvashatatlan feladó
+
+A pre-filter `from` mezője **soha nem `undefined`** — vagy a dekódolt feladó (név +
+email cím), vagy a `(ismeretlen feladó)` placeholder. Ha a header `from_missing: true`
+flaget tartalmaz, az azt jelenti hogy az IMAP válaszban tényleg nem volt érvényes
+`From:` header — ez ritka, és **gyanús** (spam / hibás MTA / scam). Ilyenkor:
+
+- Delegáld normál módon a felelős agentnek (a `subject` és `body` alapján is el tudja dönteni mi ez).
+- A Tomi-felé prezentációban a feladó helyén `(ismeretlen feladó — gyanús)` jelenjen meg, és a
+  card-on legyen explicit `Archive (gyanús)` opció.
+
+A header-parser (`email-prefilter.py`) `email.policy.default`-ot használ → header folding,
+encoded-word (`=?utf-8?B?...?=`), Q-encoded név mind helyesen dekódolódik. Ha mégis üresen
+jön, az tényleges hiányzó header, nem parsolási bug.
+
 ## Delegálás (normál pálya)
 
 ⚠️ **KRITIKUS routing-szabály** (kompakt-túlélő — minden compact után ellenőrizd!):

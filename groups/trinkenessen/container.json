@@ -8,7 +8,7 @@
       ],
       "env": {
         "MCP_EMAIL_SERVER_ACCOUNT_NAME": "trinkenessen",
-        "MCP_EMAIL_SERVER_FULL_NAME": "Trinken Essen Kft.",
+        "MCP_EMAIL_SERVER_FULL_NAME": "\"Trinken Essen Kft.\"",
         "MCP_EMAIL_SERVER_EMAIL_ADDRESS": "hello@trinkenessen.eu",
         "MCP_EMAIL_SERVER_IMAP_HOST": "s3.dchosting.hu",
         "MCP_EMAIL_SERVER_IMAP_PORT": "993",

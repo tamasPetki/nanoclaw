@@ -8,7 +8,7 @@
       ],
       "env": {
         "MCP_EMAIL_SERVER_ACCOUNT_NAME": "rezerver",
-        "MCP_EMAIL_SERVER_FULL_NAME": "Dani @ Rezerver",
+        "MCP_EMAIL_SERVER_FULL_NAME": "\"Dani @ Rezerver\"",
         "MCP_EMAIL_SERVER_EMAIL_ADDRESS": "dani@rezerver.com",
         "MCP_EMAIL_SERVER_IMAP_HOST": "imap.zoho.eu",
         "MCP_EMAIL_SERVER_IMAP_PORT": "993",

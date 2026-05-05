@@ -8,8 +8,10 @@ import imaplib
 import json
 import os
 import sys
+import email
 from datetime import datetime, timedelta, timezone
-from email.utils import parseaddr
+from email import policy
+from email.header import decode_header, make_header
 
 STATE_PATH = "/workspace/agent/email-state.json"
 
@@ -21,6 +23,20 @@ ACCOUNTS = [
     {"key": "lupaobol", "host_env": "LUPAOBOL_IMAP_HOST", "port_env": "LUPAOBOL_IMAP_PORT",
      "user_env": "LUPAOBOL_IMAP_USER", "pass_env": "LUPAOBOL_IMAP_PASSWORD"},
 ]
+
+
+def header_value(msg, name):
+    """Decoded header value, robust to folding + encoded-words. Empty string if missing."""
+    raw = msg.get(name)
+    if raw is None:
+        return ""
+    try:
+        return str(raw).strip()
+    except Exception:
+        try:
+            return str(make_header(decode_header(str(raw)))).strip()
+        except Exception:
+            return ""
 
 
 def load_state():
@@ -75,16 +91,16 @@ def fetch_account(acct, state):
             try:
                 typ, msg_data = m.uid("fetch", uid, "(BODY.PEEK[HEADER.FIELDS (FROM SUBJECT DATE)])")
                 if typ == "OK" and msg_data and msg_data[0]:
-                    raw = msg_data[0][1].decode("utf-8", errors="replace") if isinstance(msg_data[0][1], bytes) else str(msg_data[0][1])
-                    h = {"uid": uid, "from": "", "subject": "", "date": ""}
-                    for line in raw.splitlines():
-                        low = line.lower()
-                        if low.startswith("from:"):
-                            h["from"] = line[5:].strip()
-                        elif low.startswith("subject:"):
-                            h["subject"] = line[8:].strip()
-                        elif low.startswith("date:"):
-                            h["date"] = line[5:].strip()
+                    raw = msg_data[0][1] if isinstance(msg_data[0][1], bytes) else str(msg_data[0][1]).encode("utf-8", errors="replace")
+                    msg = email.message_from_bytes(raw, policy=policy.default)
+                    from_val = header_value(msg, "From")
+                    h = {
+                        "uid": uid,
+                        "from": from_val or "(ismeretlen feladó)",
+                        "from_missing": not from_val,
+                        "subject": header_value(msg, "Subject") or "(nincs tárgy)",
+                        "date": header_value(msg, "Date"),
+                    }
                     headers.append(h)
             except Exception as e:
                 headers.append({"uid": uid, "error": str(e)})

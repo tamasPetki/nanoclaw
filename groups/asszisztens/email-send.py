@@ -9,13 +9,14 @@ import sys
 import time
 import uuid
 from email.message import EmailMessage
+from email.utils import formataddr
 from email import policy
 import email as emaillib
 
 ACCOUNTS = {
-    "pietscarlet": "PIETSCARLET",
-    "trinkenessen": "TRINKENESSEN",
-    "lupaobol": "LUPAOBOL",
+    "pietscarlet": ("PIETSCARLET", "PietScarlet Kft."),
+    "trinkenessen": ("TRINKENESSEN", "Trinken Essen Kft."),
+    "lupaobol": ("LUPAOBOL", "Lupa Öböl Kft."),
 }
 
 
@@ -51,7 +52,7 @@ def main():
     uid = sys.argv[2]
     to_addr = sys.argv[3]
 
-    prefix = ACCOUNTS[account]
+    prefix, display_name = ACCOUNTS[account]
     imap_host = os.environ[f"{prefix}_IMAP_HOST"]
     imap_port = int(os.environ.get(f"{prefix}_IMAP_PORT", "993"))
     user = os.environ[f"{prefix}_IMAP_USER"]
@@ -62,12 +63,13 @@ def main():
     raw, orig = fetch_original(imap_host, imap_port, user, pwd, uid)
 
     fwd = EmailMessage()
-    fwd["From"] = user
+    sender = formataddr((display_name, user))
+    fwd["From"] = sender
     fwd["To"] = to_addr
     orig_subj = str(orig.get("Subject", ""))
     fwd["Subject"] = f"Fwd: {orig_subj}"
-    fwd["Reply-To"] = user
-    msg_id = f"<{uuid.uuid4()}@pietscarlet.hu>"
+    fwd["Reply-To"] = sender
+    msg_id = f"<{uuid.uuid4()}@{user.split('@', 1)[1]}>"
     fwd["Message-ID"] = msg_id
 
     body_text = ""
@@ -111,7 +113,7 @@ def main():
 
     print(json.dumps({
         "method": method,
-        "from": user,
+        "from": sender,
         "to": to_addr,
         "subject": fwd["Subject"],
         "message_id": msg_id,

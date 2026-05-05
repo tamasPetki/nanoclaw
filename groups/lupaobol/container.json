@@ -8,7 +8,7 @@
       ],
       "env": {
         "MCP_EMAIL_SERVER_ACCOUNT_NAME": "lupaobol",
-        "MCP_EMAIL_SERVER_FULL_NAME": "Lupa Öböl Kft.",
+        "MCP_EMAIL_SERVER_FULL_NAME": "\"Lupa Öböl Kft.\"",
         "MCP_EMAIL_SERVER_EMAIL_ADDRESS": "hello@lupaobolstrand.hu",
         "MCP_EMAIL_SERVER_IMAP_HOST": "s3.dchosting.hu",
         "MCP_EMAIL_SERVER_IMAP_PORT": "993",
