@@ -193,6 +193,47 @@ const postToolUseHook: HookCallback = async () => {
 };
 
 /**
+ * Proactive MCP health check. Runs on every UserPromptSubmit (every turn,
+ * including cross-agent messages). Independent of whether the agent
+ * attempts an MCP tool — necessary because a passive agent that has
+ * "given up" on a dead MCP will never trigger PostToolUseFailure, leaving
+ * the dead child process dead forever.
+ *
+ * For each MCP whose status is `failed` (or `disabled` unexpectedly),
+ * calls reconnectMcpServer(name). The next tool call has a live MCP.
+ *
+ * Concrete incident (2026-05-04 18:42-20:36): trinkenessen Todoist
+ * mcp-remote child died, agent saw it as disconnected, refused to retry,
+ * and the dead child stayed dead through 4 hours of session-resume cycles.
+ */
+function createMcpHealthCheckHook(getQuery: () => Query | null): HookCallback {
+  return async (input) => {
+    if (input.hook_event_name !== 'UserPromptSubmit') return {};
+    const q = getQuery();
+    if (!q) return {};
+
+    try {
+      const statuses = await q.mcpServerStatus();
+      const dead = statuses.filter((s) => s.status === 'failed' || s.status === 'disabled');
+      if (dead.length === 0) return {};
+
+      log(`[mcp-health] ${dead.length} MCP server(s) need reconnect: ${dead.map((s) => `${s.name}=${s.status}`).join(', ')}`);
+      for (const s of dead) {
+        try {
+          await q.reconnectMcpServer(s.name);
+          log(`[mcp-health] ${s.name} reconnect OK`);
+        } catch (err) {
+          log(`[mcp-health] ${s.name} reconnect failed: ${err instanceof Error ? err.message : String(err)}`);
+        }
+      }
+    } catch (err) {
+      log(`[mcp-health] status query failed: ${err instanceof Error ? err.message : String(err)}`);
+    }
+    return {};
+  };
+}
+
+/**
  * Auto-recover from MCP-disconnect failures. The Claude Code SDK does not
  * reconnect a child MCP server when its stdio pipe dies (long-idle IMAP
  * timeout, child crash, OOM). The whole session sees `mcp__*` tools as
@@ -369,6 +410,7 @@ export class ClaudeProvider implements AgentProvider {
     // lazy getter sidesteps the chicken-and-egg.
     let queryHandle: Query | null = null;
     const mcpRecoveryHook = createMcpRecoveryHook(() => queryHandle);
+    const mcpHealthCheckHook = createMcpHealthCheckHook(() => queryHandle);
 
     const sdkResult = sdkQuery({
       prompt: stream,
@@ -392,6 +434,7 @@ export class ClaudeProvider implements AgentProvider {
           PostToolUse: [{ hooks: [postToolUseHook] }],
           PostToolUseFailure: [{ hooks: [postToolUseHook, mcpRecoveryHook] }],
           PreCompact: [{ hooks: [createPreCompactHook(this.assistantName)] }],
+          UserPromptSubmit: [{ hooks: [mcpHealthCheckHook] }],
         },
       },
     });
