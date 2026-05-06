@@ -327,10 +327,12 @@ function createSlashCommandHintHook(): HookCallback {
   return async (input) => {
     if (input.hook_event_name !== 'UserPromptSubmit') return {};
     const prompt = input.prompt ?? '';
-    // Telegram szövegek néha XML-szerű <message ...>...</message> wrapper-ben jönnek; a Tomi
-    // tényleges szövegét keressük benne. Egyszerű extract:
-    const inner = prompt.match(/>([^<]+)</)?.[1] ?? prompt;
-    const m = inner.trim().match(/^\/([a-z0-9_-]+)(?:\s+(.+))?$/i);
+    // Telegram inbound szövegek XML-wrapper-ben érkeznek:
+    //   <context ... /><message id=".." from=".." sender=".." time="..">TÉNYLEGES SZÖVEG</message>
+    // Először a <message>...</message> tag tartalmát keressük; ha nincs ilyen, használjuk a teljes promptot.
+    const msgMatch = prompt.match(/<message[^>]*>([\s\S]+?)<\/message>/);
+    const inner = (msgMatch?.[1] ?? prompt).trim();
+    const m = inner.match(/^\/([a-z0-9_-]+)(?:\s+([\s\S]+))?$/i);
     if (!m) return {};
     const cmd = m[1].toLowerCase();
     const arg = m[2] ?? '';
