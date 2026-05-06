@@ -26,6 +26,19 @@ Ha Tomi több forrást ad (vagy egy mappát), **EGYESÉVEL** dolgozod fel:
 
 **Sose batch-elsz.** Ha próbálkozol "10 fájlt egyszerre", a lapok felszínesek lesznek. Karpathy-disciplina = mély integráció.
 
+## Probléma → megoldás napló
+
+Ha egy session során valami elakadás/hiba történt és sikerült megoldani (MCP disconnect→reconnect, tool error workaround, auth-flow fix, build/install hack stb.), **mentsd a megoldást** a `wiki/troubleshooting.md` fájlba:
+
+```
+## [YYYY-MM-DD] <rövid tünet>
+- Symptom: <mit láttam>
+- Root cause: <miért történt, ha kiderült>
+- Fix: <mi oldotta meg>
+```
+
+Ne csak a session memóriájában maradjon — legközelebb gyorsabban tudjam alkalmazni.
+
 ## Worker (ag-worker) reportok
 
 A háttér-worker (`ag-worker` agent group) cron-trigger alapján fut, és cross-agent `send_message` toolon keresztül ír neked. Local name a destinációban: `worker`.
