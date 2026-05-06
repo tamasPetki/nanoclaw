@@ -68,9 +68,89 @@ A `wiki/worker-activity.md` oldalt te vezeted a háttér-worker-től érkező cr
 - Te az aznapi blokkba beillesztesz egy sort.
 - **NEM küldöd tovább Tominak push-ban** — ez háttér-info, ő naponta egyszer kérdezi rá.
 
-## Konvenciók
+## Orientation flow (KRITIKUS — minden session elején)
 
-- Markdown-fájlok kisbetűsek, kötőjellel (`gorgey32-summary.md`, `pinter-tüzep.md` — ékezetek tárolva).
-- Egy oldal = egy téma. Ha >500 sor, bontsd `<oldal>/index.md` + alfájlok.
-- Datum formátum: `YYYY-MM-DD` (ISO).
-- Frontmatter opcionális, de ha van: `tags`, `status`, `last-updated`.
+Mielőtt bármit ingestelnél/query-znél/lint-elnél, **olvasd be ezt a hármast**:
+
+1. `wiki/SCHEMA.md` — domain, konvenciók, tag-taxonomy
+2. `wiki/index.md` — milyen oldalak vannak, egysoros összefoglalókkal
+3. `wiki/log.md` utolsó 20-30 sora — mi történt friss
+
+Csak ezután ingest/query. Ez megelőzi a duplikált oldal-létrehozást, hiányzó kereszthivatkozásokat, schema-konvenciók megsértését, és a már elvégzett munka megismétlését.
+
+Nagy wiki-nél (100+ page) a Grep/Glob is futtatandó az érintett témára, mielőtt új oldalt hozol létre.
+
+## Konvenciók (`SCHEMA.md`-ben rögzítve)
+
+A `wiki/SCHEMA.md` definiálja a struktúrát. Ha még nincs, hozd létre az alábbi template-tel:
+
+```markdown
+# Wiki Schema
+
+## Domain
+Tomi életmenedzselése: PietScarlet építőipar (Görgey32, Csobánka, Törökhegy, Rózsa u.,
+Lupa Öböl, Trinken Essen), egészség (edző, Withings), hírek/crypto, worker-activity.
+
+## Konvenciók
+- Fájlnevek: kisbetűs, kötőjelek (`gorgey32-summary.md`), ékezetek megengedettek.
+- Minden wiki-page YAML frontmatterrel kezdődik (lásd lent).
+- `[[wikilinks]]` Markdown-belső, vagy relatív path: `[Erika](../entities/erika-szabo.md)`.
+- Minden új oldalhoz update-eld `index.md`-t a megfelelő szekció alatt.
+- Minden ingest/query-szintézis/lint-pass a `log.md`-be.
+- 3+ source-ot szintetizáló oldalra rakj `(forrás: raw/articles/x.md)` annotációt
+  azon paragrafusoknál, amik konkrét forráshoz kötődnek.
+
+## Frontmatter (kötelező a wiki/-ben)
+
+  ```yaml
+  ---
+  title: Oldal címe
+  created: YYYY-MM-DD
+  updated: YYYY-MM-DD
+  type: entity | concept | comparison | project | summary
+  tags: [taxonomy-listából]
+  sources: [sources/projektnév/file.md]
+  # Opcionális minőség-jelzők:
+  confidence: high | medium | low        # mennyire alátámasztott
+  contested: true                        # ha vannak feloldatlan ellentmondások
+  contradictions: [másik-oldal-slug]
+  ---
+  ```
+
+A `confidence` és `contested` opcionálisak de ajánlottak. A heti lint surface-eli a
+`contested: true` és `confidence: low` oldalakat — gyenge claim-ek ne ragadjanak be
+elfogadott wiki-fact-ként.
+
+### sources/ frontmatter
+
+A `sources/`-ben minden file-t is frontmatterezz:
+
+```yaml
+---
+source_url: https://example.com/article  # ha URL volt eredet
+ingested: YYYY-MM-DD
+sha256: <body content sha256-je>
+---
+```
+
+A `sha256:` lehetővé teszi hogy újra-ingest-nél (URL update) drift-et detektálj.
+
+## Tag taxonomy (`SCHEMA.md`-ben definiálva)
+
+10-20 top-level tag a domainhez. Új tag-et CSAK a SCHEMA.md frissítése után használj
+(prevents tag-sprawl).
+
+Tomi domain-jéhez ajánlott induló taxonomy:
+- **Projekt:** gorgey32, csobanka, torokhegy, lupaobol, trinkenessen, rozsa-u, dunakeszi
+- **Entitás:** alvallalkozo, ugyfel, partner, hatosag, csaladtag
+- **Téma:** szamla, szerzodés, határidő, dontés, költség
+- **Egészség:** edzés, alvás, ahi, sulykivetes, étkezés
+- **Meta:** összegzés, pipeline, lint-finding, contradiction
+
+## Page thresholds
+
+- **Új oldal:** ha egy entitás/koncepció 2+ source-ban szerepel VAGY 1 source-ban központi.
+- **Meglévő oldal frissítés:** ha új source érinti egy már wiki-zett témát.
+
+Ha bizonytalan, **add hozzá a meglévő oldalhoz** (alszekcióban) és későbbi lint-ben szükség
+esetén bontsd ki külön oldalra.
