@@ -1,14 +1,20 @@
-Naptár-events ma + holnap. Hívd a `mcp__google-calendar__list_events` tool-t kétszer (vagy egy date-range-szel ami fedi a két napot), aztán küldj egy `mcp__nanoclaw__send_card`-ot Tomi-nak.
+Naptár-events ma + holnap. `mcp__google-calendar__list_events` kétszer (vagy date-range), aztán **Markdown szöveg** (NE card).
 
 ```
-title: "🗓️ Naptár — ma + holnap"
-description: "<összes event count>, <YYYY-MM-DD>"
-children:
-  - { type: "section", title: "📅 Ma — <weekday> (<MM-DD>)", children: [{ type: "text", text: "<HH:MM> — <event title> (<location ha van>)\n..." }] }
-  - { type: "section", title: "📅 Holnap — <weekday> (<MM-DD>)", children: [{ type: "text", text: "..." }] }
-fallbackText: "..."
+*🗓️ Naptár — ma + holnap*
+
+*📅 Ma — {weekday}, {MM-DD}*
+{HH:MM} — {esemény} · {helyszín ha van} {emoji}
+{HH:MM} — {esemény} · {helyszín}
+...
+
+*📅 Holnap — {weekday}, {MM-DD}*
+{HH:MM} — {esemény}
+...
 ```
 
-Ha 0 event: rövid szöveges válasz "📭 Üres a naptár ma és holnap."
+Üres sor a Ma / Holnap szekciók között. Egy szekción belül egy bekezdés.
 
-Ha egy event-nek conferenceData (Meet/Zoom link) van, jelezd: `📹 <link>`.
+Emoji: 📹 ha videó-meet (Meet/Zoom), 📍 fix helyszín, ⏳ várakozás-jellegű.
+
+Ha 0 event: "📭 Üres a naptár ma és holnap."

@@ -1,25 +1,24 @@
-Wiki keresés. A `$ARGUMENTS` változó tartalmazza a keresett kifejezést (a parancs utáni szöveg).
+Wiki keresés. `$ARGUMENTS` a keresett kifejezés.
 
-1. Keresés:
-```bash
-grep -ril "$ARGUMENTS" /workspace/agent/wiki/ 2>/dev/null | head -10
+1. `bash grep -ril "$ARGUMENTS" /workspace/agent/wiki/ 2>/dev/null | head -10`
+
+2. A 3-5 legrelevánsabb hit-et olvasd el (`Read`).
+
+3. **Markdown szöveg válasz** (NE card):
+
+```
+*🔍 Wiki: $ARGUMENTS*
+{N} találat
+
+*{file-path}*
+{1-2 mondat takeaway / releváns idézet}
+
+*{file-path}*
+{1-2 mondat...}
 ```
 
-2. A találatok közül a 3-5 legrelevánsabbat olvasd el (`Read`), hogy értsd a kontextust.
+Üres sor minden hit között.
 
-3. Eredmény Tomi-nak:
-   - Ha 1 hit: rövid card a tartalom-summary-vel és citation-nel `(forrás: wiki/...)`
-   - Ha több hit: card section-ökkel, mindegyikben file-path + 1 mondat takeaway
-   - Ha 0 hit: szöveges válasz "Nincs találat a wikiben a `$ARGUMENTS`-re. Akarod hogy ingestáljak forrást róla?"
+Ha 1 hit van: "Markdown szöveg, fő tartalmával + citation `(forrás: wiki/...)`."
 
-Ne találgass — csak amit a wiki ténylegesen tartalmaz.
-
-Card formátum több hit esetén:
-```
-title: "🔍 Wiki keresés: $ARGUMENTS"
-description: "<N> találat"
-children:
-  - { type: "section", title: "<file-path>", children: [{ type: "text", text: "<1 mondat takeaway>" }] }
-  - ...
-fallbackText: "..."
-```
+Ha 0 hit: "Nincs találat a wikiben a `$ARGUMENTS`-re. Akarod hogy ingestáljak forrást róla?"

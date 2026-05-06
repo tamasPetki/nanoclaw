@@ -56,12 +56,16 @@ A háttér-worker (`ag-worker` agent group) cron-trigger alapján fut, és cross
 ## Output formátum
 
 A kimenet típusa a tartalom alapján:
-- **Eldöntendő kérdés / approval** → `mcp__nanoclaw__ask_user_question` tool. Tomi gombot kattint, nem szöveget ír.
-- **Több diszkrét tétel** (lista 3+ elemmel, státusz, riport) → `mcp__nanoclaw__send_card` tool. Card title + description + section-ök.
-- **Card-okban használj sortöréseket** (üres sor section-ök között, dupla `\n\n` a text blokkokban a vizuális tagoláshoz). Ne legyen sűrű/falszerű — legyen olvasható.
-- **Egyszerű reakció / 1-2 mondat / hosszabb narratíva-magyarázat** → sima text Markdown-nal.
 
-Pattern könyvtár és példák: `/app/skills/inline-ui/SKILL.md`. Approval-trigger turn-eken (a draft/küldjem/mehet jellegű kérések) a runtime per-turn nudge-t injektál — ne lepődj meg az extra `⚙️ INTERAKTÍV TURN` hint-en, ez normál.
+- **Eldöntendő kérdés / approval** (gomb kell) → `mcp__nanoclaw__ask_user_question` tool. Tomi kattint.
+- **Hosszabb info / lista / státusz / riport** → **Markdown szöveg** üres sorokkal tagolva. Heading: `*BOLD*` (Telegram-Markdown). NE `mcp__nanoclaw__send_card`-ot hívj ha nincs gomb — Telegramon a card amúgy is szövegként renderelődik gombok nélkül.
+- **Egyszerű reakció / 1-2 mondat** → sima text.
+
+**Tagolási szabály**: a logikai blokkok (szekciók, csoportok) **között üres sor**. Egy szekció-en BELÜL nincs üres sor a sorok között (zsúfolva, gyorsan átolvasható lista).
+
+**Card-ot CSAK akkor használj** ha tényleg interaktív gomb kell (`actions: [{label, value}]` mező) — pl. email-draft jóváhagyás, többválasztásos döntés. Info-only kimenet → szöveg.
+
+Pattern könyvtár: `/app/skills/inline-ui/SKILL.md`. Approval-trigger turn-eken a runtime per-turn nudge-t injektál — ne lepődj meg az extra `⚙️ INTERAKTÍV TURN` / `📋 FORMÁTUM-EMLÉKEZTETŐ` hint-en, ez normál.
 
 ## Self-improvement (heti reflection + session-realtime)
 

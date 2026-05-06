@@ -1,27 +1,35 @@
-Generálj egy projekt-státusz card-ot Tomi-nak Telegramra `mcp__nanoclaw__send_card` tool-lal.
+Generálj projekt-státusz **Markdown szöveget** Tomi-nak (NE card — info-only).
 
-Forrás: a `wiki/projects/` mappa minden projekt-page-jét olvasd el (`Read`), aztán állíts össze egy card-ot 7 section-nel:
+Forrás: olvasd el (`Read`) a `wiki/projects/` mappa minden `<projekt>/summary.md` fájlját. Aztán szintetizáld:
 
-1. **🏗️ Görgey 32** — `wiki/projects/gorgey32/`
-2. **🏗️ Csobánka, Kilátó** — `wiki/projects/csobanka/`
-3. **🏗️ Felső Törökhegy** — `wiki/projects/torokhegyi/`
-4. **🏗️ Vác, Rózsa u. 4.** — ha van `wiki/projects/rozsa-u/`
-5. **🍴 Lupa Öböl** — `wiki/projects/lupaobol/`
-6. **🍴 Trinken Essen** — `wiki/projects/trinkenessen/`
-7. **📁 Egyéb** — Dunakeszi, Fót, edző, pénzügy, érdeklődők
-
-Minden section-ben **2-4 mondat**: aktuális fázis, következő mérföldkő, ha van blokkoló.
-
-Ha egy projekt-page üres vagy hiányzik, a section-ben jelölj `(wiki gap — még nincs ingestelve)`. NE találgass tartalmat a forrás nélkül.
-
-Card formátum (példa):
 ```
-title: "📋 Projekt-státusz"
-description: "Aktív projektek, <YYYY-MM-DD HH:MM>"
-children:
-  - { type: "section", title: "🏗️ Görgey 32", children: [{type: "text", text: "<2-4 mondat>"}] }
-  - ...
-fallbackText: "<rövid summary>"
+*📋 Projekt-státusz — {YYYY-MM-DD}*
+
+*🏗️ Görgey 32*
+{2-4 mondat: aktuális fázis, blokkolók, következő mérföldkő}
+
+*🏗️ Csobánka, Kilátó*
+{...}
+
+*🏗️ Felső Törökhegy*
+{...}
+
+*🏗️ Vác, Rózsa u. 4.*
+{...}
+
+*🍴 Lupa Öböl*
+{...}
+
+*🍴 Trinken Essen*
+{...}
+
+*💼 PS-ernyő*
+{Bécsi út 58 székhely, MVM, könyvelés, általános státusz}
+
+*📁 Egyéb*
+{Dunakeszi, Fót, edző, pénzügy, érdeklődők — 1 sor mindegyikre}
 ```
 
-NE szöveges válasz, NE bullet-pointok kívül. Card a fő output.
+**Üres sor minden projekt-szekció között.** Egy section-en belül egy bekezdés (NINCS üres sor a sorok között).
+
+Ha egy projekt-page üres vagy hiányzik: jelölj `(wiki gap — még nincs ingestelve)`. NE találgass tartalmat a forrás nélkül.

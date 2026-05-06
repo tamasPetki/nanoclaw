@@ -1,16 +1,28 @@
-Hívd a `mcp__todoist__list_tasks`-ot filter `(overdue | today | 7 days)`-szel és csoportosítsd a task-okat projekt szerint, majd küldj egy `mcp__nanoclaw__send_card`-ot Tomi-nak.
+Hívd a `mcp__todoist__list_tasks`-ot filter `(overdue | today | 7 days)`-szel és csoportosítsd a task-okat projekt szerint, majd küldj egy **Markdown szöveget** (NE card).
 
-Card-formátum:
+Formátum:
+
 ```
-title: "📝 Teendők — mai + 7 nap"
-description: "<összes task száma>, <YYYY-MM-DD>"
-children:
-  - { type: "section", title: "🔴 Lejárt (N)", children: [{ type: "text", text: "• <task content> (P<X>) — <projekt>\n..." }] }
-  - { type: "section", title: "🟡 Ma (N)", children: [{ type: "text", text: "..." }] }
-  - { type: "section", title: "🟢 7 napon belül (N)", children: [{ type: "text", text: "..." }] }
-fallbackText: "..."
+*📝 Teendők — mai + 7 nap*
+{összes task száma}, {YYYY-MM-DD}
+
+*🔴 Lejárt ({N})*
+• [Görgey 32] feladat (P3) — {napok régen lejárt}
+• [Csobánka] feladat (P2) — ...
+...
+
+*🟡 Ma ({N})*
+• [Lupa] feladat (P3)
+...
+
+*🟢 7 napon belül ({N})*
+• [Trinken] feladat (P2) — {csüt}
+• [PS] feladat (P3) — {pé}
+...
 ```
 
-A Todoist projekt-azonosítók a `/app/skills/todoist/SKILL.md`-ben vannak. A `priority` mezőt P1-P4-ként mutasd (1=alacsony, 4=urgent — Todoist-fordítva).
+**Üres sor minden szekció (Lejárt / Ma / 7 napon belül) között.** Egy szekción belül egy bekezdés.
 
-Ha 0 task van, ne küldj card-ot, csak egy szöveges választ: "Üres a Todoist 7 napon belül. ✅"
+A Todoist projekt-azonosítók a `/app/skills/todoist/SKILL.md`-ben. Priority P1-P4 mutasd (Todoist-fordítva: 4=urgent piros, 1=normal).
+
+Ha 0 task: csak ennyi: "Üres a Todoist 7 napon belül. ✅"
