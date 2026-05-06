@@ -7,7 +7,7 @@
 set -euo pipefail
 
 LOG=/root/nanoclaw-v2/data/reddit-warmup-schedule.log
-SDB=/root/nanoclaw-v2/data/v2-sessions/ag-rezerver/sess-1776691371215-kll4fb/inbound.db
+SDB=/root/nanoclaw-v2/data/v2-sessions/ag-worker/sess-1778077729204-u2ry5f/inbound.db
 
 # Random offset: 60-180 minutes after 07:00 local → fires 08:00-10:00 local.
 # GNU date '-d "N minutes"' arithmetic is unreliable across TZ boundaries, so we

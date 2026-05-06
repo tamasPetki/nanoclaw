@@ -11,7 +11,7 @@
 set -euo pipefail
 
 LOG=/root/nanoclaw-v2/data/fb-warmup-schedule.log
-SDB=/root/nanoclaw-v2/data/v2-sessions/ag-rezerver/sess-1776691371215-kll4fb/inbound.db
+SDB=/root/nanoclaw-v2/data/v2-sessions/ag-worker/sess-1778077729204-u2ry5f/inbound.db
 
 # Random offset: 60-240 minutes after 17:00 local → fires 18:00-21:00 local.
 OFFSET_MIN=$(( 60 + RANDOM % 181 ))
