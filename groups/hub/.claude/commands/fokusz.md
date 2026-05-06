@@ -26,21 +26,102 @@
 - `wiki/worker-activity.md` mai szakasz (worker mit csinált)
 - `wiki/findings/draft-current-week.md` — friss tomi-feedback és tool-failure jelek (ha van)
 
-## 2. Szintézis
+## 2. Szintézis — KÖTELEZŐ EGYSÉGES FORMÁTUM
 
-Készíts **egy `mcp__nanoclaw__send_card`-ot** a következő struktúrával:
+A card minden alkalommal **pontosan ugyanezzel a struktúrával** menjen, hogy Tomi szem-szinten gyorsan tudja olvasni. NE kreatívkodj a sorrenddel/címekkel/sor-formátummal.
+
+### Title + description
 
 ```
-title: "🎯 Fokusz — <weekday>, <YYYY-MM-DD HH:MM>"
-description: "<rövid 1-mondat helyzet: pl. 'N lejárt task, M mai esedékes, K naptár-esemény, P email vár'>"
-children:
-  - { type: "section", title: "🔥 MOST AZONNAL", children: [{ type: "text", text: "Kritikus blokkolók — lejárt task ami 24h+ óta lóg, ma esedékes naptár-esemény ami órán belül van, ügyfél-válasz ami túlesett a deadline-on. 3-5 item max." }] }
-  - { type: "section", title: "🟡 MAI PRIO (sorrendben)", children: [{ type: "text", text: "Tomi-féle darálás-sorrendben: a 3-7 task amit ma érdemes elintézni. Project-tag minden item mellett. Javasolt sorrend: könnyű quick win-ek (15-30 perc) → blokkoló-feloldók → értekezletek előkészítése." }] }
-  - { type: "section", title: "📊 Projektek pillanatkép", children: [{ type: "text", text: "Minden aktív projekt 1 sora: '🏗️ Görgey 32 — fázis: tetőcserepezés, blokkoló: vízbekötés döntés (Bérczy 10,5M), következő: kőzetgyapot ajánlat'. Ha minden megy magától, írd: 'halad'. Ha valami stuck, jelöld ⚠️-nyel." }] }
-  - { type: "section", title: "📅 Naptár — ma", children: [{ type: "text", text: "Ma esedékes események listája: HH:MM — címe (helyszín). Ha üres, kihagyható." }] }
-  - { type: "section", title: "🗓️ Holnap-holnapután", children: [{ type: "text", text: "Előzetes — ami készülni kell rá (előkészület, anyaggyűjtés, telefon)." }] }
-  - { type: "section", title: "💡 Javasolt darálási sorrend", children: [{ type: "text", text: "5-10 task konkrét sorrendben. Először a quick-win-ek (megerősíti a flow-t), aztán a kritikusak. Becsült idő mellette: '(~15 perc)'. Tomi ezt **darálni fogja** lentről felfelé." }] }
-fallbackText: "Fokusz: <N lejárt>, <M mai>, <K esemény>, <P email>. Részletek a card-ban."
+title: "🎯 Fokusz — {weekday_hu}, {YYYY-MM-DD} {HH:MM}"
+description: "{N1} lejárt · {N2} mai · {N3} héten · {N4} esemény · {N5} új email"
+```
+
+`weekday_hu` = `hétfő|kedd|szerda|csütörtök|péntek|szombat|vasárnap`. Számok nullával ha 0.
+
+### Section 1 — `🔥 MOST AZONNAL`
+
+Kritikus blokkolók. Max 5 sor. Sor-formátum:
+
+```
+{emoji} [{projekt}] {feladat} · {miért most} · {effort}
+```
+
+- `emoji`: 🚨 ha 24h+ overdue, 📞 ha telefon-call kell, 💰 ha pénz/számla, 📧 ha email-válasz, ⏰ ha óra-szintű deadline
+- `[projekt]`: `[Görgey 32]` `[Csobánka]` `[Törökhegy]` `[Rózsa u.]` `[Lupa]` `[Trinken]` `[PS]` `[edző]` `[személyes]`
+- `{feladat}`: konkrét akció ige + tárgy. NEM "gondold át". Pl. "hívd Bérczyt vízbekötés ügyben".
+- `{miért most}`: 1 frázis ami magyarázza miért nem várhat. "lejárt 2 napja", "11:00 deadline", "ügyfél vár".
+- `{effort}`: `~5p` `~15p` `~30p` `~1ó` `~2ó+`. Pesszimista becslés.
+
+Ha 0 kritikus item: ne küldd ezt a szekciót, hanem hagyd ki és a description-ben jelezd: "0 kritikus".
+
+### Section 2 — `🟡 MAI PRIO`
+
+Mai esedékes / prioritás P3-P4. Pontosan ugyanaz a sor-formátum mint a fenti. Max 7 sor.
+
+### Section 3 — `📊 Projektek pillanatkép`
+
+Minden aktív projekt **EGY sor**, fix sorrenddel: Görgey 32 → Csobánka → Törökhegy → Rózsa u. → Lupa Öböl → Trinken Essen → PS-ernyő → személyes/egyéb. Sor-formátum:
+
+```
+{emoji} [{projekt}] {fázis 2-3 szó} · {blokkoló vagy "halad"} · {következő mérföldkő}
+```
+
+- `emoji`: 🏗️ ingatlan, 🍴 vendéglátós, 📁 egyéb, 💼 PS-ernyő, 🏠 személyes
+- `{fázis}`: pl. "tetőcserepezés", "vízszerelés", "tervezés", "felvétel-egyeztetés"
+- `{blokkoló}`: ha valami stuck, ⚠️ + 1 mondat. Ha minden megy magától: "halad".
+- `{következő mérföldkő}`: 1 frázis dátum-utalással ha van. "kőzetgyapot ajánlat e hét", "május 15 stat. terv".
+
+### Section 4 — `📅 Naptár — ma`
+
+Sor-formátum:
+
+```
+{HH:MM} — {esemény címe} · {helyszín ha van} {emoji ha link}
+```
+
+- `emoji`: 📹 ha videó-meet (Meet/Zoom), 📍 ha fix helyszín, ⏳ ha várakozás-jellegű (dentist, érkezés)
+
+Ha 0 esemény: hagyd ki ezt a szekciót.
+
+### Section 5 — `🗓️ Holnap + holnapután`
+
+Sor-formátum:
+
+```
+{nap-rövid} {HH:MM} — {esemény} · {előkészület-utalás ha kell}
+```
+
+- `nap-rövid`: `kedd`, `sze`, `csüt`, `pé`, `szo`, `vas`. Holnap-holnapután 2 nap.
+- `{előkészület-utalás}`: ha kell előkészület. "összeszedni anyagot", "agendát írni", "telefon előtte". Ha nem kell: hagyd ki.
+
+### Section 6 — `💡 Darálási sorrend`
+
+Tomi **alulról felfelé** darálja. 5-10 item. Sor-formátum:
+
+```
+{sorszám}. {emoji} [{projekt}] {feladat} · {effort}
+```
+
+Sorrend logika:
+1. **Első 1-2 = quick win** (`~5p`, `~15p`) — megerősíti a flow-t, adrenalint ad
+2. **Középső 3-5 = blokkoló-feloldók** — feloldja a függő dolgokat (telefon-callok, email-válaszok, döntések)
+3. **Utolsó 1-3 = nagyobb feladat** (`~1ó`, `~2ó+`) — addig amíg friss az agy
+
+Számozás 1-től felfelé (Tomi alulról kezdi → azaz 1-es a legutolsó). Vagy fordítva: számozás "Most:", "Aztán:", "Utána:" — válaszd ezt:
+
+```
+1. 🚨 [Görgey 32] hívd Bérczyt vízbekötés ügyben · ~15p
+2. 💰 [PS] Erika számla továbbítás (MOBIL-CENTRUM) · ~5p
+3. 📞 [Lupa] Borsóval felvétel-egyeztetés · ~20p
+4. 📧 [Csobánka] válasz a tervezőnek · ~30p
+5. 🏗️ [Görgey 32] kőzetgyapot ajánlat-kérés 3 helyre · ~1ó
+```
+
+### Záró fallback
+
+```
+fallbackText: "Fokusz {YYYY-MM-DD}: {N1} lejárt, {N2} mai, {N3} esemény, {N4} email. Most: {1. tétel rövid}. Részletek a card-ban."
 ```
 
 ## 3. Konvenciók
