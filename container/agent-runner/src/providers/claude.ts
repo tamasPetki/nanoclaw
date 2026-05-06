@@ -323,13 +323,19 @@ const SLASH_COMMANDS: Record<string, string> = {
     'Trigger the `welcome` skill workflow (`/app/skills/welcome/SKILL.md`). Greeting + capabilities tour.',
 };
 
+// NOTE: slash commands a Claude Code SDK natívan kezeli, ha vannak
+// `.claude/commands/<name>.md` fájlok a project root-ban (a hub-on:
+// groups/hub/.claude/commands/). A poll-loop.ts:221 `formatMessagesWithCommands`
+// passthrough-olja a `/X` szövegeket az SDK-nak, ami megkeresi a
+// commands/-mappát.
+//
+// Ez a hook ezt KIEGÉSZÍTI: ha a `formatMessagesWithCommands` mégis
+// XML-wrapped üzenetbe csomagolja (pl. ha az `additionalContext`-en jön),
+// a hook fallback-ként parse-ol és injektál hint-et.
 function createSlashCommandHintHook(): HookCallback {
   return async (input) => {
     if (input.hook_event_name !== 'UserPromptSubmit') return {};
     const prompt = input.prompt ?? '';
-    // Telegram inbound szövegek XML-wrapper-ben érkeznek:
-    //   <context ... /><message id=".." from=".." sender=".." time="..">TÉNYLEGES SZÖVEG</message>
-    // Először a <message>...</message> tag tartalmát keressük; ha nincs ilyen, használjuk a teljes promptot.
     const msgMatch = prompt.match(/<message[^>]*>([\s\S]+?)<\/message>/);
     const inner = (msgMatch?.[1] ?? prompt).trim();
     const m = inner.match(/^\/([a-z0-9_-]+)(?:\s+([\s\S]+))?$/i);
