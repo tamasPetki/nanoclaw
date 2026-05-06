@@ -58,6 +58,7 @@ A háttér-worker (`ag-worker` agent group) cron-trigger alapján fut, és cross
 A kimenet típusa a tartalom alapján:
 - **Eldöntendő kérdés / approval** → `mcp__nanoclaw__ask_user_question` tool. Tomi gombot kattint, nem szöveget ír.
 - **Több diszkrét tétel** (lista 3+ elemmel, státusz, riport) → `mcp__nanoclaw__send_card` tool. Card title + description + section-ök.
+- **Card-okban használj sortöréseket** (üres sor section-ök között, dupla `\n\n` a text blokkokban a vizuális tagoláshoz). Ne legyen sűrű/falszerű — legyen olvasható.
 - **Egyszerű reakció / 1-2 mondat / hosszabb narratíva-magyarázat** → sima text Markdown-nal.
 
 Pattern könyvtár és példák: `/app/skills/inline-ui/SKILL.md`. Approval-trigger turn-eken (a draft/küldjem/mehet jellegű kérések) a runtime per-turn nudge-t injektál — ne lepődj meg az extra `⚙️ INTERAKTÍV TURN` hint-en, ez normál.
@@ -116,3 +117,49 @@ Vasárnap 11:00-kor a self-improvement reflection: ezt a fájlt **első helyen**
 ## Telegram channel
 
 Egyetlen channel: Tomi DM-je (`telegram:1243781160`). Engage mode: `pattern='.'` — minden üzenetre reagálsz.
+
+## Slash command router
+
+Tomi a Telegram `/` gombbal autocomplete-listát kap. Ha az üzenet `/<parancs>` formátummal kezdődik, az alábbi workflow-t indítsd:
+
+| Parancs | Mit csinálj |
+|---|---|
+| `/help` | `mcp__nanoclaw__send_card`-ban listázd a parancsokat (lásd alább) |
+| `/projektek` | Projekt-státusz card. Forrás: `wiki/projects/`-mappa, az aktív projektek summary-je. 7 section: Görgey 32, Csobánka, Törökhegy, Rózsa u., Lupa Öböl, Trinken Essen, Egyéb. |
+| `/teendok` | Card a mai + lejárt + 7-napos Todoist task-okról. `mcp__todoist__list_tasks` filter=`overdue \| today \| 7 days`-szel. |
+| `/email` | Email-check most (a `task-hub-email-check` cron prompt-ját futtatod ad-hoc — pre-filter script + 3 fiók summary card-ban). |
+| `/hirek` | Napi hírdigest most (a `task-hub-news` cron prompt-ját). |
+| `/edzo` | Reggeli edző-riport (a `task-edzo-reggeli` cron prompt-ját, függetlenül attól hogy hét vagy hétvége). |
+| `/naptar` | `mcp__google-calendar__list_events` ma + holnap → card. |
+| `/wiki <query>` | Wiki keresés. `bash grep -r "<query>" wiki/` + summary card a hit-ekkel + Read-fő hit. |
+| `/szia` | A `welcome` skill (`/app/skills/welcome/SKILL.md`) workflow indítása. |
+
+**Argumentum**: `/wiki kőzetgyapot Görgey 32` → query = `"kőzetgyapot Görgey 32"`. A parancs utáni szöveg a query.
+
+**Új parancs hozzáadása**: 1) bővítsd a `scripts/register-telegram-commands.ts` `COMMANDS` tömböt, 2) futtasd `pnpm exec tsx scripts/register-telegram-commands.ts` (Telegram-szintű autocomplete frissítés), 3) ezt a táblázatot bővítsd, 4) commit.
+
+**`/help` card formátuma**:
+```ts
+mcp__nanoclaw__send_card({
+  card: {
+    title: "📋 Hub parancsok",
+    description: "Telegram-on a `/` gombbal autocomplete. Argumentum a parancs után space-szel.",
+    children: [
+      { type: "section", title: "🔄 Riportok / pillanatkép", children: [
+        { type: "text", text: "• `/projektek` — projekt-státusz\n• `/teendok` — Todoist 7 nap\n• `/naptar` — ma + holnap" }
+      ]},
+      { type: "section", title: "⚡ Cron-ok ad-hoc", children: [
+        { type: "text", text: "• `/email` — email-check\n• `/hirek` — napi digest\n• `/edzo` — reggeli edző-riport" }
+      ]},
+      { type: "section", title: "🔍 Egyéb", children: [
+        { type: "text", text: "• `/wiki <query>` — wiki keresés\n• `/szia` — bemutatkozás\n• `/help` — ez a lista" }
+      ]},
+    ],
+  },
+  fallbackText: "Parancsok: /projektek /teendok /naptar /email /hirek /edzo /wiki /szia /help"
+});
+```
+
+**Ismeretlen parancs**: ha `/X` jön, és X nincs a fenti listában, **NE találgass** — válaszolj: "Ismeretlen parancs: `/X`. Lista: `/help`."
+
+**Megjegyzés**: a slash command bemenetet ugyanúgy a `pattern='.'` engage mode kezeli — a router ezt a `CLAUDE.local.md` instrukciói alapján parse-olja. Nincs külön webhook-handler.
