@@ -456,9 +456,18 @@ export function createChatSdkBridge(config: ChatSdkBridgeConfig): ChannelAdapter
         // is dropped silently.
         const cardChildren = cardData.children as Array<Record<string, unknown>> | undefined;
         if (Array.isArray(cardChildren)) {
+          // A render-output között automatikus üres sort szúrunk be a section-ök
+          // közé, hogy mindig tagolt legyen — Tomi 3× kérte, az LLM CLAUDE.md
+          // utasítást felülbírálta. Ez render-szintű biztosíték (a card-payload
+          // tartalmától független).
+          let firstNode = true;
           for (const node of cardChildren) {
             if (!node || typeof node !== 'object') continue;
             const t = node.type as string | undefined;
+            // Üres sor a section-ök közé (de NEM az első előtt)
+            if (!firstNode && t === 'section') {
+              children.push(CardText(' ')); // non-breaking space → vizuális tagolás
+            }
             if (t === 'text' && typeof node.text === 'string') {
               children.push(CardText(transformText(node.text)));
             } else if (t === 'section') {
@@ -473,6 +482,7 @@ export function createChatSdkBridge(config: ChatSdkBridgeConfig): ChannelAdapter
                 }
               }
             }
+            firstNode = false;
           }
         }
 

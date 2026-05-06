@@ -409,6 +409,30 @@ function createTomiFeedbackLogger(): HookCallback {
   };
 }
 
+// Minden turn elejére injektálunk egy formátum-emlékeztetőt. Tomi 3× explicit
+// kérte hogy tagolt legyen a kimenet, a CLAUDE.local.md instrukció ignorálódott.
+// Ez per-turn ~50 token, garantáltan látja az LLM. Csak text-output esetén
+// érvényes (card render-szinten amúgy is automatikus üres sorral van tagolva).
+const FORMAT_REMINDER = [
+  '📋 FORMÁTUM-EMLÉKEZTETŐ (mindig érvényes):',
+  '- Card-okban a `children`-ben minden `text` blokk dupla `\\n\\n`-nel tagolt legyen, NE wall-of-text.',
+  '- 3+ tételes lista esetén section-okra bontsd, üres sorral elválasztva.',
+  '- Plain text válaszban is használj üres sorokat (kettős enter) a logikai blokkok között.',
+  '- Tomi vizuálisan átlátható, gyorsan szemmel olvasható kimenetet vár.',
+].join('\n');
+
+function createFormatReminderHook(): HookCallback {
+  return async (input) => {
+    if (input.hook_event_name !== 'UserPromptSubmit') return {};
+    return {
+      hookSpecificOutput: {
+        hookEventName: 'UserPromptSubmit',
+        additionalContext: FORMAT_REMINDER,
+      },
+    } as unknown as ReturnType<HookCallback>;
+  };
+}
+
 function createToolFailureLogger(): HookCallback {
   return async (rawInput) => {
     if (rawInput.hook_event_name !== 'PostToolUseFailure') return {};
@@ -708,6 +732,7 @@ export class ClaudeProvider implements AgentProvider {
     const toolFailureLogger = createToolFailureLogger();
     const quickLearningHintHook = createQuickLearningHintHook();
     const slashCommandHintHook = createSlashCommandHintHook();
+    const formatReminderHook = createFormatReminderHook();
 
     const sdkResult = sdkQuery({
       prompt: stream,
@@ -731,7 +756,7 @@ export class ClaudeProvider implements AgentProvider {
           PostToolUse: [{ hooks: [postToolUseHook] }],
           PostToolUseFailure: [{ hooks: [postToolUseHook, mcpRecoveryHook, toolFailureLogger] }],
           PreCompact: [{ hooks: [createPreCompactHook(this.assistantName)] }],
-          UserPromptSubmit: [{ hooks: [mcpHealthCheckHook, slashCommandHintHook, approvalHintHook, quickLearningHintHook, tomiFeedbackLogger] }],
+          UserPromptSubmit: [{ hooks: [mcpHealthCheckHook, slashCommandHintHook, approvalHintHook, quickLearningHintHook, formatReminderHook, tomiFeedbackLogger] }],
         },
       },
     });
