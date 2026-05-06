@@ -299,6 +299,69 @@ function createQuickLearningHintHook(): HookCallback {
   };
 }
 
+// Slash command router. The hub's CLAUDE.local.md has a routing table for
+// "/projektek", "/teendok", etc., but Opus 4.7 reliably ignores that table
+// and falls back to "Unknown command" — same trust-the-table failure we saw
+// with cards and approval flows. Per-turn injection wins.
+const SLASH_COMMANDS: Record<string, string> = {
+  help: 'List all commands as a `mcp__nanoclaw__send_card`. See the `/help` template in CLAUDE.local.md.',
+  projektek:
+    'Build a status card from `wiki/projects/` — sections for Görgey 32, Csobánka, Törökhegy, Rózsa u., Lupa Öböl, Trinken Essen, plus Egyéb. Read each project page for current state. Use `mcp__nanoclaw__send_card`.',
+  teendok:
+    'Run `mcp__todoist__list_tasks` with filter `(overdue | today | 7 days)`. Group by project, render as `mcp__nanoclaw__send_card` (sections per project). Lejárt = piros emoji, ma = sárga, héten = zöld.',
+  email:
+    'Run the `task-hub-email-check` cron prompt now. The pre-filter script is `bash /workspace/agent/email-prefilter.py`. Then per-account summary card.',
+  hirek:
+    'Run the `task-hub-news` cron prompt now (4 kategória: politika, kripto, AI, X-lista). Wiki target: `wiki/news/YYYY-MM-DD.md`.',
+  edzo:
+    'Run the `task-edzo-reggeli` cron prompt now (Withings get_weight_and_body + get_sleep + get_activity, plus history.md). Káromkodós-edző hangon, card-ban.',
+  naptar:
+    'Run `mcp__google-calendar__list_events` for today + tomorrow, render in `mcp__nanoclaw__send_card` with two sections.',
+  wiki:
+    'Search the wiki. The argument (text after `/wiki `) is the query. Use `bash grep -r -i "<query>" /workspace/agent/wiki/` then read the most relevant hit and answer with citation. If multiple hits, send_card with each as a section.',
+  szia:
+    'Trigger the `welcome` skill workflow (`/app/skills/welcome/SKILL.md`). Greeting + capabilities tour.',
+};
+
+function createSlashCommandHintHook(): HookCallback {
+  return async (input) => {
+    if (input.hook_event_name !== 'UserPromptSubmit') return {};
+    const prompt = input.prompt ?? '';
+    // Telegram szövegek néha XML-szerű <message ...>...</message> wrapper-ben jönnek; a Tomi
+    // tényleges szövegét keressük benne. Egyszerű extract:
+    const inner = prompt.match(/>([^<]+)</)?.[1] ?? prompt;
+    const m = inner.trim().match(/^\/([a-z0-9_-]+)(?:\s+(.+))?$/i);
+    if (!m) return {};
+    const cmd = m[1].toLowerCase();
+    const arg = m[2] ?? '';
+    const handler = SLASH_COMMANDS[cmd];
+    if (!handler) {
+      log(`[slash-router] unknown command: /${cmd}`);
+      return {
+        hookSpecificOutput: {
+          hookEventName: 'UserPromptSubmit',
+          additionalContext: `Tomi a \`/${cmd}\` parancsot küldte, de NINCS a router-táblában. Válaszolj magyarul: "Ismeretlen parancs: \`/${cmd}\`. Lista: \`/help\`."`,
+        },
+      } as unknown as ReturnType<HookCallback>;
+    }
+    log(`[slash-router] /${cmd} → injecting handler instruction`);
+    const argText = arg ? `\nArgumentum: "${arg}"` : '';
+    return {
+      hookSpecificOutput: {
+        hookEventName: 'UserPromptSubmit',
+        additionalContext: [
+          `🔧 SLASH COMMAND ROUTER: Tomi a \`/${cmd}\` parancsot küldte.${argText}`,
+          '',
+          `Ennek a turn-nek a workflow-ja:`,
+          handler,
+          '',
+          'NE válaszolj "Unknown command"-dal. NE generálj sima text választ ha card-szerű kimenet a természetes (lista/státusz). Ha tool kell hozzá, hívd most.',
+        ].join('\n'),
+      },
+    } as unknown as ReturnType<HookCallback>;
+  };
+}
+
 // Frusztrációs / korrekciós minták a Tomi-üzenetekben. Ha bármelyik
 // substring matchel, jelezzük a self-improvement bufferbe — a heti
 // reflection prioritizálja az ilyen turn-eket. Token-zero a turn-context-
@@ -621,6 +684,7 @@ export class ClaudeProvider implements AgentProvider {
     const tomiFeedbackLogger = createTomiFeedbackLogger();
     const toolFailureLogger = createToolFailureLogger();
     const quickLearningHintHook = createQuickLearningHintHook();
+    const slashCommandHintHook = createSlashCommandHintHook();
 
     const sdkResult = sdkQuery({
       prompt: stream,
@@ -644,7 +708,7 @@ export class ClaudeProvider implements AgentProvider {
           PostToolUse: [{ hooks: [postToolUseHook] }],
           PostToolUseFailure: [{ hooks: [postToolUseHook, mcpRecoveryHook, toolFailureLogger] }],
           PreCompact: [{ hooks: [createPreCompactHook(this.assistantName)] }],
-          UserPromptSubmit: [{ hooks: [mcpHealthCheckHook, approvalHintHook, quickLearningHintHook, tomiFeedbackLogger] }],
+          UserPromptSubmit: [{ hooks: [mcpHealthCheckHook, slashCommandHintHook, approvalHintHook, quickLearningHintHook, tomiFeedbackLogger] }],
         },
       },
     });
