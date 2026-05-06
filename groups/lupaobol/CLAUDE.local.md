@@ -13,6 +13,9 @@ E-mail: hello@lupaobolstrand.hu
 A cég Google Drive mappája elérhető: `/workspace/extra/lupaobol-drive/` (read-only)
 Naponta egyszer szinkronizálódik (hajnali 3:00 CET).
 
+## Aktív ügyek / nyitott teendők
+Élő nyilvántartás: `/workspace/agent/projekt-allapot.md`
+
 ## Egységek
 - **Lupa Öböl büfé 1.** (volt Dürer Öböl) — működési engedély: 120732020/2022
 - **Lupa Öböl büfé 2.** (volt Dürer Öböl) — működési engedély: 1220522020/2020

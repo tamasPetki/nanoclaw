@@ -368,3 +368,17 @@ Narrow keyword bejött — első éles HU venue-side csoport-batch. NOT joined (
 - https://www.facebook.com/groups/254791949698374/ — "Rendezvények, szolgáltatók, helyszínek" — vendor+venue marketplace. Score: 4.
 - https://www.facebook.com/groups/rendezvenyre/ — "Rendezvényszervezés Falunap, Fesztivál, Fellépő, Rendezvény 2026" — falunap/fesztivál fókusz, részben tangenciális (kis-település). Score: 3.
 - Kihagyva (kontextusból nem ICP): "RENDEZVÉNYEK MAGYARORSZÁGON" (event-listing fogyasztói), "Fesztiválok/Koncertek..." (zenei), "Magyarország értékei" (általános), "Szálláshelyek Magyarország" (accommodation-only).
+
+## 2026-05-05 FB session discovery ("esküvő helyszín ajánlók" search)
+
+Hipotézis igazolva: tagolt narrow keyword (vs. előző "esküvőhelyszín" összevont) goldmine. 9 erősen ICP-releváns csoport, NOT joined (Phase 2 tilalom).
+
+- https://www.facebook.com/groups/eskuvoi.helyszinek/ — "TOP Esküvői helyszínek 2026/2027 💒" — direct venue-listing csoport, friss évszámmal. Score: 5 (Phase 3 első target jelölt — felülmúlhatja a tegnapi "Rendezvénykereső és Rendezvényszervező Ajánlók"-at, mert konkrétan venue-fókuszú).
+- https://www.facebook.com/groups/www.22h.hu/ — "Esküvői Helyszínek" — szintén direct venue list. Score: 5.
+- https://www.facebook.com/groups/eskuvoforum/ — "ESKÜVŐ FÓRUM - esküvői helyszínek, szolgáltatói ajánlatok, tanfolyamok" — supply + demand mix, plusz tanfolyam (training-leads). Score: 5.
+- https://www.facebook.com/groups/eskuvoiszolgaltatok.eskuvorekeszuloknek/ — "Esküvői Szolgáltatók, Esküvőre Készülőknek!" — B2B+B2C híd. Score: 4.
+- https://www.facebook.com/groups/184151740272760/ — "Esküvőnk lesz! (Országos) Jegyespárok és szolgáltatók csoportja" — országos, B2C+supply. Score: 4.
+- https://www.facebook.com/groups/eskuvoiszolgaltatok/ — "Esküvői szolgáltatók" — pure supply, vendor-research-friendly. Score: 4.
+- https://www.facebook.com/groups/eskuvoiszolgaltatokcsoportja/ — "Esküvő-esküvői szolgáltatók" — duplikál előzővel, supply-fókusz. Score: 3.
+- https://www.facebook.com/groups/2071187562929460/ — "Esküvőre készülők!" — pure B2C demand. Score: 3.
+- https://www.facebook.com/groups/538288546328326/ — "Esküvő adok veszek" — marketplace, tangenciális (használt cuccok). Score: 2.

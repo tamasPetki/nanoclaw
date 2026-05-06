@@ -62,6 +62,10 @@
 2026-04-29 reggel — súly 2 napja nem mért, alvásadat nem Tomi, mai fókusz: szerda kardió (aktív pihenő)
 2026-04-30 reggel — súly 3 napja nem mért (legutóbbi 97.3), alvásadat nem Tomi, mai fókusz: Upper B húzó edzés
 2026-05-01 reggel — súly 4 napja nem mért (legutóbbi hétfő 97.3), alvásadat: magas pulzus (avg 85, max 101) és 13p horkolás 3 epizódban → lehet Tomi visszatért a matracra? (de AHI 0.0), mai fókusz: Lower B csípődominás
+2026-05-04 hétfő — súly 97.2 kg reggel, edzés: 25p bringa délután (Upper A helyett, Tomi szóban közölte), Withings activity: 0 (bringa nem szinkronizál)
+2026-05-05 reggel — súly még nem mért, alvás (Tomi vagy Szandra?): AHI 4.8-4.9 két napja konzisztensen, mai fókusz: Lower A (+ Upper A pótlás vagy nem)
+2026-05-05 napközben mérve: 96.4 kg (!)
+2026-05-06 reggel — súly 96.7 kg (két egymást követő mérés 97 alatt), AHI 4.0 (három nap egymás után 4-5 között stabil), deep sleep 3h42m (kiemelkedő), mai fókusz: szerda kardió
 
 ## Fontos megfigyelések
 

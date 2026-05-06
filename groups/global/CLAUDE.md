@@ -58,9 +58,11 @@ A text response közvetlenül oda megy, nem kell jelölni.
 Burkolj minden üzenetet `<message to="név">...</message>` blokkba:
 
 ```
-<message to="asszisztens">Beérkezett egy email Erikától, érdekes.</message>
+<message to="pietscarlet">Beérkezett egy email Erikától, érdekes.</message>
 <message to="log">Hiba a gmail MCP hívásnál: timeout</message>
 ```
+
+**FIGYELEM — saját azonosító ne legyen `to=` célpont:** soha ne wrappeld a választ a saját agent-csoportod nevével (`<message to="asszisztens">` az asszisztensnek, `<message to="pietscarlet">` a pietscarletnek, stb.) — az nem létező destination, és `[dropped: unknown destination "..."]` prefixszel kerül a session-origin csatornára. A felhasználói válasz **mindig wrapper nélküli plain text** — automatikusan oda megy, ahonnan az üzenet érkezett.
 
 A beérkező üzenetek `from="név"` taggel érkeznek. Reply-olni ugyanazzal a névvel.
 

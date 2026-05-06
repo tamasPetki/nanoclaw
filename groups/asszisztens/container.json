@@ -7,6 +7,15 @@
         "@kimtaeyoon83/mcp-server-youtube-transcript"
       ]
     },
+    "quick": {
+      "command": "node",
+      "args": [
+        "/opt/mcp-servers/quick/index.js"
+      ],
+      "env": {
+        "QUICK_API_TOKEN": "placeholder-onecli-overrides"
+      }
+    },
     "todoist": {
       "command": "npx",
       "args": [
@@ -15,6 +24,17 @@
         "https://ai.todoist.net/mcp"
       ],
       "env": {}
+    },
+    "google-calendar": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@cocal/google-calendar-mcp"
+      ],
+      "env": {
+        "GOOGLE_OAUTH_CREDENTIALS": "/workspace/extra/google-oauth/gcp-oauth.keys.json",
+        "GOOGLE_CALENDAR_MCP_TOKEN_PATH": "/workspace/extra/google-oauth/gcal_tokens.json"
+      }
     }
   },
   "packages": {
@@ -25,6 +45,11 @@
     {
       "hostPath": "/root/nanoclaw-v2/groups/asszisztens/.mcp-auth",
       "containerPath": ".mcp-auth",
+      "readonly": false
+    },
+    {
+      "hostPath": "/root/nanoclaw-v2/data/shared/google-oauth",
+      "containerPath": "google-oauth",
       "readonly": false
     }
   ],

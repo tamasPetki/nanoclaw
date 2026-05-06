@@ -10,9 +10,12 @@
 
 Összesen ~6 794 m². Mind PietScarlet Kft. tulajdon.
 
-## Aktuális állapot (2026. március)
+## Aktuális állapot (2026. május)
 
-**Geodéziai felmérés:** Jövő héten (2026-03-09 hete) elvégzik.
+**2026.05.04:** Koncepcióterv beadva ETDR-be. Várjuk az ETDR választ → utána tervtanácsi vélemény.
+**2026.05.05:** Tomi beszélt Robival (Tóth Róbert / Quadrat). Konzultációs igény beadva az önkormányzathoz.
+
+**Geodéziai felmérés:** Elkészült, helyszínrajz + DWG + telekalakítási tervezet 2026-03-19-én megérkezett.
 Földmérő: Benke György (geometer314@gmail.com, +36 30 332 2897)
 
 **Telekalakítás folyamata:**

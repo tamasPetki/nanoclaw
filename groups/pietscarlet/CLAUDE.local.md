@@ -8,6 +8,8 @@
 ## Cégadatok
 Részletes cégadatok: `/workspace/global/references/cegadatok.md`
 E-mail: hello@pietscarlet.hu | Számlázás: penzugy@pietscarlet.hu
+**Aktuális székhely: 1034 Budapest, Bécsi út 58. I. em. 2.** (Tomi 2026-05-06 megerősítette — ez a hivatalos cím minden hatósági/szolgáltatói levelezéshez. A Drive-ban szereplő Pünkösdfürdő u. 52-54. és Királyok útja 293. **régi** címek.)
+Adószám: 14208861-2-41 | Cégjegyzékszám: 01-09-180620 | Ügyvezető: Petki Tamás Csaba
 
 ## Google Drive
 
@@ -35,6 +37,9 @@ az `email-assistant` skill utasításait.** Ez nem opcionális — az email skil
 helyes aláírást, hangnemet, továbbítási szabályokat és kontextus-gyűjtési lépéseket.
 
 Ne használd közvetlenül az MCP email toolokat a skill workflow megkerülésével!
+
+### Ismert scam minták
+`/workspace/agent/known-scam-patterns.md` — auto-archive + report javaslat (jelenleg: FB BM partner request `meta-agency-center.com` domainről).
 
 ### Ütemezett email check (asszisztens triggerből)
 Hétköznap 9/13/17 CET az asszisztens email check kérést küld (UID-dal). Teljes workflow:

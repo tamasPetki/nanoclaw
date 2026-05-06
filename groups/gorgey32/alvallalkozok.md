@@ -9,6 +9,7 @@
 | Gépészet | **TLK Invest** | **Bérczy Gergely** |
 | Bádogos | Bádog Varázs | — |
 | Víz, csatorna | TLK Invest | Bérczy Gergely |
+| Nyílászáró / redőny | **Top Win Dows Kft.** | **Megyeri Attila** ("nyílászárós Attila") |
 
 ## Korábban dolgozott, már nem aktív
 
