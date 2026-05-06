@@ -341,18 +341,33 @@ function createSlashCommandHintHook(): HookCallback {
     const m = inner.match(/^\/([a-z0-9_-]+)(?:\s+([\s\S]+))?$/i);
     if (!m) return {};
     const cmd = m[1].toLowerCase();
-    const arg = m[2] ?? '';
+
+    // Az SDK natívan kezeli a slash commandokat ha `.claude/commands/<cmd>.md`
+    // létezik a project root-ban (/workspace/agent/.claude/commands/). NE
+    // duplikáljuk a router-t — csak akkor szólunk, ha a fájl SEM létezik
+    // ÉS van extra hint-tartalom a SLASH_COMMANDS táblában.
+    const cmdFile = `/workspace/agent/.claude/commands/${cmd}.md`;
+    const fileExists = fs.existsSync(cmdFile);
+    if (fileExists) {
+      // Az SDK natívan futtatja — ne avatkozzunk bele.
+      log(`[slash-router] /${cmd} → native handler (.claude/commands/${cmd}.md)`);
+      return {};
+    }
+
+    // Fallback: ha nincs .md fájl, de van router-tábla bejegyzés (legacy hook-stílus)
     const handler = SLASH_COMMANDS[cmd];
     if (!handler) {
-      log(`[slash-router] unknown command: /${cmd}`);
+      log(`[slash-router] unknown command: /${cmd} (no file, no table entry)`);
       return {
         hookSpecificOutput: {
           hookEventName: 'UserPromptSubmit',
-          additionalContext: `Tomi a \`/${cmd}\` parancsot küldte, de NINCS a router-táblában. Válaszolj magyarul: "Ismeretlen parancs: \`/${cmd}\`. Lista: \`/help\`."`,
+          additionalContext: `Tomi a \`/${cmd}\` parancsot küldte, de nincs hozzá ${cmd}.md fájl és router-tábla bejegyzés sem. Válaszolj magyarul: "Ismeretlen parancs: \`/${cmd}\`. Lista: \`/help\`."`,
         },
       } as unknown as ReturnType<HookCallback>;
     }
-    log(`[slash-router] /${cmd} → injecting handler instruction`);
+
+    const arg = m[2] ?? '';
+    log(`[slash-router] /${cmd} → table-based handler (legacy)`);
     const argText = arg ? `\nArgumentum: "${arg}"` : '';
     return {
       hookSpecificOutput: {
