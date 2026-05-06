@@ -249,43 +249,75 @@ function createMcpHealthCheckHook(getQuery: () => Query | null): HookCallback {
  * partly applied (lists, summaries) but loses force on draft/approval
  * flows where it would be most natural — exactly when Tomi expects a card.
  */
+// Substring matches against the lowercased prompt. Keep them broad —
+// false positives just inject a small hint that's safe even if the agent
+// ends up doing a normal text turn.
 const APPROVAL_TRIGGERS = [
-  // draft / approval verbs
+  // draft / approval verbs (broad)
   'tervezet',
   'draft',
   'fogalmazz',
   'írj választ',
   'írj egy választ',
-  'írj emailt',
-  'írj egy emailt',
-  'írj e-mailt',
-  'írj üzenetet',
-  'írj egy üzenetet',
+  'írj egy email',
+  'írj email',
+  'írj e-mail',
+  'írj üzenet',
+  'írj egy üzenet',
+  'írj próba',
+  'írjál',
+  'fogalmazd',
+  // domain words — any email/message context benefits from card
+  'email',
+  'e-mail',
+  'levelet',
+  'levélre',
+  'üzenet ',
   // send-confirmation phrases
   'küldjem',
   'küldhetem',
   'küldjük',
   'mehet?',
+  'mehet ',
   'továbbítsam',
+  'továbbítsd',
   'elindítsam',
   'indíthatom',
   'jóváhagyom',
+  'jóváhagyod',
   'engedélyezed',
+  'megerősíted',
   // multi-option list verbs (send_card territory)
   'sorold fel',
   'mit kell ma',
   'mai feladatok',
   'státusz',
+  'áttekintés',
+  'összegzés',
+  'riport',
+  // explicit user request for card
+  'kártya',
+  'kártyá',
 ];
 
 const APPROVAL_HINT = [
-  '⚙️ INTERAKTÍV TURN — a felhasználó approval/draft/lista jellegű kérést küldött.',
+  '🚨 RUNTIME OVERRIDE: ennek a turn-nek a végkimenete TOOL_USE, nem text.',
   '',
-  '**KÖTELEZŐ tool használat ebben a turnben** (NEM sima text válasz):',
-  '- Ha a kérés egy email/üzenet draft-ról szól, vagy "küldjem/mehet/továbbítsam" jellegű → **`mcp__nanoclaw__ask_user_question`** tool-lal: title=rövid akció, question=teljes draft-szöveg, options=[{label:"Küldd",value:"send"},{label:"Edit",value:"edit"},{label:"Mégsem",value:"cancel"}]',
-  '- Ha a kérés 3+ tételes listát/státuszt/áttekintést kér → **`mcp__nanoclaw__send_card`** tool-lal: title=téma, description=lead 1-2 mondat, children=tételek section-ökben',
+  'A felhasználó email/üzenet draft-ot vagy approval-t kér, vagy listázható',
+  'választ vár. STOP — NE generálj "Tervezet: ..." formátumú szöveg-választ.',
   '',
-  'NE adj sima textben "íme a tervezet, mehet?" választ. NE sorold fel sima bullet-pointokban a tételeket. A tool-hívás MAGA legyen a turn-output.',
+  'Helyette EGYETLEN tool-call legyen az utolsó action-öd:',
+  '',
+  '1) Email/üzenet draft / "küldjem/mehet/továbbítsam" → `mcp__nanoclaw__ask_user_question`',
+  '   - title: rövid akció (max 50 char, pl. "📧 Email: tonertop@gmail.com")',
+  '   - question: a teljes draft szövege (Tárgy + body + aláírás-jelzés)',
+  '   - options: [{label:"Küldd",value:"send"},{label:"Edit",value:"edit"},{label:"Mégsem",value:"cancel"}]',
+  '',
+  '2) Lista/státusz/riport (3+ tétel) → `mcp__nanoclaw__send_card`',
+  '   - title, description (1-2 mondat lead), children (section-ök tételenként), opcionális actions',
+  '',
+  'Ha a draft már megfogalmazódott a fejedben, RAKD A `question` MEZŐBE és hívd a tool-t.',
+  'NE küldj előtte / utána szöveges magyarázatot a draft mellé. EGY tool-hívás.',
 ].join('\n');
 
 function createApprovalHintHook(): HookCallback {

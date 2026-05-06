@@ -463,9 +463,7 @@ export function createChatSdkBridge(config: ChatSdkBridgeConfig): ChannelAdapter
         }
         const card = Card({ title: title || 'ℹ️ Info', children: children as never });
         const fallback =
-          (content.fallbackText as string) ||
-          [title, description].filter(Boolean).join('\n\n') ||
-          'Card';
+          (content.fallbackText as string) || [title, description].filter(Boolean).join('\n\n') || 'Card';
         const result = await adapter.postMessage(tid, { card, fallbackText: fallback });
         return result?.id;
       }
