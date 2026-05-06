@@ -124,6 +124,7 @@ Tomi a Telegram `/` gombbal autocomplete-listát kap. Ha az üzenet `/<parancs>`
 
 | Parancs | Mit csinálj |
 |---|---|
+| `/fokusz` | Munkanap-pillanatkép. Aggregál: Wiki projects + Todoist (overdue/today/7d) + Naptár (3 nap) + Email pre-filter + Wiki log/findings. Egyetlen card prio-rendezett **darálási sorrend**-del. Részletes prompt: `.claude/commands/fokusz.md`. |
 | `/help` | `mcp__nanoclaw__send_card`-ban listázd a parancsokat (lásd alább) |
 | `/projektek` | Projekt-státusz card. Forrás: `wiki/projects/`-mappa, az aktív projektek summary-je. 7 section: Görgey 32, Csobánka, Törökhegy, Rózsa u., Lupa Öböl, Trinken Essen, Egyéb. |
 | `/teendok` | Card a mai + lejárt + 7-napos Todoist task-okról. `mcp__todoist__list_tasks` filter=`overdue \| today \| 7 days`-szel. |

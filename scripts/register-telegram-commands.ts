@@ -27,7 +27,7 @@ if (!TOKEN) {
 }
 
 const COMMANDS: Array<{ command: string; description: string }> = [
-  { command: 'help',      description: 'Súgó — elérhető parancsok listája' },
+  { command: 'fokusz',    description: 'Munkanap-pillanatkép: prioritás-lista mindenből' },
   { command: 'projektek', description: 'Projekt-státusz: PS, Görgey, Csobánka, stb.' },
   { command: 'teendok',   description: 'Mai + 7 napos Todoist teendőlista' },
   { command: 'email',     description: 'Email-check most (PS, Lupa Öböl, Trinken)' },
@@ -36,6 +36,7 @@ const COMMANDS: Array<{ command: string; description: string }> = [
   { command: 'naptar',    description: 'Mai + holnapi naptár-események' },
   { command: 'wiki',      description: 'Wiki keresés — argumentum: keresett téma' },
   { command: 'szia',      description: 'Hub-bemutatkozás / kezdés' },
+  { command: 'help',      description: 'Súgó — elérhető parancsok listája' },
 ];
 
 const url = `https://api.telegram.org/bot${TOKEN}/setMyCommands`;
