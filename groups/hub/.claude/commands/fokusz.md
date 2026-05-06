@@ -136,7 +136,17 @@ fallbackText: "Fokusz {YYYY-MM-DD}: {N1} lejárt, {N2} mai, {N3} esemény, {N4} 
 ## 4. Anti-pattern (NE)
 
 - ❌ "Itt van a teljes Todoist export" — csak a 7 napos ablak, prioritálva.
+- ❌ **`Card kiment` / `Összerakom...` / bármi szöveges üzenet a card MELLÉ vagy UTÁN**. A card a teljes turn-output. Egy turn = egy `mcp__nanoclaw__send_card` hívás, és KÉSZ. Ha közben olvasol/várakozol, NE küldj köztes szöveget ("1 perc..."). A card a végén megjelenik magától, ha csinálni kellett.
 - ❌ Külön szöveges narratíva a card mellé — Tomi a card-ot nézi, plus szöveg zaj.
 - ❌ Email-tartalom részletes feldolgozása — csak heading-szintű észrevétel ("3 új levél, 1 számla várja a továbbítást Erikának").
 - ❌ Crypto / hírek bevonása — azokra `/hirek` és `/edzo` van. A `/fokusz` business-fókuszú.
 - ❌ Javaslat ami nem konkrét: "gondold át a Görgey 32 stratégiát" — helyette: "[Görgey 32] hívd fel Bérczyt 11:00-ig (vízbekötés döntés)".
+
+## 5. EGY TURN = EGY KIMENET
+
+A `/fokusz` egyetlen `mcp__nanoclaw__send_card` hívás. NEM:
+- `send_message` "Összerakom..." előtte
+- `send_message` "Card kiment..." utána
+- Két külön card
+
+Ha **olvasnod/várnod** kell tool-okra (Todoist, Calendar, email pre-filter), csak hívd őket — Tomi nem lát közben semmit, és ez OK. A végén egyetlen card megy ki.
