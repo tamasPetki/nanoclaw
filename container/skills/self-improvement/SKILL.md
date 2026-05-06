@@ -37,16 +37,16 @@ WEEK_START=$(date -d '7 days ago' '+%Y-%m-%d')
 TODAY=$(date '+%Y-%m-%d')
 
 # Wiki napló utolsó hete
-awk -v start="$WEEK_START" '/^## \[/ { in_block = ($0 ~ start) || in_block } in_block' /workspace/group/wiki/log.md
+awk -v start="$WEEK_START" '/^## \[/ { in_block = ($0 ~ start) || in_block } in_block' /workspace/agent/wiki/log.md
 
 # Worker activity
-awk -v start="$WEEK_START" '/^## / { in_block = ($0 ~ start) || in_block } in_block' /workspace/group/wiki/worker-activity.md 2>/dev/null
+awk -v start="$WEEK_START" '/^## / { in_block = ($0 ~ start) || in_block } in_block' /workspace/agent/wiki/worker-activity.md 2>/dev/null
 
 # Hub session inbound — failed tasks
 sqlite3 /workspace/.session/inbound.db "SELECT id, datetime(timestamp), substr(content, 1, 200) FROM messages_in WHERE status IN ('failed','paused') AND timestamp > '$WEEK_START'"
 ```
 
-A `/workspace/group/` a hub mappa (`groups/hub/`). A session inbound.db-t a host mountolja `/workspace/.session/`-ba (verifikáld: `ls /workspace/.session/`; ha nincs, `find / -name inbound.db 2>/dev/null | grep ag-hub` és onnan).
+A `/workspace/agent/` a hub mappa (`groups/hub/`). A session inbound.db-t a host mountolja `/workspace/.session/`-ba (verifikáld: `ls /workspace/.session/`; ha nincs, `find / -name inbound.db 2>/dev/null | grep ag-hub` és onnan).
 
 **Plus** Tomi-pull "javítások" — utóbbi heti user-üzenetekben a frusztrációs minták:
 - "ne X" / "STOP" / "rosszul" / "javítsd" / "ezt nem így"
@@ -161,7 +161,7 @@ A finding-ban specifikált konkrét diff szerint:
 Miután a heti finding generálva van és a card kiment, **ürítsd a `wiki/findings/draft-current-week.md`-t** — csak a frontmatter + a bevezető bekezdés maradjon (az új héthez friss). A fájl tartalmát NE töröld véglegesen — a végleges `wiki/findings/YYYY-W<NN>.md`-be már beleépítetted, ott megmarad.
 
 ```bash
-cat > /workspace/group/wiki/findings/draft-current-week.md <<'EOF'
+cat > /workspace/agent/wiki/findings/draft-current-week.md <<'EOF'
 ---
 title: "Draft — aktuális heti findings buffer"
 type: finding

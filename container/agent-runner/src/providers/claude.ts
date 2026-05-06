@@ -245,8 +245,9 @@ function createMcpHealthCheckHook(getQuery: () => Query | null): HookCallback {
  */
 function appendDraftFinding(kind: string, body: string): void {
   try {
-    const dir = '/workspace/group/wiki/findings';
-    if (!fs.existsSync(dir)) return; // no wiki/findings/ → no-op
+    // Container mount: groups/<folder>/ → /workspace/agent/
+    const dir = '/workspace/agent/wiki/findings';
+    if (!fs.existsSync(dir)) return; // no wiki/findings/ → no-op (worker-en pl.)
     const file = path.join(dir, 'draft-current-week.md');
     const ts = new Date().toISOString();
     const line = `\n## [${ts}] ${kind}\n${body.trim()}\n`;
@@ -254,6 +255,48 @@ function appendDraftFinding(kind: string, body: string): void {
   } catch (err) {
     log(`[findings-buffer] append failed: ${err instanceof Error ? err.message : String(err)}`);
   }
+}
+
+const QUICK_LEARNING_HINT = [
+  '🚨 RUNTIME OVERRIDE: Tomi explicit "jegyezd meg / ne csináld többé / mostantól mindig X / tanulj ebből" mintát írt.',
+  '',
+  'Ennek a turn-nek a kimenete TOOL_USE legyen, NEM sima text "Megjegyeztem ✅" típusú válasz.',
+  '',
+  'Indítsd a Quick learning workflow-t a hub CLAUDE.local.md "Self-improvement (heti reflection + session-realtime)" → "Quick learning" szekciója szerint:',
+  '',
+  '1. Azonosítsd a célfájlt a Tomi-direktíva alapján:',
+  '   - Tomi-stílus / hangtípus → groups/global/CLAUDE.md',
+  '   - Hub-konkrét viselkedés → groups/hub/CLAUDE.local.md (workspace: /workspace/agent/CLAUDE.local.md)',
+  '   - Skill-trigger / minta → container/skills/<név>/SKILL.md (workspace: /app/skills/<név>/SKILL.md)',
+  '   - Worker-viselkedés → groups/worker/CLAUDE.local.md (cross-agent send_message)',
+  '',
+  '2. Olvasd el a célfájlt (`Read`).',
+  '',
+  '3. **mcp__nanoclaw__ask_user_question** card:',
+  '   - title: "💡 Quick learning: <rövid összefoglaló>"',
+  '   - question: "Frissítsem a `<konkrét fájl path>`-t? Konkrét diff:\\n\\n```diff\\n<diff>\\n```"',
+  '   - options: [{label:"Frissítsd",value:"apply"}, {label:"Csak draft",value:"draft"}, {label:"Skip",value:"skip"}]',
+  '',
+  '4. Approve (`apply`) → `Edit` a fájlt + log az `wiki/findings/draft-current-week.md`-be: `## [YYYY-MM-DD HH:MM] quick-learning-applied | <fájl> | <takeaway>`',
+].join('\n');
+
+function createQuickLearningHintHook(): HookCallback {
+  return async (input) => {
+    if (input.hook_event_name !== 'UserPromptSubmit') return {};
+    const prompt = (input.prompt ?? '').toLowerCase();
+    if (!prompt) return {};
+    // Csak a directive mintára injektáljuk (nem minden frusztrációs jelzésre)
+    const isDirective =
+      /\b(jegyezd meg|ne csináld többé|mostantól (mindig|soha)|tanulj ebből)\b/i.test(prompt);
+    if (!isDirective) return {};
+    log(`[quick-learning] directive detected → injecting workflow hint`);
+    return {
+      hookSpecificOutput: {
+        hookEventName: 'UserPromptSubmit',
+        additionalContext: QUICK_LEARNING_HINT,
+      },
+    } as unknown as ReturnType<HookCallback>;
+  };
 }
 
 // Frusztrációs / korrekciós minták a Tomi-üzenetekben. Ha bármelyik
@@ -577,6 +620,7 @@ export class ClaudeProvider implements AgentProvider {
     const approvalHintHook = createApprovalHintHook();
     const tomiFeedbackLogger = createTomiFeedbackLogger();
     const toolFailureLogger = createToolFailureLogger();
+    const quickLearningHintHook = createQuickLearningHintHook();
 
     const sdkResult = sdkQuery({
       prompt: stream,
@@ -600,7 +644,7 @@ export class ClaudeProvider implements AgentProvider {
           PostToolUse: [{ hooks: [postToolUseHook] }],
           PostToolUseFailure: [{ hooks: [postToolUseHook, mcpRecoveryHook, toolFailureLogger] }],
           PreCompact: [{ hooks: [createPreCompactHook(this.assistantName)] }],
-          UserPromptSubmit: [{ hooks: [mcpHealthCheckHook, approvalHintHook, tomiFeedbackLogger] }],
+          UserPromptSubmit: [{ hooks: [mcpHealthCheckHook, approvalHintHook, quickLearningHintHook, tomiFeedbackLogger] }],
         },
       },
     });
