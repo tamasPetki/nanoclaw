@@ -444,8 +444,38 @@ export function createChatSdkBridge(config: ChatSdkBridgeConfig): ChannelAdapter
         const cardData = content.card as Record<string, unknown>;
         const title = transformText((cardData.title as string) || '');
         const description = transformText((cardData.description as string) || '');
-        const children: ReturnType<typeof CardText | typeof Actions>[] = [];
+        const children: Array<ReturnType<typeof CardText | typeof Actions>> = [];
         if (description) children.push(CardText(description));
+
+        // Render structured children (sections/text). The agent emits a
+        // tree like: card.children = [{type:'section', title, children:[
+        //   {type:'text', text:'...'}]}]. We flatten this to a sequence of
+        // CardText elements: section title (bold, prefixed with ▸) + body.
+        // Without this, complex multi-section cards arrive at Telegram as
+        // just the top-level title+description and all the actual content
+        // is dropped silently.
+        const cardChildren = cardData.children as Array<Record<string, unknown>> | undefined;
+        if (Array.isArray(cardChildren)) {
+          for (const node of cardChildren) {
+            if (!node || typeof node !== 'object') continue;
+            const t = node.type as string | undefined;
+            if (t === 'text' && typeof node.text === 'string') {
+              children.push(CardText(transformText(node.text)));
+            } else if (t === 'section') {
+              const secTitle = (node.title as string) || '';
+              if (secTitle) children.push(CardText(transformText(`*${secTitle}*`)));
+              const secChildren = node.children as Array<Record<string, unknown>> | undefined;
+              if (Array.isArray(secChildren)) {
+                for (const sub of secChildren) {
+                  if (sub?.type === 'text' && typeof sub.text === 'string') {
+                    children.push(CardText(transformText(sub.text)));
+                  }
+                }
+              }
+            }
+          }
+        }
+
         const actionsData = cardData.actions as Array<Record<string, unknown>> | undefined;
         if (actionsData && actionsData.length > 0) {
           children.push(
