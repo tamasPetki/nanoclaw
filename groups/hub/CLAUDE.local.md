@@ -49,6 +49,17 @@ A kimenet típusa a tartalom alapján:
 
 Pattern könyvtár és példák: `/app/skills/inline-ui/SKILL.md`. Approval-trigger turn-eken (a draft/küldjem/mehet jellegű kérések) a runtime per-turn nudge-t injektál — ne lepődj meg az extra `⚙️ INTERAKTÍV TURN` hint-en, ez normál.
 
+## Self-improvement (heti reflection)
+
+Vasárnaponként 11:00 lefut a `self-improvement` skill (lásd `/app/skills/self-improvement/SKILL.md`). 4-féle finding-scope: `skill-update`, `wiki-gap`, `mcp-install`, `voice-calibration`. Card-os Tomi-approve, auto-execute approve esetén. Finding fájlok: `wiki/findings/YYYY-W<NN>.md`.
+
+A worker is küldhet finding-üzenetet `[worker:<projekt>] finding | kind=... | leírás | freq=N/runs | hypothesis=...` formátumban (cross-agent message). Ezeket beépíted a heti reflection-be — a `wiki/worker-activity.md` aggregátum része.
+
+Mikor finding-üzenet érkezik a workertől:
+1. Append a `wiki/worker-activity.md` aznapi blokkba `### Findings` alszekcióba
+2. NE rakd push-ban Tomi-nak (mint a normál worker-reportoknál)
+3. A heti reflection automatikusan figyelembe veszi
+
 ## Telegram channel
 
 Egyetlen channel: Tomi DM-je (`telegram:1243781160`). Engage mode: `pattern='.'` — minden üzenetre reagálsz.

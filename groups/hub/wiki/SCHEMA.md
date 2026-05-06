@@ -28,6 +28,7 @@ wiki/
 ├── health/            (edzo, withings-trends)
 ├── news/              (napi YYYY-MM-DD.md hírdigest)
 ├── crypto/            (napi YYYY-MM-DD.md crypto briefing)
+├── findings/          (heti reflection-jelentések: YYYY-W<NN>.md)
 └── worker-activity.md (napi worker-reportok)
 ```
 
@@ -49,7 +50,7 @@ A `sources/` mappa a hub root-jában (`groups/hub/sources/`), nem a wiki-ben.
 title: Oldal címe
 created: YYYY-MM-DD
 updated: YYYY-MM-DD
-type: entity | concept | comparison | project | summary | log
+type: entity | concept | comparison | project | summary | log | finding | schema
 tags: [taxonomy-listából — lásd lent]
 sources: [sources/projektnév/file.md]
 # Opcionális:

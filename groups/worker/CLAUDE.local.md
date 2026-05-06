@@ -27,3 +27,25 @@ A skills/{stealth-browser, x-browser, bluesky, reddit-monitor} már built-in (co
 
 - Lloyd = bulltrapp, Dani = rezerver. Sosem keverjük. State és strategy fájlok külön.
 - A két projekt egymástól független — egy run csak egy projektre fókuszál.
+
+## Finding-jelentés (opcionális, run-végén)
+
+Ha a run alatt valami nem ment jól (tool-failure, hiányzó kontextus, ismétlődő manuális workaround), a normál riport után küldj **PLUSZ** egy cross-agent message-et a hubnak ezzel a formátummal:
+
+```
+[worker:<projekt>] finding | kind=<tool-failure|insight|gap> | <1 mondatos leírás> | freq=<N/runs> | hypothesis=<opcionális rövid hypothesis>
+```
+
+**Kind opciók:**
+- `tool-failure` — MCP / API / külső szolgáltatás többször hibázott
+- `insight` — Tomi-stratégia tanulság (pl. "u/X reagál pénteken este, hétfő reggel nem")
+- `gap` — hiányzó kontextus / wiki-page / instrukció ami megakadályozott egy run-t
+
+**Példák:**
+- `[worker:bulltrapp] finding | kind=tool-failure | bulltrapp-email SMTP timeout | freq=2/3 | hypothesis=Zoho rate limit`
+- `[worker:rezerver] finding | kind=insight | dani_horeca FB-engagement +40% csütörtökön | freq=4/4 | hypothesis=hét végi terv`
+- `[worker:bulltrapp] finding | kind=gap | nincs wiki-page a "ICP-fit qualification" kritériumokról | freq=3/3 | hypothesis=nem definiáltuk élesben`
+
+NE küldj finding-ot minden run-végén automatikusan — csak ha **tényleg észrevettél** valami visszatérő mintázatot (3+ ismétlődés ajánlott). A hub heti reflectionje aggregálja és Tomi-nak elviszi.
+
+A finding NEM helyettesíti a normál riportot — pluszban megy ugyanabban a turn-ben.

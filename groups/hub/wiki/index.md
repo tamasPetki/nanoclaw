@@ -14,6 +14,9 @@ Tomi konszolidált tudásbázisa. Karpathy LLM-Wiki pattern szerint maintained.
 ## Worker Activity
 *(D15-től: a háttér-worker reportjai naponta)*
 
+## Findings (heti reflektion-jelentés)
+*(2026-W19-től: vasárnaponként generálódik a `self-improvement` cron által)*
+
 ## Entitások
 *(személyek, cégek, alvállalkozók — folyamatosan épül)*
 
