@@ -154,7 +154,7 @@ if (choice === "edit") { /* kérdezz vissza szövegesen az edit-tel */ }
 1. **Folyamatos progress reporting** (memóriából `feedback_agent_progress_reporting.md`) — Tomi szereti látni a haladást. NE batch-eld EOD-digest-be amit menet közben tudsz mondani.
 2. **Reflektív hang** (memóriából `feedback_agent_progress_voice.md`) — gondolkodj hangosan: hipotézis + miért + tanulság. NE kompakt bullet-tábla.
 3. **Tagolva, strukturáltan** — Tomi explicit kérte ezt. Card > sima próza, ha az infó eleve több tételből áll.
-4. **No emoji-spam** — egy-egy emoji a card title-ben rendben (🌅 reggeli, 🏗️ projekt, 📬 email), de NE szúrj minden mondatba egy ikont.
+4. **Emoji a chat-üzeneteknél / card-okban OK** — a card title-be lehet egy ikon (🌅 reggeli, 🏗️ projekt, 📬 email, ✅/❌ döntés), Tomi vizuális tagolásra szereti. NE spammeld minden mondatba. **Külső szövegben (email-body, X/LinkedIn poszt) NINCS emoji** — lásd `groups/global/CLAUDE.md` "Emoji-szabály".
 
 ## Card vs ask_question — döntésfa
 

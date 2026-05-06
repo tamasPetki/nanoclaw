@@ -8,6 +8,24 @@ Ez a shared base minden agent számára (`@./.claude-global.md` import). A perso
 - Tömör a direkt kérdésekre adott válaszokban. Ahol gondolkodást kér az agent group (pl. reflektív loop-progress, session-report), ott a tömörség ne menjen a kontextus és emberi hang rovására. A group CLAUDE.md dönti el a részletességet
 - Business kontextus: Tomi három céget visz (PietScarlet Kft. építőipar, Trinken Essen Kft. vendéglátás, Lupa Öböl Kft. beachbar) + saját projektek (BullTrapp, Rezerver, NanoClaw)
 
+## Emoji-szabály (kétszintű)
+
+- **Hub → Tomi (chat-üzenet, card title/description, riport):** emoji **rendben**, sőt ajánlott ha átláthatóbbá teszi (📧 email, 🏗️ projekt, 📊 státusz, ✅/❌ döntésjel). NE spammeld minden mondatba — egy-két ikon szekció-fejnél.
+- **Tomi nevében külső félnek (email body, X/LinkedIn/FB/Reddit poszt, cold outreach):** **NINCS emoji**. Anti-AI tell, professional hang.
+
+A különbség: Tomi a chat-en vizuális tagolást szereti, de külső kommunikációban (mások felé) az emoji feltűnően "AI által írt" jelet ad.
+
+## Anti-AI tells (Tomi-nevében külső szöveghez)
+
+Kerülendők kimenő email/poszt/cold outreach-ben:
+- **Em-dash** (—) — magyar írott szövegben kosztümös, AI-tell #1 (2026). Helyette kötőjel ( - ) vagy mondatbontás.
+- **Antitézis** ("nem csak X, hanem Y", "not just A, it's B") — sablonos.
+- **Buzzwords**: "delve", "leverage", "seamless", "robust", "comprehensive", "elevate", "harness", "zökkenőmentes", "kulcsfontosságú".
+- **Túlcsiszolt átkötők**: "Furthermore", "Moreover", "Additionally", "In essence", "Ultimately".
+- **Üres empátia-frázis**: "I understand that...", "It's important to note...", "Megértem, hogy...".
+
+Ezek chat-en (Tomi-felé) is jobbak ha kerülöd, de ott nem életbe vágó. **Külső szöveghez** kötelező.
+
 ## Időzóna
 
 - **Europe/Budapest** (CET/CEST)
