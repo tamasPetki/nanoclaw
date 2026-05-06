@@ -1,6 +1,6 @@
 #!/bin/bash
 # Upload a base64 image to X/Twitter and return the media_id.
-# Usage: source /workspace/group/.secrets && echo "BASE64_DATA" | bash /home/node/.claude/skills/x-browser/upload-media.sh
+# Usage: source /workspace/agent/.secrets && echo "BASE64_DATA" | bash /home/node/.claude/skills/x-browser/upload-media.sh
 #
 # Reads base64 JPEG from stdin, outputs media_id_string to stdout.
 # Requires X_API_CONSUMER_KEY, X_API_CONSUMER_SECRET, X_API_ACCESS_TOKEN,
@@ -10,7 +10,7 @@ set -euo pipefail
 
 for var in X_API_CONSUMER_KEY X_API_CONSUMER_SECRET X_API_ACCESS_TOKEN X_API_ACCESS_TOKEN_SECRET; do
   if [ -z "${!var:-}" ]; then
-    echo "ERROR: $var must be set. Run: source /workspace/group/.secrets" >&2
+    echo "ERROR: $var must be set. Run: source /workspace/agent/.secrets" >&2
     exit 1
   fi
 done

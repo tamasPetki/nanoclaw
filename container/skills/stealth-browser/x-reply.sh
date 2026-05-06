@@ -1,7 +1,7 @@
 #!/bin/bash
 # x-reply.sh — Reply to an X (Twitter) tweet via headed Chrome with cookie auth.
 #
-# Requires X_CT0 + X_AUTH_TOKEN env vars (run: source /workspace/group/.secrets first).
+# Requires X_CT0 + X_AUTH_TOKEN env vars (run: source /workspace/agent/.secrets first).
 #
 # Uses data-testid selectors so it's language-independent (works on HU/EN/etc accounts).
 #
@@ -22,7 +22,7 @@ if [ -z "$URL" ] || [ -z "$TEXT" ]; then
 fi
 
 if [ -z "${X_CT0:-}" ] || [ -z "${X_AUTH_TOKEN:-}" ]; then
-  echo "ERROR: X_CT0 and X_AUTH_TOKEN must be set. Run: source /workspace/group/.secrets" >&2
+  echo "ERROR: X_CT0 and X_AUTH_TOKEN must be set. Run: source /workspace/agent/.secrets" >&2
   exit 1
 fi
 
@@ -48,7 +48,7 @@ rm -f /tmp/stealth-browser-state.json 2>/dev/null || true
 
 echo "→ Verifying X cookies are non-empty..."
 if [ ${#X_AUTH_TOKEN} -lt 20 ] || [ ${#X_CT0} -lt 20 ]; then
-  echo "ERROR: X_AUTH_TOKEN or X_CT0 looks too short — source /workspace/group/.secrets first" >&2
+  echo "ERROR: X_AUTH_TOKEN or X_CT0 looks too short — source /workspace/agent/.secrets first" >&2
   exit 1
 fi
 echo "  auth_token: ${#X_AUTH_TOKEN} chars, ct0: ${#X_CT0} chars"

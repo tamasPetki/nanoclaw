@@ -12,7 +12,7 @@ secrets:
 ## Olvasás — Subreddit browsing
 
 ```bash
-source /workspace/group/.secrets
+source /workspace/agent/.secrets
 bash /home/node/.claude/skills/reddit-monitor/fetch-posts.sh SUBREDDIT [LIMIT] [SORT]
 ```
 Residential proxy-n keresztül JSON API-t használ (upvote, comment szám, selftext). RSS fallback ha proxy nem elérhető.
@@ -20,7 +20,7 @@ Residential proxy-n keresztül JSON API-t használ (upvote, comment szám, selft
 ## Keresés — Cross-subreddit search
 
 ```bash
-source /workspace/group/.secrets
+source /workspace/agent/.secrets
 bash /home/node/.claude/skills/reddit-monitor/search-reddit.sh "QUERY" [LIMIT] [TIME] [SORT]
 ```
 A `/search.json` endpointot használja — egyetlen query az EGÉSZ Reddit-en keres. Relevánsabb találatok mint a subreddit browsing.
@@ -54,7 +54,7 @@ Token overlap scoring (0.0-1.0). Threshold default: 0.20. Nincs LLM költség.
 Elsődleges út. Sticky HU proxy + cookie auth + modhash, curl-lel. Gyors, megbízható.
 
 ```bash
-source /workspace/group/.secrets
+source /workspace/agent/.secrets
 bash /home/node/.claude/skills/reddit-monitor/reddit-comment.sh "t3_POST_ID" "COMMENT_TEXT"
 ```
 

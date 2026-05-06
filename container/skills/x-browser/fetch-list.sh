@@ -1,6 +1,6 @@
 #!/bin/bash
 # Fetch tweets from an X/Twitter list via GraphQL API.
-# Usage: source /workspace/group/.secrets && bash /home/node/.claude/skills/x-browser/fetch-list.sh LIST_ID [COUNT]
+# Usage: source /workspace/agent/.secrets && bash /home/node/.claude/skills/x-browser/fetch-list.sh LIST_ID [COUNT]
 #
 # Reads QUERY_ID from SKILL.md automatically — never hardcode it elsewhere.
 # Requires X_CT0 and X_AUTH_TOKEN env vars (source .secrets first).
@@ -22,7 +22,7 @@ fi
 
 # Verify credentials
 if [ -z "${X_CT0:-}" ] || [ -z "${X_AUTH_TOKEN:-}" ]; then
-  echo "ERROR: X_CT0 and X_AUTH_TOKEN must be set. Run: source /workspace/group/.secrets" >&2
+  echo "ERROR: X_CT0 and X_AUTH_TOKEN must be set. Run: source /workspace/agent/.secrets" >&2
   exit 1
 fi
 

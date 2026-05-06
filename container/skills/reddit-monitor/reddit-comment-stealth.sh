@@ -4,7 +4,7 @@
 # Drop-in replacement for reddit-comment.sh when genuine browser fingerprint is needed.
 # Uses old.reddit.com (plain HTML form, no Shadow DOM — simpler to automate).
 #
-# Requires: REDDIT_SESSION, REDDIT_PROXY (loaded via: source /workspace/group/.secrets)
+# Requires: REDDIT_SESSION, REDDIT_PROXY (loaded via: source /workspace/agent/.secrets)
 #
 # Usage:
 #   bash reddit-comment-stealth.sh "POST_URL" "COMMENT_TEXT"
@@ -31,7 +31,7 @@ if [ -z "$URL" ] || [ -z "$TEXT" ]; then
 fi
 
 if [ -z "${REDDIT_SESSION:-}" ]; then
-  echo "ERROR: REDDIT_SESSION not set. Run: source /workspace/group/.secrets" >&2
+  echo "ERROR: REDDIT_SESSION not set. Run: source /workspace/agent/.secrets" >&2
   exit 1
 fi
 

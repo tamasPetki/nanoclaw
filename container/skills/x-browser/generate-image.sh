@@ -1,6 +1,6 @@
 #!/bin/bash
 # Generate an image via Stability AI Ultra and optionally upload to X.
-# Usage: source /workspace/group/.secrets && bash /home/node/.claude/skills/x-browser/generate-image.sh "prompt" [aspect_ratio]
+# Usage: source /workspace/agent/.secrets && bash /home/node/.claude/skills/x-browser/generate-image.sh "prompt" [aspect_ratio]
 #
 # Outputs: base64 JPEG to stdout (pipe to upload-media.sh or save to file)
 # Requires STABILITY_API_KEY env var (source .secrets first).
@@ -11,7 +11,7 @@ PROMPT="${1:?Usage: generate-image.sh \"prompt\" [aspect_ratio]}"
 ASPECT="${2:-16:9}"
 
 if [ -z "${STABILITY_API_KEY:-}" ]; then
-  echo "ERROR: STABILITY_API_KEY must be set. Run: source /workspace/group/.secrets" >&2
+  echo "ERROR: STABILITY_API_KEY must be set. Run: source /workspace/agent/.secrets" >&2
   exit 1
 fi
 

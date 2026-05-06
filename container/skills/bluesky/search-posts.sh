@@ -1,6 +1,6 @@
 #!/bin/bash
 # Search Bluesky posts via AT Protocol.
-# Usage: source /workspace/group/.secrets && bash /home/node/.claude/skills/bluesky/search-posts.sh "query" [LIMIT]
+# Usage: source /workspace/agent/.secrets && bash /home/node/.claude/skills/bluesky/search-posts.sh "query" [LIMIT]
 #
 # Requires BLUESKY_HANDLE and BLUESKY_APP_PASSWORD env vars.
 # Returns: post text, author handle, like/reply/repost counts, post URL, URI, CID.
@@ -13,7 +13,7 @@ LIMIT="${2:-25}"
 
 for var in BLUESKY_HANDLE BLUESKY_APP_PASSWORD; do
   if [ -z "${!var:-}" ]; then
-    echo "ERROR: $var must be set. Run: source /workspace/group/.secrets" >&2
+    echo "ERROR: $var must be set. Run: source /workspace/agent/.secrets" >&2
     exit 1
   fi
 done

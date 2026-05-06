@@ -1,6 +1,6 @@
 # Outreach Email Templates
 
-Max 8 email/nap. Minden target és státusza: `/workspace/group/email_pipeline.json`
+Max 8 email/nap. Minden target és státusza: `/workspace/agent/email_pipeline.json`
 
 ## Hogyan használd
 

@@ -239,7 +239,7 @@ function createMcpHealthCheckHook(getQuery: () => Query | null): HookCallback {
  * the feedback-logger and tool-failure-logger hooks below. Located in the
  * agent's wiki dir so it survives container respawns.
  *
- * Resolved at hook-fire time (container has /workspace/group → host
+ * Resolved at hook-fire time (container has /workspace/agent → host
  * groups/<folder>/). For agents without a wiki dir, the append silently
  * no-ops — only the hub uses this today.
  */

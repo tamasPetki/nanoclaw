@@ -43,10 +43,10 @@ awk -v start="$WEEK_START" '/^## \[/ { in_block = ($0 ~ start) || in_block } in_
 awk -v start="$WEEK_START" '/^## / { in_block = ($0 ~ start) || in_block } in_block' /workspace/agent/wiki/worker-activity.md 2>/dev/null
 
 # Hub session inbound — failed tasks
-sqlite3 /workspace/.session/inbound.db "SELECT id, datetime(timestamp), substr(content, 1, 200) FROM messages_in WHERE status IN ('failed','paused') AND timestamp > '$WEEK_START'"
+sqlite3 /workspace/inbound.db "SELECT id, datetime(timestamp), substr(content, 1, 200) FROM messages_in WHERE status IN ('failed','paused') AND timestamp > '$WEEK_START'"
 ```
 
-A `/workspace/agent/` a hub mappa (`groups/hub/`). A session inbound.db-t a host mountolja `/workspace/.session/`-ba (verifikáld: `ls /workspace/.session/`; ha nincs, `find / -name inbound.db 2>/dev/null | grep ag-hub` és onnan).
+A container mount-pontok: `/workspace/agent/` = group folder (`groups/<folder>/`, RW), `/workspace/global/` = `groups/global/` (RO), `/workspace/inbound.db` és `/workspace/outbound.db` a session DB-k (NEM aldir-ben), `/workspace/.heartbeat` a heartbeat fájl, `/workspace/extra/{google-oauth,.mcp-auth,.withings}` a additional mountok.
 
 **Plus** Tomi-pull "javítások" — utóbbi heti user-üzenetekben a frusztrációs minták:
 - "ne X" / "STOP" / "rosszul" / "javítsd" / "ezt nem így"

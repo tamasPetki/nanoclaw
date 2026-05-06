@@ -20,7 +20,7 @@
 set -euo pipefail
 
 if [ -z "${X_CT0:-}" ] || [ -z "${X_AUTH_TOKEN:-}" ]; then
-  echo "ERROR: X_CT0 and X_AUTH_TOKEN must be set. Run: source /workspace/group/.secrets" >&2
+  echo "ERROR: X_CT0 and X_AUTH_TOKEN must be set. Run: source /workspace/agent/.secrets" >&2
   exit 1
 fi
 

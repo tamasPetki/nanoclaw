@@ -1,6 +1,6 @@
 #!/bin/bash
 # Search recent tweets via X API v2 Recent Search endpoint.
-# Usage: source /workspace/group/.secrets && bash /home/node/.claude/skills/x-browser/search-tweets.sh "query" [MAX_RESULTS]
+# Usage: source /workspace/agent/.secrets && bash /home/node/.claude/skills/x-browser/search-tweets.sh "query" [MAX_RESULTS]
 #
 # Uses OAuth 1.0a (same credentials as post-tweet.sh).
 # Returns: tweet text, author, engagement metrics, tweet URL.
@@ -14,7 +14,7 @@ MAX_RESULTS="${2:-20}"
 # Verify credentials
 for var in X_API_CONSUMER_KEY X_API_CONSUMER_SECRET X_API_ACCESS_TOKEN X_API_ACCESS_TOKEN_SECRET; do
   if [ -z "${!var:-}" ]; then
-    echo "ERROR: $var must be set. Run: source /workspace/group/.secrets" >&2
+    echo "ERROR: $var must be set. Run: source /workspace/agent/.secrets" >&2
     exit 1
   fi
 done

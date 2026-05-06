@@ -1,6 +1,6 @@
 #!/bin/bash
 # Delete a Bluesky post via AT Protocol.
-# Usage: source /workspace/group/.secrets && bash /home/node/.claude/skills/bluesky/delete-post.sh "RKEY"
+# Usage: source /workspace/agent/.secrets && bash /home/node/.claude/skills/bluesky/delete-post.sh "RKEY"
 #
 # RKEY is the last segment of the post URI (at://did:plc:xxx/app.bsky.feed.post/RKEY).
 # You can also pass the full URI — the script will extract the rkey automatically.
@@ -13,7 +13,7 @@ INPUT="${1:?Usage: delete-post.sh \"RKEY_OR_URI\"}"
 
 for var in BLUESKY_HANDLE BLUESKY_APP_PASSWORD; do
   if [ -z "${!var:-}" ]; then
-    echo "ERROR: $var must be set. Run: source /workspace/group/.secrets" >&2
+    echo "ERROR: $var must be set. Run: source /workspace/agent/.secrets" >&2
     exit 1
   fi
 done

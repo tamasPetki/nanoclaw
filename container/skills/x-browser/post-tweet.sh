@@ -1,6 +1,6 @@
 #!/bin/bash
 # Post a tweet (or reply or quote tweet) via X API v2 with OAuth 1.0a.
-# Usage: source /workspace/group/.secrets && bash /home/node/.claude/skills/x-browser/post-tweet.sh "tweet text" [reply_to_tweet_id] [media_id] [quote_tweet_id]
+# Usage: source /workspace/agent/.secrets && bash /home/node/.claude/skills/x-browser/post-tweet.sh "tweet text" [reply_to_tweet_id] [media_id] [quote_tweet_id]
 #
 # Requires X_API_CONSUMER_KEY, X_API_CONSUMER_SECRET, X_API_ACCESS_TOKEN,
 # X_API_ACCESS_TOKEN_SECRET env vars (source .secrets first).
@@ -15,7 +15,7 @@ QUOTE_TWEET_ID="${4:-}"
 # Verify credentials
 for var in X_API_CONSUMER_KEY X_API_CONSUMER_SECRET X_API_ACCESS_TOKEN X_API_ACCESS_TOKEN_SECRET; do
   if [ -z "${!var:-}" ]; then
-    echo "ERROR: $var must be set. Run: source /workspace/group/.secrets" >&2
+    echo "ERROR: $var must be set. Run: source /workspace/agent/.secrets" >&2
     exit 1
   fi
 done

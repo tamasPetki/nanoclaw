@@ -12,7 +12,7 @@
 #   3. agent-browser snapshot -i
 #   4. Use refs from snapshot to fill username/password and submit
 
-STATE_FILE="/workspace/group/reddit-auth.json"
+STATE_FILE="/workspace/agent/reddit-auth.json"
 
 # Configure proxy for browser
 if [ -n "${REDDIT_PROXY:-}" ]; then

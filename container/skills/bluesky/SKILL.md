@@ -14,7 +14,7 @@ A Bluesky-t az AT Protocol-on keresztül használjuk. Bearer token auth — egys
 ## Authentication
 
 ```bash
-source /workspace/group/.secrets
+source /workspace/agent/.secrets
 # Ezután használhatók: $BLUESKY_HANDLE, $BLUESKY_APP_PASSWORD
 ```
 

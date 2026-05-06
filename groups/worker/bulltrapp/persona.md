@@ -419,7 +419,7 @@ Külön munka-csatorna: crypto Telegram csoportokban reputáció-first jelenlét
 
 **Csoport olvasás — gyors, proxy nem kell:**
 ```bash
-source /workspace/group/.secrets
+source /workspace/agent/.secrets
 python3 /opt/scripts/telegram-read.py "$TELEGRAM_API_ID" "$TELEGRAM_API_HASH" "$TELEGRAM_SESSION" GROUP_ID 50
 ```
 

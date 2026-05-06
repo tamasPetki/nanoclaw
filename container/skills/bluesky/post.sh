@@ -1,6 +1,6 @@
 #!/bin/bash
 # Create a Bluesky post, reply, or quote post via AT Protocol.
-# Usage: source /workspace/group/.secrets && bash /home/node/.claude/skills/bluesky/post.sh "text" [reply_to_uri reply_to_cid] [quote_uri quote_cid]
+# Usage: source /workspace/agent/.secrets && bash /home/node/.claude/skills/bluesky/post.sh "text" [reply_to_uri reply_to_cid] [quote_uri quote_cid]
 #
 # Arguments:
 #   $1 - Post text (required, max 300 chars)
@@ -22,7 +22,7 @@ QUOTE_CID="${5:-}"
 
 for var in BLUESKY_HANDLE BLUESKY_APP_PASSWORD; do
   if [ -z "${!var:-}" ]; then
-    echo "ERROR: $var must be set. Run: source /workspace/group/.secrets" >&2
+    echo "ERROR: $var must be set. Run: source /workspace/agent/.secrets" >&2
     exit 1
   fi
 done

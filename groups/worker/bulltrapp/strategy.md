@@ -32,7 +32,7 @@ _Ezt a fájlt az agent írja és frissíti. Ez az ő gondolkodási dokumentuma._
   _source_: Apr 16 első outreach napja, platforms/reddit.md
   _last_reaffirmed_: 2026-04-21
 
-**R7**: Bash parancsok előtt: `source /workspace/agent/.secrets` (NEM /workspace/group/.secrets — a docs rossz útvonalat mutat).
+**R7**: Bash parancsok előtt: `source /workspace/agent/.secrets` (NEM /workspace/agent/.secrets — a docs rossz útvonalat mutat).
   _source_: Apr 21 discovery (bluesky + reddit sessionöknél env var nem volt beállítva)
   _last_reaffirmed_: 2026-04-21
 
@@ -162,7 +162,7 @@ A `stealth-browse` (CDP-alapú anti-detection browser + REDDIT_PROXY residential
 
 **EGYETLEN kivétel:** ProductHunt — Turnstile managed challenge, headless nem tudja megoldani. Ezt Tomi-nak kell manuálisan.
 
-Használat: `source /workspace/group/.secrets && stealth-browse open <url>` — részletek `platforms/browser.md`-ben.
+Használat: `source /workspace/agent/.secrets && stealth-browse open <url>` — részletek `platforms/browser.md`-ben.
 
 ## Mi működött
 

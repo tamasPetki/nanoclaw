@@ -25,13 +25,13 @@ Posztoláshoz az **X API v2**-t használjuk OAuth 1.0a hitelesítéssel.
 
 A secret env var-ok (`X_AUTH_TOKEN`, `X_CT0`) elérhetők a `.secrets` fájlból:
 ```bash
-source /workspace/group/.secrets
+source /workspace/agent/.secrets
 # Ezután használhatók: $X_AUTH_TOKEN, $X_CT0
 ```
 
 Minden X API kéréshez ezek a headerek kellenek:
 ```bash
-source /workspace/group/.secrets
+source /workspace/agent/.secrets
 curl -s \
   -H "Cookie: auth_token=${X_AUTH_TOKEN}; ct0=${X_CT0}" \
   -H "x-csrf-token: ${X_CT0}" \
@@ -54,10 +54,10 @@ A Bearer token fix — ez az X web kliens publikus tokenje.
 ### Ajánlott: wrapper script (egyszerűbb, kevesebb hibalehetőség)
 
 ```bash
-source /workspace/group/.secrets && bash /home/node/.claude/skills/x-browser/fetch-list.sh LIST_ID [COUNT]
+source /workspace/agent/.secrets && bash /home/node/.claude/skills/x-browser/fetch-list.sh LIST_ID [COUNT]
 ```
 
-Példa: `source /workspace/group/.secrets && bash /home/node/.claude/skills/x-browser/fetch-list.sh 2026028408996823510`
+Példa: `source /workspace/agent/.secrets && bash /home/node/.claude/skills/x-browser/fetch-list.sh 2026028408996823510`
 
 A script automatikusan:
 - Kiolvassa a QUERY_ID-t ebből a SKILL.md-ből (single source of truth)
@@ -80,7 +80,7 @@ LIST_ID="2026028408996823510"
 VARS='{"listId":"'$LIST_ID'","count":20}'
 FEATURES='{"rweb_tipjar_consumption_enabled":true,"responsive_web_graphql_exclude_directive_enabled":true,"verified_phone_label_enabled":false,"responsive_web_graphql_skip_user_profile_image_extensions_enabled":false,"responsive_web_graphql_timeline_navigation_enabled":true,"creator_subscriptions_tweet_preview_api_enabled":true,"freedom_of_speech_not_reach_fetch_enabled":true,"tweetypie_unmention_optimization_enabled":true,"longform_notetweets_consumption_enabled":true,"longform_notetweets_rich_text_read_enabled":true,"longform_notetweets_inline_media_enabled":true,"responsive_web_enhance_cards_enabled":false,"responsive_web_media_download_video_enabled":false,"articles_preview_enabled":true}'
 
-source /workspace/group/.secrets
+source /workspace/agent/.secrets
 ENCODED_VARS=$(python3 -c "import urllib.parse,sys; print(urllib.parse.quote(sys.argv[1]))" "$VARS")
 ENCODED_FEATURES=$(python3 -c "import urllib.parse,sys; print(urllib.parse.quote(sys.argv[1]))" "$FEATURES")
 
@@ -167,19 +167,19 @@ Keresés az elmúlt 7 nap tweetjei között. Használd outreach-hez, monitoring-
 ### Wrapper script (AJÁNLOTT)
 
 ```bash
-source /workspace/group/.secrets && bash /home/node/.claude/skills/x-browser/search-tweets.sh "query" [MAX_RESULTS]
+source /workspace/agent/.secrets && bash /home/node/.claude/skills/x-browser/search-tweets.sh "query" [MAX_RESULTS]
 ```
 
 Példák:
 ```bash
 # Portfolio tracker keresés
-source /workspace/group/.secrets && bash /home/node/.claude/skills/x-browser/search-tweets.sh "portfolio tracker crypto" 20
+source /workspace/agent/.secrets && bash /home/node/.claude/skills/x-browser/search-tweets.sh "portfolio tracker crypto" 20
 
 # Polymarket keresés
-source /workspace/group/.secrets && bash /home/node/.claude/skills/x-browser/search-tweets.sh "polymarket portfolio" 15
+source /workspace/agent/.secrets && bash /home/node/.claude/skills/x-browser/search-tweets.sh "polymarket portfolio" 15
 
 # Panasz keresés (kizárva a saját accountot)
-source /workspace/group/.secrets && bash /home/node/.claude/skills/x-browser/search-tweets.sh "\"too many tabs\" crypto -from:krip_tom" 20
+source /workspace/agent/.secrets && bash /home/node/.claude/skills/x-browser/search-tweets.sh "\"too many tabs\" crypto -from:krip_tom" 20
 ```
 
 A script automatikusan:
@@ -213,7 +213,7 @@ A posztoláshoz az X hivatalos API-ját használjuk, NEM a GraphQL-t.
 ### Posztolás wrapper scripttel (AJÁNLOTT)
 
 ```bash
-source /workspace/group/.secrets
+source /workspace/agent/.secrets
 
 # Sima tweet
 bash /home/node/.claude/skills/x-browser/post-tweet.sh "Your tweet here (max 280 chars)"
@@ -240,7 +240,7 @@ FONTOS: **Mindig a scriptet használd**, NE írj saját OAuth kódot és NE hard
 ### Wrapper scriptek (AJÁNLOTT)
 
 ```bash
-source /workspace/group/.secrets
+source /workspace/agent/.secrets
 
 # 1. Kép generálás (base64 JPEG → fájlba)
 bash /home/node/.claude/skills/x-browser/generate-image.sh "image prompt here" > /tmp/image.b64
@@ -314,7 +314,7 @@ PÉLDÁK (minden más, ne ismételd):
 ## Tweet képpel — teljes flow wrapper scriptekkel
 
 ```bash
-source /workspace/group/.secrets
+source /workspace/agent/.secrets
 
 # 1. Kép generálás
 bash /home/node/.claude/skills/x-browser/generate-image.sh "image prompt here" > /tmp/image.b64
@@ -334,7 +334,7 @@ bash /home/node/.claude/skills/x-browser/post-tweet.sh "Second tweet (text only)
 ### Tweet törlés
 
 ```bash
-source /workspace/group/.secrets
+source /workspace/agent/.secrets
 # Törléshez még nincs wrapper script — használd manuálisan:
 python3 -c "
 import os, urllib.parse, hmac, hashlib, base64, time, uuid, urllib.request

@@ -1,6 +1,6 @@
 #!/bin/bash
 # Authenticate with Bluesky AT Protocol and get a bearer token.
-# Usage: source /workspace/group/.secrets && bash /home/node/.claude/skills/bluesky/create-session.sh
+# Usage: source /workspace/agent/.secrets && bash /home/node/.claude/skills/bluesky/create-session.sh
 #
 # Requires BLUESKY_HANDLE and BLUESKY_APP_PASSWORD env vars.
 # Outputs the access token (JWT) to stdout. Also prints DID to stderr for reference.
@@ -10,7 +10,7 @@ set -euo pipefail
 
 for var in BLUESKY_HANDLE BLUESKY_APP_PASSWORD; do
   if [ -z "${!var:-}" ]; then
-    echo "ERROR: $var must be set. Run: source /workspace/group/.secrets" >&2
+    echo "ERROR: $var must be set. Run: source /workspace/agent/.secrets" >&2
     exit 1
   fi
 done

@@ -31,7 +31,7 @@ For normal browsing without Cloudflare/bot issues, use `agent-browser` (faster, 
 ## Quick start
 
 ```bash
-source /workspace/group/.secrets   # Loads REDDIT_PROXY, X_CT0, X_AUTH_TOKEN
+source /workspace/agent/.secrets   # Loads REDDIT_PROXY, X_CT0, X_AUTH_TOKEN
 stealth-browse open https://example.com
 stealth-browse snapshot            # Get interactive elements with @refs
 stealth-browse fill @e2 "text"     # Human typing into element
@@ -42,7 +42,7 @@ stealth-browse close               # Close when done
 ## Logged-in X (Twitter) flow
 
 ```bash
-source /workspace/group/.secrets
+source /workspace/agent/.secrets
 # Open about:blank to launch browser, then inject cookies BEFORE first real navigation
 stealth-browse open about:blank
 stealth-browse cookies x.com auth_token=$X_AUTH_TOKEN ct0=$X_CT0
@@ -52,7 +52,7 @@ stealth-browse screenshot /tmp/x-home.png   # Verify you see the timeline
 
 **Easy reply via helper script** (handles cookies + flow automatically):
 ```bash
-source /workspace/group/.secrets
+source /workspace/agent/.secrets
 bash /home/node/.claude/skills/stealth-browser/x-reply.sh \
   "https://x.com/jack/status/123456" \
   "great point, thanks for sharing"
@@ -134,7 +134,7 @@ The proxy is auto-detected from environment (in priority order):
 2. `STEALTH_PROXY` env var
 3. `REDDIT_PROXY` env var (DataImpulse residential proxy)
 
-Always `source /workspace/group/.secrets` before using to load proxy credentials.
+Always `source /workspace/agent/.secrets` before using to load proxy credentials.
 
 ## Anti-detection features
 
@@ -158,7 +158,7 @@ The browser stays running between commands (state in `/tmp/stealth-browser-state
 ## Example: Directory submission
 
 ```bash
-source /workspace/group/.secrets
+source /workspace/agent/.secrets
 
 # Open the submission page (proxy auto-loaded from REDDIT_PROXY)
 stealth-browse open https://www.sideprojectors.com/submit

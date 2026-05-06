@@ -74,18 +74,18 @@ Then use the screenshot to estimate coordinates relative to page dimensions.
 
 ## Sending the filled PDF back
 
-**IMPORTANT**: Always save output files to `/workspace/group/` so they can be sent as attachments.
+**IMPORTANT**: Always save output files to `/workspace/agent/` so they can be sent as attachments.
 
 After filling, include an `<attachment>` tag in your response to send the file back to the user:
 
 ```
 Here is the filled form:
-<attachment>/workspace/group/filled-form.pdf</attachment>
+<attachment>/workspace/agent/filled-form.pdf</attachment>
 ```
 
 The `<attachment>` tag is stripped from the visible message and the file is sent as a downloadable attachment in the chat (Discord, WhatsApp, Telegram, etc.).
 
-You can include multiple attachment tags and mix them with text. Never use `/tmp/` for output files — only `/workspace/group/` paths work as attachments.
+You can include multiple attachment tags and mix them with text. Never use `/tmp/` for output files — only `/workspace/agent/` paths work as attachments.
 
 ## Commands reference
 
