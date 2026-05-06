@@ -16,10 +16,11 @@ description: >
 
 ## Hogyan működik
 
-Ez a skill segít Tominak hatékonyan kezelni a hello@pietscarlet.hu email fiókot úgy, hogy
-minden válaszhoz összegyűjti a szükséges kontextust több forrásból. A cél az, hogy Tominak
-ne kelljen manuálisan keresgélnie az adatokat — a skill behúzza a releváns információkat
-és egy válasz-tervezetet készít.
+Ez a skill segít Tominak hatékonyan kezelni a 3 céges email-fiókot direkt MCP-szervereken
+keresztül (`email-pietscarlet`, `email-lupaobol`, `email-trinkenessen`). A hub maga
+kezeli mind a hármat — nincs cross-agent delegálás. Egy válaszhoz a skill összegyűjti a
+szükséges kontextust több forrásból és egy válasz-tervezetet készít, amit Tominak
+**`mcp__nanoclaw__ask_user_question` card-ban** mutat be (Küldd / Edit / Mégsem gombokkal).
 
 ## IMAP Teljesítmény — Kötelező szűrés
 
@@ -248,7 +249,10 @@ A továbbítás menete:
 1. Azonosítsd, hogy az email számlát tartalmaz-e (tárgyból, feladóból, tartalomból)
    - Tipikus jelek: "számla", "invoice", "díjbekérő", "proforma", "fizetési felszólítás",
      "Értesítő: Számla érkezett", szamlazz.hu feladó, PDF csatolmány számla névvel
-2. Kérdezd meg Tomit: "Ez számlának tűnik — továbbítsam Erikának (penzugy@pietscarlet.hu)?"
+2. **Kérdezd meg Tomit `mcp__nanoclaw__ask_user_question` card-ban** (NE sima text):
+   - title: "📧 Számla továbbítása: <feladó/tárgy>"
+   - question: rövid összefoglaló a számláról + "Továbbítsam Erikának (penzugy@pietscarlet.hu)?"
+   - options: [{label:"Küldd",value:"send"}, {label:"Várj",value:"wait"}, {label:"Mégsem",value:"skip"}]
 3. Jóváhagyás után küldd tovább a `send_email` tool-lal:
    - Címzett: penzugy@pietscarlet.hu
    - Tárgy: az eredeti tárgy elé "Fwd: " prefix

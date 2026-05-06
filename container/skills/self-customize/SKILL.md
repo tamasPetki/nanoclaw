@@ -1,87 +1,86 @@
 ---
 name: self-customize
-description: Customize your own agent — add capabilities, install packages, add MCP servers, edit code or CLAUDE.md. Use when the user asks you to add a feature, install a tool, or modify how you work. For non-trivial code changes, delegate to a builder agent via create_agent.
+description: Magad-testreszabás — képességek hozzáadása, csomagok telepítése, MCP-szerverek hozzáadása, kód vagy CLAUDE.md módosítás. Akkor használd, ha Tomi kér: "adj hozzá egy X funkciót", "telepíts ezt a tool-t", "módosítsd a működést". Nem-triviális kódváltozást builder-agentre delegálj `create_agent`-tel.
 ---
 
 # Self-Customization
 
-You can modify your own environment. Different kinds of changes have different workflows.
+Saját környezetedet módosíthatod. Különböző változás-fajtáknak különböző workflow-juk van.
 
-## Decision Tree
+## Döntésfa
 
-**What needs to change?**
+**Mit kell változtatni?**
 
-- **`CLAUDE.local.md` or files in your workspace** → Edit directly, no approval needed. Your workspace (`/workspace/agent/`) is persisted on the host. (Note: the composed `CLAUDE.md` itself is read-only and regenerated every spawn — write to `CLAUDE.local.md` instead.)
-- **System package (apt) or global npm package** → `install_packages`. Requires admin approval. On approval, image rebuild + container restart happen automatically.
-- **MCP server** → `add_mcp_server`. Requires admin approval. On approval, container restarts with the new server wired up (no rebuild — bun runs TS directly).
-- **Your source code or Dockerfile** → Delegate to a builder agent via `create_agent` (see below).
-- **A new specialist capability** → `create_agent` to spin up a dedicated agent for it.
+- **`CLAUDE.local.md` vagy fájl a workspace-ben** → közvetlen szerkesztés, nincs approval. A workspace (`/workspace/agent/`) a host-ban perzisztens. (Megjegyzés: a `CLAUDE.md` maga read-only és minden spawn-nál újragenerálódik — ide ne írj, helyette a `CLAUDE.local.md`-be.)
+- **System csomag (apt) vagy global npm** → `install_packages`. Admin approval kell. Approve esetén image rebuild + container restart automatikus.
+- **MCP-szerver** → `add_mcp_server`. Admin approval kell. Approve esetén container újraindul az új szerverrel (no rebuild — bun direktben futtat TS-t).
+- **Saját source code vagy Dockerfile** → builder-agentre delegálj `create_agent`-tel (lásd lent).
+- **Új specialista képesség** → `create_agent` egy dedikált agent-tel.
 
-## Workflow: Code Changes via Builder Agent
+## Workflow: kódváltozás builder-agenten keresztül
 
-For anything that requires editing source files (your own code, Dockerfile, etc.), **do not edit directly** — delegate to a builder agent. This gives the user a reviewable boundary and keeps your main session focused.
+Bármi ami forrásfájlt módosít (saját kód, Dockerfile, stb.), **NE szerkeszd direkten** — builder-agentre delegálj. Ez Tomi-nak review-zhetőséget ad, és a fő session-t fókuszban tartja.
 
-1. Describe what you need changed in concrete terms (files, behavior, acceptance criteria)
-2. Call `create_agent({ name: "Builder", instructions: "<builder prompt>" })` — the returned agent group ID is your builder
-3. Call `send_to_agent({ agentGroupId, text: "<task description with specific files and changes>" })`
-4. The builder works in its own container, makes the changes, and reports back
-5. You review the builder's summary and confirm with the user. Source-code edits inside `/app/src` are picked up automatically on the next container start — no rebuild step needed (bun runs TS directly). If the builder also installed packages, its own `install_packages` approval will have rebuilt the image.
+1. Konkrétan írd le mi kell (fájlok, viselkedés, acceptance criteria).
+2. `create_agent({ name: "Builder", instructions: "<builder prompt>" })` — a visszaadott agent group ID a builder.
+3. `send_to_agent({ agentGroupId, text: "<task konkrét fájlokkal és változásokkal>" })`
+4. A builder a saját containerében dolgozik, megírja a változásokat, és visszajelent.
+5. A builder summary-ját nézd át, és Tomi-val erősítsd meg. A `/app/src` source-edits automatikusan érvényesülnek a következő container-spawn-nál (bun közvetlenül futtat TS-t). Ha a builder csomagot is telepített, a saját `install_packages` approval-ja már rebuild-elte az image-et.
 
-### Builder Agent Instructions (use as CLAUDE.md when creating)
+### Builder agent instructions (a CLAUDE.md tartalma)
 
 ```
 You are a builder agent. Your job is to make precise, minimal code changes to NanoClaw source files when the main agent requests it.
 
 ## Rules
 
-- **Minimal scope.** Only change what was requested. Do not refactor surrounding code, "improve" unrelated files, or add features not asked for.
-- **Diff size limits.** Reject any change that exceeds 200 new lines or 150 modified lines in a single task. If the change is larger, push back and ask for it to be split into smaller tasks.
-- **Read before writing.** Always read the target file fully before editing. Understand the existing patterns.
-- **Test if possible.** If there are relevant tests, run them after your change.
-- **Report back.** When done, use send_to_agent to tell the requesting agent: (a) what files you changed, (b) a summary of the changes, (c) any follow-up needed (rebuild, tests, migrations).
-- **No silent failures.** If you can't complete the task, explain why — don't produce partial work without flagging it.
+- **Minimal scope.** Csak a kért változás. NE refactoring körötte, NE "javítgatás" más fájlokon, NE új feature ami nem volt kérve.
+- **Diff size limits.** REJECT bármi változás ami >200 új sor vagy >150 módosított sor egy task-ban. Ha nagyobb: push back, kérdj kisebb taszkokra bontást.
+- **Read before write.** Mindig olvasd végig a célfájlt. Értsd a meglévő patterneket.
+- **Test if possible.** Ha vannak tesztek, futtasd a változás után.
+- **Report back.** Befejezésnél `send_to_agent` a kérő agentnek: (a) milyen fájlokat változtattál, (b) változás-összefoglaló, (c) follow-up szükséges-e (rebuild, tesztek, migráció).
+- **No silent failures.** Ha nem tudod befejezni, mondd meg miért — ne csinálj részmunkát flag nélkül.
 
 ## Safety
 
-- Never edit files outside the requested scope
-- Never commit or push anything
-- Never modify secrets, credentials, or .env files
-- If a change would break existing tests, stop and report
+- Soha ne szerkessz fájlt a kért scope-on kívül.
+- Soha ne commitolj és pushelj.
+- Soha ne módosíts secret-eket, credential-eket, .env-et.
+- Ha a változás meglévő tesztet törne, állj meg és jelentsd.
 ```
 
-## Diff Size Limits — Why
+## Diff size limit — miért
 
-A 50-line focused change is reviewable. A 500-line sweep is not. Hard limits force the agent to decompose work into reviewable chunks, which:
+50-soros fókuszált változás review-zhető. 500-soros sweep nem. A hard limit kényszeríti a feladat felbontását, ami:
+- Tomi approval-jét értelmessé teszi (150 sort ténylegesen el lehet olvasni).
+- Korán elkapja a runaway edit-eket (ha az első task túlnyúlik a limit-en, a scope volt rossz).
+- Tiszta acceptance criteria-t kényszerít task-onként.
 
-- Makes human approval meaningful (you can actually read 150 lines)
-- Catches runaway edits early (if the first task hits the limit, the scope was wrong)
-- Forces clear acceptance criteria per task
+A limit **builder-task-onként**, nem session-szinten. Egy 500 soros feature is OK 4 egymás utáni builder-task-ként, ~125 sor mindegyik, mindegyik saját scope-pal.
 
-The limits are **per builder task**, not per session. A 500-line feature is fine as 4 sequential builder tasks of ~125 lines each, each with its own scope.
+## Példa: új MCP tool magadhoz
 
-## Example: Adding a New MCP Tool to Yourself
+Tomi: "Adj hozzá egy RSS feed olvasó tool-t."
 
-User: "Can you add a tool for reading RSS feeds?"
+1. Nézd meg [mcp.so](https://mcp.so)-n van-e kész RSS MCP-szerver.
+2. Ha van → `add_mcp_server({ name: "rss", command: "npx", args: ["some-rss-mcp"] })` → admin approval → container restart → kész.
+3. Ha nincs jó → builder-agent:
+   - `create_agent({ name: "RSS Tool Builder", instructions: "<builder prompt fent>" })`
+   - `send_to_agent({ agentGroupId, text: "Adj hozzá egy `read_rss` MCP tool-t a container/agent-runner/src/mcp-tools/-be. RSS URL fetch + utolsó N elem visszaad. Regisztráld a mcp-tools/index.ts-ben. Cél: <200 új sor." })`
+   - Várd a builder report-ot — az új tool kód automatikusan érvényesül a következő container start-nál.
 
-1. Check [mcp.so](https://mcp.so) for an existing RSS MCP server
-2. If one exists → `add_mcp_server({ name: "rss", command: "npx", args: ["some-rss-mcp"] })` → admin approves → container restarts with the new server → done
-3. If nothing suitable exists → delegate to a builder agent:
-   - `create_agent({ name: "RSS Tool Builder", instructions: "<builder prompt from above>" })`
-   - `send_to_agent({ agentGroupId, text: "Add an MCP tool 'read_rss' to container/agent-runner/src/mcp-tools/. It should fetch an RSS URL and return the latest N items. Register it in mcp-tools/index.ts. Target: <200 new lines." })`
-   - Wait for builder's report — new tool code is picked up on the next container start (bun runs TS directly)
+## Példa: system tool telepítés
 
-## Example: Installing a System Tool
+Tomi: "Tudsz hangot transzkribálni?"
 
-User: "Can you transcribe audio?"
+1. Nézd meg mi van — `which ffmpeg` (valószínűleg nincs a base image-ben).
+2. Dönts: `@xenova/transformers` (npm, workspace-local) vagy `whisper.cpp` (apt + compile).
+3. Persistent system tool → `install_packages({ apt: ["ffmpeg"], npm: ["@xenova/transformers"], reason: "Audio transzkripció hang-üzenetekhez" })`.
+4. Várd az admin approval-t — approve esetén az image rebuild-elődik és a container automatikusan újraindul.
+5. Teszteld a következő spawn-nál.
 
-1. Check what's available — `which ffmpeg` (likely not installed in base image)
-2. Decide approach: `@xenova/transformers` (npm, workspace-local) or `whisper.cpp` (apt + compile)
-3. For persistent system tool: `install_packages({ apt: ["ffmpeg"], npm: ["@xenova/transformers"], reason: "Audio transcription for voice messages" })`
-4. Wait for admin approval — on approve, the image is rebuilt and your container is restarted automatically
-5. Test the new capability once the container restarts
+## Mikor NE customizáld magad
 
-## When NOT to Self-Customize
-
-- **The change is for a one-off task** — just do it in your workspace, don't modify the container
-- **The request is ambiguous** — ask the user what they actually need before spinning up builders or requesting installs
-- **You don't know if it will work** — prototype in your workspace first (`pnpm install` in `/workspace/agent/`), then promote to container-level install if it proves useful
+- **Egy-szeri task** → csináld a workspace-ben, ne módosíts container-szinten.
+- **Homályos kérés** → kérdezd meg Tomi-t mit akar, mielőtt builder-t indítasz vagy telepítést kérsz.
+- **Bizonytalan, hogy működik-e** → workspace-ben prototypoljon (`pnpm install` `/workspace/agent/`-be), majd ha bevált, container-szintű telepítés.
