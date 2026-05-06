@@ -6,7 +6,7 @@ Tomi konszolidált tudásbázisa. Karpathy LLM-Wiki pattern szerint maintained.
 *(D7-D12-en töltődnek: pietscarlet, görgey32, csobánka, törökhegyi, lupa öböl, trinken essen)*
 
 ## Egészség / Edző
-*(D4-en ingest)*
+- [Edző — edzésterv & protokollok](health/edzo.md) — Upper/Lower split, 1800 kcal rekomp, hideg fürdő apnoe-protokoll, MAD nyitott
 
 ## Hírek / Crypto
 *(D5-en ingest)*

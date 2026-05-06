@@ -234,6 +234,78 @@ function createMcpHealthCheckHook(getQuery: () => Query | null): HookCallback {
 }
 
 /**
+ * Force inline-UI tool use on approval-trigger turns. The Claude Agent SDK
+ * does not expose `tool_choice` directly, so we use a UserPromptSubmit hook
+ * to inject a focused, per-turn system instruction when the user's prompt
+ * contains an approval-flow trigger word ("tervezet", "küldjem", "mehet",
+ * "fogalmazz", etc.). This keeps the base CLAUDE.local.md token-cheap (no
+ * 🚨-style permanent hack) while still steering Opus toward `ask_user_question`
+ * / `send_card` on the turns where it matters.
+ *
+ * Token cost: ~80 tokens per matched turn, zero on non-matched turns.
+ *
+ * Why this is necessary: Opus 4.7 base policy strongly prefers narrative
+ * text output. A general "MIND USE CARDS" instruction in CLAUDE.md gets
+ * partly applied (lists, summaries) but loses force on draft/approval
+ * flows where it would be most natural — exactly when Tomi expects a card.
+ */
+const APPROVAL_TRIGGERS = [
+  // draft / approval verbs
+  'tervezet',
+  'draft',
+  'fogalmazz',
+  'írj választ',
+  'írj egy választ',
+  'írj emailt',
+  'írj egy emailt',
+  'írj e-mailt',
+  'írj üzenetet',
+  'írj egy üzenetet',
+  // send-confirmation phrases
+  'küldjem',
+  'küldhetem',
+  'küldjük',
+  'mehet?',
+  'továbbítsam',
+  'elindítsam',
+  'indíthatom',
+  'jóváhagyom',
+  'engedélyezed',
+  // multi-option list verbs (send_card territory)
+  'sorold fel',
+  'mit kell ma',
+  'mai feladatok',
+  'státusz',
+];
+
+const APPROVAL_HINT = [
+  '⚙️ INTERAKTÍV TURN — a felhasználó approval/draft/lista jellegű kérést küldött.',
+  '',
+  '**KÖTELEZŐ tool használat ebben a turnben** (NEM sima text válasz):',
+  '- Ha a kérés egy email/üzenet draft-ról szól, vagy "küldjem/mehet/továbbítsam" jellegű → **`mcp__nanoclaw__ask_user_question`** tool-lal: title=rövid akció, question=teljes draft-szöveg, options=[{label:"Küldd",value:"send"},{label:"Edit",value:"edit"},{label:"Mégsem",value:"cancel"}]',
+  '- Ha a kérés 3+ tételes listát/státuszt/áttekintést kér → **`mcp__nanoclaw__send_card`** tool-lal: title=téma, description=lead 1-2 mondat, children=tételek section-ökben',
+  '',
+  'NE adj sima textben "íme a tervezet, mehet?" választ. NE sorold fel sima bullet-pointokban a tételeket. A tool-hívás MAGA legyen a turn-output.',
+].join('\n');
+
+function createApprovalHintHook(): HookCallback {
+  return async (input) => {
+    if (input.hook_event_name !== 'UserPromptSubmit') return {};
+    const prompt = input.prompt?.toLowerCase() ?? '';
+    if (!prompt) return {};
+    const matched = APPROVAL_TRIGGERS.some((trig) => prompt.includes(trig));
+    if (!matched) return {};
+    log(`[approval-hint] injecting inline-UI nudge for prompt containing trigger`);
+    return {
+      hookSpecificOutput: {
+        hookEventName: 'UserPromptSubmit',
+        additionalContext: APPROVAL_HINT,
+      },
+    } as unknown as ReturnType<HookCallback>;
+  };
+}
+
+/**
  * Auto-recover from MCP-disconnect failures. The Claude Code SDK does not
  * reconnect a child MCP server when its stdio pipe dies (long-idle IMAP
  * timeout, child crash, OOM). The whole session sees `mcp__*` tools as
@@ -284,7 +356,7 @@ function createMcpRecoveryHook(getQuery: () => Query | null): HookCallback {
           hookEventName: 'PostToolUseFailure',
           additionalContext: `MCP server "${serverName}" was disconnected and has been auto-reconnected. Please retry the failed tool call once.`,
         },
-      } as ReturnType<HookCallback>;
+      } as unknown as ReturnType<HookCallback>;
     } catch (err) {
       log(`[mcp-recovery] ${serverName} reconnect failed: ${err instanceof Error ? err.message : String(err)}`);
       return {};
@@ -411,6 +483,7 @@ export class ClaudeProvider implements AgentProvider {
     let queryHandle: Query | null = null;
     const mcpRecoveryHook = createMcpRecoveryHook(() => queryHandle);
     const mcpHealthCheckHook = createMcpHealthCheckHook(() => queryHandle);
+    const approvalHintHook = createApprovalHintHook();
 
     const sdkResult = sdkQuery({
       prompt: stream,
@@ -434,7 +507,7 @@ export class ClaudeProvider implements AgentProvider {
           PostToolUse: [{ hooks: [postToolUseHook] }],
           PostToolUseFailure: [{ hooks: [postToolUseHook, mcpRecoveryHook] }],
           PreCompact: [{ hooks: [createPreCompactHook(this.assistantName)] }],
-          UserPromptSubmit: [{ hooks: [mcpHealthCheckHook] }],
+          UserPromptSubmit: [{ hooks: [mcpHealthCheckHook, approvalHintHook] }],
         },
       },
     });

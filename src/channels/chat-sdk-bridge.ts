@@ -407,12 +407,14 @@ export function createChatSdkBridge(config: ChatSdkBridgeConfig): ChannelAdapter
       // Ask question card — render as Card with buttons
       if (content.type === 'ask_question' && content.questionId && content.options) {
         const questionId = content.questionId as string;
-        const title = content.title as string;
-        const question = content.question as string;
-        if (!title) {
+        const titleRaw = content.title as string;
+        const questionRaw = content.question as string;
+        if (!titleRaw) {
           log.error('ask_question missing required title — skipping delivery', { questionId });
           return;
         }
+        const title = transformText(titleRaw);
+        const question = transformText(questionRaw);
         const options: NormalizedOption[] = normalizeOptions(content.options as never);
         const card = Card({
           title,
@@ -434,6 +436,37 @@ export function createChatSdkBridge(config: ChatSdkBridgeConfig): ChannelAdapter
           card,
           fallbackText: `${title}\n\n${question}\nOptions: ${options.map((o) => o.label).join(', ')}`,
         });
+        return result?.id;
+      }
+
+      // Display-only card (send_card tool — non-blocking, no buttons required)
+      if (content.type === 'card' && content.card) {
+        const cardData = content.card as Record<string, unknown>;
+        const title = transformText((cardData.title as string) || '');
+        const description = transformText((cardData.description as string) || '');
+        const children: ReturnType<typeof CardText | typeof Actions>[] = [];
+        if (description) children.push(CardText(description));
+        const actionsData = cardData.actions as Array<Record<string, unknown>> | undefined;
+        if (actionsData && actionsData.length > 0) {
+          children.push(
+            Actions(
+              actionsData.map((a, idx) =>
+                Button({
+                  id: `nccard:${Date.now()}:${idx}`,
+                  label: (a.label as string) || `Option ${idx + 1}`,
+                  value: (a.value as string) || (a.label as string) || String(idx),
+                  ...(a.url ? { url: a.url as string } : {}),
+                }),
+              ),
+            ),
+          );
+        }
+        const card = Card({ title: title || 'ℹ️ Info', children: children as never });
+        const fallback =
+          (content.fallbackText as string) ||
+          [title, description].filter(Boolean).join('\n\n') ||
+          'Card';
+        const result = await adapter.postMessage(tid, { card, fallbackText: fallback });
         return result?.id;
       }
 

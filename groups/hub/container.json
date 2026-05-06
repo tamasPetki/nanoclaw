@@ -97,13 +97,13 @@
       }
     },
     "todoist": {
-      "command": "npx",
+      "command": "/bin/bash",
       "args": [
-        "-y",
-        "mcp-remote",
-        "https://ai.todoist.net/mcp"
+        "/opt/mcp-servers/todoist/run.sh"
       ],
-      "env": {}
+      "env": {
+        "TODOIST_API_TOKEN": "${TODOIST_API_TOKEN}"
+      }
     },
     "quick": {
       "command": "node",

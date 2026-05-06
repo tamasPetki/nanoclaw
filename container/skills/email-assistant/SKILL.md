@@ -341,35 +341,80 @@ Ez a legfontosabb szabály. Egy email válaszban minden adatnak tényszerűnek k
 
 ## Email aláírás
 
-Minden kimenő emailben (válasz, továbbítás, új email) az alábbi HTML aláírást kell
-használni a levél végén. Az email body-t mindig HTML-ként formázd (`html: true`).
+**FONTOS:** Az alábbi HTML aláírás KIZÁRÓLAG a `hello@pietscarlet.hu` fiókhoz tartozik
+(`email-pietscarlet` MCP-szerver). NE használd a `hello@lupaobolstrand.hu`,
+`hello@trinkenessen.eu`, `lloyd@bulltrapp.com`, `dani@rezerver.com` fiókoknál — azoknál
+a fiók saját aláírását használd, vagy ha nincs, sima plain text "Üdvözlettel, Petki Tamás" /
+"Lloyd" / "Dani" hangon.
 
-Az email szövege után egy `<br><br>` elválasztó, majd az aláírás blokk következik:
+### hello@pietscarlet.hu — Petki Tamás / ügyvezető
+
+Az email body-t mindig HTML-ként formázd (`html: true`). A levél utolsó sora UTÁN
+**KÖTELEZŐ** üres sor az aláírás fölött — egyszerű `<br><br>` után a body lezárása
+nem elég, mert a Spark/Gmail HTML-renderelése össze tudja csukni. A megoldás:
+**egy üres `<p>&nbsp;</p>` paragraphus + az aláírás wrapper div `margin-top: 24px;`-szel**.
+
+A teljes block (másold be EXAKTUL, ne improvizálj):
 
 ```html
-<br><br>
-<table cellpadding="0" cellspacing="0" style="font-family: Arial, Helvetica, sans-serif; color: #333333;">
-  <tr>
-    <td style="padding-right: 15px; border-right: 3px solid #2c3e50;">
-      <strong style="font-size: 15px; color: #2c3e50;">Petki Tamás</strong><br>
-      <span style="font-size: 13px; color: #7f8c8d;">ügyvezető</span>
-    </td>
-    <td style="padding-left: 15px;">
-      <strong style="font-size: 13px; color: #2c3e50;">PietScarlet Kft.</strong><br>
-      <span style="font-size: 12px; color: #555555;">
-        <a href="tel:+3670884929" style="color: #2c3e50; text-decoration: none;">+36/70-88-44-929</a><br>
-        <a href="mailto:hello@pietscarlet.hu" style="color: #2c3e50; text-decoration: none;">hello@pietscarlet.hu</a><br>
-        <a href="https://pietscarlet.hu" style="color: #2c3e50; text-decoration: none;">pietscarlet.hu</a>
-      </span>
-    </td>
-  </tr>
-</table>
+<p>&nbsp;</p>
+<div data-spark-custom-html="true" style="margin-top: 24px;">
+    <table cellpadding="0" cellspacing="0" border="0" role="presentation" style="width: 100%; max-width: 480px; border-collapse: separate; font-family: Arial, Helvetica, sans-serif;">
+        <tbody>
+            <tr>
+                <td style="padding: 0;">
+                    <table cellpadding="0" cellspacing="0" border="0" role="presentation" style="width: 100%; border-collapse: separate; background-color: #fbf7f3; border: 1px solid #e6ddd6; border-radius: 10px;">
+                        <tbody>
+                            <tr>
+                                <td style="width: 110px; padding: 14px 12px; vertical-align: top; border-right: 1px solid #e6ddd6; background-color: #f7f1eb; border-left: 4px solid #f7982b; border-top-left-radius: 10px; border-bottom-left-radius: 10px;">
+                                    <img src="https://pietscarlet.hu/brand/logo.svg" width="82" alt="PietScarlet" style="display: block; width: 82px; max-width: 82px; height: auto; border: 0;">
+                                    <div style="margin-top: 10px; font-size: 9px; line-height: 13px; color: #9a8e86; letter-spacing: 0.12em; text-transform: uppercase;">
+                                        Fejlesztés<br>
+                                        Kivitelezés
+                                    </div>
+                                </td>
+                                <td style="padding: 14px 16px; vertical-align: top;">
+                                    <div style="font-size: 19px; line-height: 22px; font-weight: 700; color: #2f2925;">
+                                        Petki Tamás
+                                    </div>
+                                    <div style="margin-top: 4px; font-size: 10px; line-height: 13px; font-weight: 700; color: #f7982b; text-transform: uppercase; letter-spacing: 0.12em;">
+                                        ügyvezető
+                                    </div>
+                                    <div style="margin-top: 7px; font-size: 13px; line-height: 18px; color: #625851; font-weight: 700;">
+                                        PietScarlet Kft.
+                                    </div>
+                                    <div style="margin-top: 8px; font-size: 12px; line-height: 18px; color: #625851;">
+                                        <a href="tel:+36708844929" style="color: #2f2925; text-decoration: none; font-weight: 700;">
+                                            +36 70 88 44 929
+                                        </a>
+                                        <span style="color: #c4b8b0;">&nbsp;&nbsp;|&nbsp;&nbsp;</span>
+                                        <a href="mailto:hello@pietscarlet.hu" style="color: #2f2925; text-decoration: none;">
+                                            hello@pietscarlet.hu
+                                        </a>
+                                    </div>
+                                    <div style="margin-top: 2px; font-size: 12px; line-height: 18px; color: #625851;">
+                                        <a href="https://pietscarlet.hu" style="color: #2f2925; text-decoration: none;">
+                                            pietscarlet.hu
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
 ```
 
 **Szabályok:**
-- Az aláírás blokk MINDIG az email body HTML részének a végére kerül
-- Válaszoknál is mindig rakd bele — ne hagyd el soha
-- A Tominak mutatott tervezetben elég szövegesen jelezni: *"[aláírás blokk: Petki Tamás / PietScarlet Kft.]"*,
-  de a tényleges `send_email` hívásban a teljes HTML aláírás legyen benne
-- Ha a levél szövege plain textnek tűnne, akkor is HTML-ként formázd (a szöveget `<p>` tagekbe tedd)
-  hogy az aláírás renderelődjön
+- A fenti aláírás blokk MINDIG az email body HTML részének a végére kerül **CSAK** a
+  `hello@pietscarlet.hu` fiókkal való küldésnél (akár új, akár válasz, akár továbbítás).
+- A `<p>&nbsp;</p>` üres paragrafus KÖTELEZŐ — enélkül az aláírás összecsúszik a body
+  utolsó mondatával. A wrapper div `margin-top: 24px;` a Spark/Outlook backup.
+- A többi fiók (lupaobol/trinkenessen/bulltrapp/rezerver) nem ezt kapja — a saját
+  aláírást vagy plain textet használd. Ha bizonytalan vagy, kérdezd vissza Tomit.
+- A Tominak mutatott tervezetben elég szövegesen jelezni: *"[aláírás blokk: Petki Tamás / PietScarlet Kft. — kártya formátum]"*,
+  de a tényleges `send_email` hívásban a teljes HTML aláírás (a `<p>&nbsp;</p>` előbloklkal együtt) legyen benne.
+- Ha a levél szövege plain textnek tűnne, akkor is HTML-ként formázd (a szöveget `<p>` tagekbe tedd) hogy az aláírás renderelődjön.

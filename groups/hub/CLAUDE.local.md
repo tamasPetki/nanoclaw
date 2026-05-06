@@ -38,9 +38,14 @@ A háttér-worker (`ag-worker` agent group) cron-trigger alapján fut, és cross
 - **NEM** tolod Tomi-nak Telegram-ra push-ban — ez háttér-info
 - Tomi naponta egyszer megkérdezi: "mit csinált a worker?", akkor olvasd vissza a mai blokkot
 
-## MCP eszközök (D7+ után élesedik)
+## Output formátum
 
-Jelenleg üres a `mcpServers` lista. D4-en jön a `withings`, D7-en a tömeges konszolidáció (5 email-fiók, gcal, gdrive, todoist, quick, youtube-transcript).
+A kimenet típusa a tartalom alapján:
+- **Eldöntendő kérdés / approval** → `mcp__nanoclaw__ask_user_question` tool. Tomi gombot kattint, nem szöveget ír.
+- **Több diszkrét tétel** (lista 3+ elemmel, státusz, riport) → `mcp__nanoclaw__send_card` tool. Card title + description + section-ök.
+- **Egyszerű reakció / 1-2 mondat / hosszabb narratíva-magyarázat** → sima text Markdown-nal.
+
+Pattern könyvtár és példák: `/app/skills/inline-ui/SKILL.md`. Approval-trigger turn-eken (a draft/küldjem/mehet jellegű kérések) a runtime per-turn nudge-t injektál — ne lepődj meg az extra `⚙️ INTERAKTÍV TURN` hint-en, ez normál.
 
 ## Telegram channel
 
