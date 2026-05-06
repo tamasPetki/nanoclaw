@@ -17,7 +17,19 @@ A hub minden vasárnap 11:00-kor lefut és kihámozza a tanulságokat az elmúlt
 
 ### 1. Evidence-gyűjtés
 
-Hét napos ablak (vasárnaptól vasárnapig). Forrásjegyzék:
+Hét napos ablak (vasárnaptól vasárnapig). Forrásjegyzék — **ELŐSZÖR a draft-buffer**:
+
+#### 1.0 — `wiki/findings/draft-current-week.md` (PRIORITÁS, MINDIG ELSŐ)
+
+Ez a fájl tartalmazza a session-realtime hookok által naplózott jeleket az elmúlt hétből:
+
+- `tomi-feedback (frustration|repeat|directive|correction-prefix)` — Tomi frusztrációs / korrekciós üzenetei
+- `tool-failure` — MCP / tool hibák (todoist disconnect, email timeout, stb.)
+- `quick-learning-applied` — már alkalmazott instant fix-ek (ezek nem mennek a heti finding listába, de kontextus)
+
+Olvasd el TELJESEN. Ezek **prioritizált jelek** (mert már filterelve voltak runtime-ban). Ha 0 bejegyzés van, csendes hét — használhatod a többi forrást de likely 0-finding hét lesz.
+
+#### 1.1 — Egyéb források
 
 ```bash
 # Wiki log
@@ -143,6 +155,24 @@ A finding-ban specifikált konkrét diff szerint:
 **`voice-calibration`**:
 - `Edit groups/global/CLAUDE.md` "Anti-AI tells" vagy "Emoji-szabály" szekcióba
 - Új tiltott szó / új specifikus szabály a Tomi-feedback alapján
+
+### 7b. Draft-buffer kiürítés
+
+Miután a heti finding generálva van és a card kiment, **ürítsd a `wiki/findings/draft-current-week.md`-t** — csak a frontmatter + a bevezető bekezdés maradjon (az új héthez friss). A fájl tartalmát NE töröld véglegesen — a végleges `wiki/findings/YYYY-W<NN>.md`-be már beleépítetted, ott megmarad.
+
+```bash
+cat > /workspace/group/wiki/findings/draft-current-week.md <<'EOF'
+---
+title: "Draft — aktuális heti findings buffer"
+type: finding
+tags: [meta, draft]
+---
+
+# Draft — aktuális heti findings buffer
+
+(üres — friss hét, megint a runtime hookok és quick-learning töltik fel)
+EOF
+```
 
 ### 8. Visszaigazolás Tomi-nak
 

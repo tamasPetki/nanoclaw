@@ -49,7 +49,9 @@ A kimenet típusa a tartalom alapján:
 
 Pattern könyvtár és példák: `/app/skills/inline-ui/SKILL.md`. Approval-trigger turn-eken (a draft/küldjem/mehet jellegű kérések) a runtime per-turn nudge-t injektál — ne lepődj meg az extra `⚙️ INTERAKTÍV TURN` hint-en, ez normál.
 
-## Self-improvement (heti reflection)
+## Self-improvement (heti reflection + session-realtime)
+
+### Heti reflection (vasárnap 11:00)
 
 Vasárnaponként 11:00 lefut a `self-improvement` skill (lásd `/app/skills/self-improvement/SKILL.md`). 4-féle finding-scope: `skill-update`, `wiki-gap`, `mcp-install`, `voice-calibration`. Card-os Tomi-approve, auto-execute approve esetén. Finding fájlok: `wiki/findings/YYYY-W<NN>.md`.
 
@@ -59,6 +61,44 @@ Mikor finding-üzenet érkezik a workertől:
 1. Append a `wiki/worker-activity.md` aznapi blokkba `### Findings` alszekcióba
 2. NE rakd push-ban Tomi-nak (mint a normál worker-reportoknál)
 3. A heti reflection automatikusan figyelembe veszi
+
+### Session-realtime — passzív naplózás (runtime hook)
+
+Két runtime hook (a `claude.ts`-ben) **automatikusan** naplóz a `wiki/findings/draft-current-week.md`-be:
+
+- **Tomi-feedback** detektálás: ha Tomi üzenetében frusztrációs/korrekciós minta van (rosszul, hibás, nem így, nem ezt, megint, már mondtam, jegyezd meg, ne csináld többé, mostantól mindig X) → automatikusan appendelődik a draft-bufferbe.
+- **Tool-failure**: bármi MCP-tool hiba → automatikusan appendelődik (todoist disconnect, email timeout, Drive API error stb.).
+
+**NEM ír Tomi-nak push-üzenetet ezekre.** Csak a draft-bufferbe naplóz, és a heti reflection prioritizálja.
+
+### Quick learning — instant skill-frissítés Tomi explicit kérésére
+
+Ha Tomi üzenete tartalmaz **explicit "jegyezd meg / ne csináld többé / mostantól mindig X / tanulj ebből"** mintát, NE várj heti reflection-re. Azonnal:
+
+1. Ajánlj egy `mcp__nanoclaw__ask_user_question` cardot:
+   - `title`: "💡 Quick learning: <rövid összefoglaló>"
+   - `question`: "Frissítsem most a `<konkrét fájl path>`-t hogy ezt ne ismételjem? Konkrét diff:\n\n```diff\n<diff>\n```"
+   - `options`: [{label:"Frissítsd",value:"apply"}, {label:"Csak draft-buffer",value:"draft"}, {label:"Skip",value:"skip"}]
+2. **`apply`** → `Edit` a megfelelő fájlt (CLAUDE.local.md / SKILL.md / global CLAUDE.md), append a `wiki/findings/draft-current-week.md`-be: `## [YYYY-MM-DD HH:MM] quick-learning-applied | <fájl> | <takeaway>`
+3. **`draft`** → csak draft-bufferbe naplózás, vasárnapi reflection-re hagyjuk
+4. **`skip`** → semmi, naplót sem írsz
+
+**Hova edit-eljünk** a Tomi-direktíva alapján:
+- Tomi-stílus / hangtípus → `groups/global/CLAUDE.md`
+- Hub-konkrét viselkedés → `groups/hub/CLAUDE.local.md`
+- Skill-trigger / minta-kibővítés → `container/skills/<név>/SKILL.md`
+- Worker-viselkedés → `groups/worker/CLAUDE.local.md` (cross-agent send_message a workernek)
+
+A `skill-authoring` skill (`/app/skills/skill-authoring/SKILL.md`) tartalmazza a frontmatter validator-t és edit-vs-write konvenciókat.
+
+### Draft-buffer aggregálás
+
+A `wiki/findings/draft-current-week.md`-be három forrás appendelődik:
+1. `tomi-feedback-logger` hook
+2. `tool-failure-logger` hook
+3. `quick-learning-applied` (manual append amikor Tomi explicit `apply`-ot választott)
+
+Vasárnap 11:00-kor a self-improvement reflection: ezt a fájlt **első helyen** olvassa, aggregálja a végleges `wiki/findings/YYYY-W<NN>.md`-be, majd **a draft-buffert üresíti** (csak a frontmatter + bevezető bekezdés marad).
 
 ## Telegram channel
 

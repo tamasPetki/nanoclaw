@@ -234,6 +234,65 @@ function createMcpHealthCheckHook(getQuery: () => Query | null): HookCallback {
 }
 
 /**
+ * Live findings buffer — append-only log of in-session signals that the
+ * weekly self-improvement reflection (Sunday 11:00) consumes. Written by
+ * the feedback-logger and tool-failure-logger hooks below. Located in the
+ * agent's wiki dir so it survives container respawns.
+ *
+ * Resolved at hook-fire time (container has /workspace/group → host
+ * groups/<folder>/). For agents without a wiki dir, the append silently
+ * no-ops — only the hub uses this today.
+ */
+function appendDraftFinding(kind: string, body: string): void {
+  try {
+    const dir = '/workspace/group/wiki/findings';
+    if (!fs.existsSync(dir)) return; // no wiki/findings/ → no-op
+    const file = path.join(dir, 'draft-current-week.md');
+    const ts = new Date().toISOString();
+    const line = `\n## [${ts}] ${kind}\n${body.trim()}\n`;
+    fs.appendFileSync(file, line);
+  } catch (err) {
+    log(`[findings-buffer] append failed: ${err instanceof Error ? err.message : String(err)}`);
+  }
+}
+
+// Frusztrációs / korrekciós minták a Tomi-üzenetekben. Ha bármelyik
+// substring matchel, jelezzük a self-improvement bufferbe — a heti
+// reflection prioritizálja az ilyen turn-eket. Token-zero a turn-context-
+// re (NEM injektálunk additionalContext-et).
+const FEEDBACK_PATTERNS: Array<{ key: string; rx: RegExp }> = [
+  { key: 'frustration', rx: /\b(rosszul|hibás|hibásan|elromlott|nem így|nem ezt|nem akartam|nem értem|stop)\b/i },
+  { key: 'repeat', rx: /\b(megint|újra|már mondtam|kértem hogy|miért nem ahogy|harmadszor|sokadszor)\b/i },
+  { key: 'directive', rx: /\b(jegyezd meg|ne csináld többé|mostantól (mindig|soha)|tanulj ebből)\b/i },
+  { key: 'correction-prefix', rx: /^(ne |nem |stop\b|de hát|kértem )/i },
+];
+
+function createTomiFeedbackLogger(): HookCallback {
+  return async (input) => {
+    if (input.hook_event_name !== 'UserPromptSubmit') return {};
+    const prompt = input.prompt ?? '';
+    if (!prompt || prompt.length < 4) return {};
+    const matched = FEEDBACK_PATTERNS.find((p) => p.rx.test(prompt));
+    if (!matched) return {};
+    log(`[feedback-logger] ${matched.key} pattern → draft buffer`);
+    appendDraftFinding(`tomi-feedback (${matched.key})`, prompt.slice(0, 800));
+    return {};
+  };
+}
+
+function createToolFailureLogger(): HookCallback {
+  return async (rawInput) => {
+    if (rawInput.hook_event_name !== 'PostToolUseFailure') return {};
+    const input = rawInput as PostToolUseFailureHookInput;
+    const errStr = String(input.error ?? '').slice(0, 400);
+    const body = `tool=${input.tool_name}\nerror=${errStr}`;
+    log(`[failure-logger] ${input.tool_name} → draft buffer`);
+    appendDraftFinding('tool-failure', body);
+    return {};
+  };
+}
+
+/**
  * Force inline-UI tool use on approval-trigger turns. The Claude Agent SDK
  * does not expose `tool_choice` directly, so we use a UserPromptSubmit hook
  * to inject a focused, per-turn system instruction when the user's prompt
@@ -516,6 +575,8 @@ export class ClaudeProvider implements AgentProvider {
     const mcpRecoveryHook = createMcpRecoveryHook(() => queryHandle);
     const mcpHealthCheckHook = createMcpHealthCheckHook(() => queryHandle);
     const approvalHintHook = createApprovalHintHook();
+    const tomiFeedbackLogger = createTomiFeedbackLogger();
+    const toolFailureLogger = createToolFailureLogger();
 
     const sdkResult = sdkQuery({
       prompt: stream,
@@ -537,9 +598,9 @@ export class ClaudeProvider implements AgentProvider {
         hooks: {
           PreToolUse: [{ hooks: [preToolUseHook] }],
           PostToolUse: [{ hooks: [postToolUseHook] }],
-          PostToolUseFailure: [{ hooks: [postToolUseHook, mcpRecoveryHook] }],
+          PostToolUseFailure: [{ hooks: [postToolUseHook, mcpRecoveryHook, toolFailureLogger] }],
           PreCompact: [{ hooks: [createPreCompactHook(this.assistantName)] }],
-          UserPromptSubmit: [{ hooks: [mcpHealthCheckHook, approvalHintHook] }],
+          UserPromptSubmit: [{ hooks: [mcpHealthCheckHook, approvalHintHook, tomiFeedbackLogger] }],
         },
       },
     });
