@@ -65,6 +65,12 @@ A kimenet típusa a tartalom alapján:
 
 **Card-ot CSAK akkor használj** ha tényleg interaktív gomb kell (`actions: [{label, value}]` mező) — pl. email-draft jóváhagyás, többválasztásos döntés. Info-only kimenet → szöveg.
 
+**Gomb-feliratok**: Telegram inline keyboard label hard cap ~64 byte, vizuálisan ennél jóval rövidebb fér el a képernyőn. Gomblabel **MAX 25 karakter** (lehetőleg 1-2 szó: "Küldd", "Várj", "Mégsem", "Archive", "Forward Erikának"). A részletes magyarázat a card `description`-jébe vagy `question`-jébe megy, nem a label-be — különben Telegram csonkol és Tomi nem látja, mire kattintana.
+
+**Gomb-elrendezés (`layout`)**: az `ask_user_question` és `send_card` egyaránt elfogad egy `layout: 'auto' | 'vertical' | 'horizontal'` mezőt. Default `auto`: 3+ gomb VAGY 12+ char label esetén minden gomb külön sorba kerül (vertikális); egyébként mind egy sorban (horizontális). Explicit override-olható: `layout: 'vertical'` mindenképp egy-gomb-egy-sor, `layout: 'horizontal'` mindenképp egy-sor-mindenhova. **Gyakorlat**: 3 vagy több opció esetén bízd az auto-ra (vertikálisra fog váltani). 1-2 rövid opciónál ("Igen"/"Nem", "Küldd"/"Mégsem") sem `layout`-ot, sem mást nem kell adni.
+
+**Strukturált multi-szekciós card**: ha mégis card kell több fiók/projekt szekcióval, **NE** dumpold az egészet egy nagy `description`-be `\n\n` separator-ral (a sortörés rossz helyre kerül). Használj `children: [{type:'section', title, children:[{type:'text', text}]}, ...]` formát — a bridge automatikusan üres sort szúr be a section-ök közé.
+
 Pattern könyvtár: `/app/skills/inline-ui/SKILL.md`. Approval-trigger turn-eken a runtime per-turn nudge-t injektál — ne lepődj meg az extra `⚙️ INTERAKTÍV TURN` / `📋 FORMÁTUM-EMLÉKEZTETŐ` hint-en, ez normál.
 
 ## Self-improvement (heti reflection + session-realtime)
@@ -138,6 +144,7 @@ Tomi a Telegram `/` gombbal autocomplete-listát kap. Ha az üzenet `/<parancs>`
 | `/naptar` | `mcp__google-calendar__list_events` ma + holnap → card. |
 | `/wiki <query>` | Wiki keresés. `bash grep -r "<query>" wiki/` + summary card a hit-ekkel + Read-fő hit. |
 | `/szia` | A `welcome` skill (`/app/skills/welcome/SKILL.md`) workflow indítása. |
+| `/worker` | Worker (ag-worker) háttér-agent állapot/log/üzenet. Részletes prompt: `.claude/commands/worker.md`. Üres arg → státusz; `log` → 24h aggregát; bármi más → cross-agent message a workerhez. |
 
 **Argumentum**: `/wiki kőzetgyapot Görgey 32` → query = `"kőzetgyapot Görgey 32"`. A parancs utáni szöveg a query.
 
@@ -157,11 +164,11 @@ mcp__nanoclaw__send_card({
         { type: "text", text: "• `/email` — email-check\n• `/hirek` — napi digest\n• `/edzo` — reggeli edző-riport" }
       ]},
       { type: "section", title: "🔍 Egyéb", children: [
-        { type: "text", text: "• `/wiki <query>` — wiki keresés\n• `/szia` — bemutatkozás\n• `/help` — ez a lista" }
+        { type: "text", text: "• `/wiki <query>` — wiki keresés\n• `/worker [log|<üzenet>]` — háttér-agent állapot\n• `/szia` — bemutatkozás\n• `/help` — ez a lista" }
       ]},
     ],
   },
-  fallbackText: "Parancsok: /projektek /teendok /naptar /email /hirek /edzo /wiki /szia /help"
+  fallbackText: "Parancsok: /projektek /teendok /naptar /email /hirek /edzo /wiki /worker /szia /help"
 });
 ```
 

@@ -13,6 +13,11 @@ import {
   Actions,
   Button,
   type Adapter,
+  type ActionsElement,
+  type ButtonElement,
+  type LinkButtonElement,
+  type SelectElement,
+  type RadioSelectElement,
   type ConcurrencyStrategy,
   type Message as ChatMessage,
 } from 'chat';
@@ -108,6 +113,32 @@ function resolveSelectedOption(
     if (render.options[idx]) return render.options[idx].value;
   }
   return candidate;
+}
+
+/**
+ * Layout the button list into one or more `Actions(...)` blocks. Telegram's
+ * inline-keyboard adapter renders one `Actions(...)` block as a single row,
+ * so multiple rows = multiple `Actions(...)` blocks.
+ *
+ * `auto` (default): vertical (one button per row) when there are 3+ buttons
+ * or any label is longer than ~12 chars; otherwise horizontal (one row).
+ * `vertical` / `horizontal` overrides force the layout. The threshold is
+ * tuned for Telegram's narrow mobile button width — wider labels truncate
+ * mid-word and Tomi can't read what he's clicking.
+ */
+type ButtonLike = ButtonElement | LinkButtonElement | SelectElement | RadioSelectElement;
+
+function buildButtonRows(
+  buttons: ButtonLike[],
+  labels: string[],
+  layout?: 'vertical' | 'horizontal' | 'auto',
+): ActionsElement[] {
+  if (buttons.length === 0) return [];
+  const explicit = layout === 'vertical' || layout === 'horizontal' ? layout : undefined;
+  const longest = labels.reduce((m, l) => Math.max(m, (l ?? '').length), 0);
+  const useVertical = explicit === 'vertical' || (!explicit && (buttons.length >= 3 || longest > 12));
+  if (useVertical) return buttons.map((btn) => Actions([btn]));
+  return [Actions(buttons)];
 }
 
 export function splitForLimit(text: string, limit: number): string[] {
@@ -299,36 +330,90 @@ export function createChatSdkBridge(config: ChatSdkBridgeConfig): ChannelAdapter
         await setupConfig.onInbound(channelId, thread.id, await messageToInbound(message, false, true));
       });
 
-      // Handle button clicks (ask_user_question)
+      // Handle button clicks (ask_user_question + send_card)
       chat.onAction(async (event) => {
-        if (!event.actionId.startsWith('ncq:')) return;
-        const parts = event.actionId.split(':');
-        if (parts.length < 3) return;
-        const questionId = parts[1];
-        const tail = parts.slice(2).join(':');
-        const userId = event.user?.userId || '';
+        // ask_user_question: pending_questions row drives the response flow
+        if (event.actionId.startsWith('ncq:')) {
+          const parts = event.actionId.split(':');
+          if (parts.length < 3) return;
+          const questionId = parts[1];
+          const tail = parts.slice(2).join(':');
+          const userId = event.user?.userId || '';
 
-        // Resolve render metadata BEFORE dispatching onAction (which deletes the row).
-        const render = getAskQuestionRender(questionId);
-        // New format: button id/value is an integer index into options (kept
-        // short to fit Telegram's 64-byte callback_data cap). Old format:
-        // the full value is embedded in actionId/value directly.
-        const selectedOption = resolveSelectedOption(render, event.value, tail);
-        const title = render?.title ?? '❓ Question';
-        const matched = render?.options.find((o) => o.value === selectedOption);
-        const selectedLabel = matched?.selectedLabel ?? selectedOption ?? '(clicked)';
+          // Resolve render metadata BEFORE dispatching onAction (which deletes the row).
+          const render = getAskQuestionRender(questionId);
+          // New format: button id/value is an integer index into options (kept
+          // short to fit Telegram's 64-byte callback_data cap). Old format:
+          // the full value is embedded in actionId/value directly.
+          const selectedOption = resolveSelectedOption(render, event.value, tail);
+          const title = render?.title ?? '❓ Question';
+          const matched = render?.options.find((o) => o.value === selectedOption);
+          const selectedLabel = matched?.selectedLabel ?? selectedOption ?? '(clicked)';
 
-        // Update the card to show the selected answer and remove buttons
-        try {
-          const tid = event.threadId;
-          await adapter.editMessage(tid, event.messageId, {
-            markdown: `${title}\n\n${selectedLabel}`,
-          });
-        } catch (err) {
-          log.warn('Failed to update card after action', { err });
+          // Update the card to show the selected answer and remove buttons
+          try {
+            const tid = event.threadId;
+            await adapter.editMessage(tid, event.messageId, {
+              markdown: `${title}\n\n${selectedLabel}`,
+            });
+          } catch (err) {
+            log.warn('Failed to update card after action', { err });
+          }
+
+          setupConfig.onAction(questionId, selectedOption, userId);
+          return;
         }
 
-        setupConfig.onAction(questionId, selectedOption, userId);
+        // send_card with `actions: [{label, value}]`: there is no pending
+        // question state on the host side, so the click is routed back into
+        // the session as a synthetic inbound text message. The agent that
+        // emitted the card sees the value as the user's reply and can act on
+        // it (the prior turn — including the card payload — is still in its
+        // context window). Without this branch every nccard click was a
+        // silent no-op.
+        if (event.actionId.startsWith('nccard:')) {
+          const tid = event.threadId;
+          const userId = event.user?.userId || '';
+          const buttonValue = event.value || '';
+          if (!buttonValue) {
+            log.warn('nccard click missing value', { actionId: event.actionId });
+            return;
+          }
+
+          // Best-effort: replace card with an acknowledgement so the buttons
+          // disappear and the user gets visual feedback their click landed.
+          try {
+            await adapter.editMessage(tid, event.messageId, {
+              markdown: `_↳ ${buttonValue}_`,
+            });
+          } catch (err) {
+            log.warn('Failed to update nccard after action', { err });
+          }
+
+          const channelId = adapter.channelIdFromThreadId(tid);
+          const senderName = event.user?.fullName || event.user?.userName || userId;
+          const synthId = `nccard-action-${Date.now()}`;
+          const syntheticInbound: InboundMessage = {
+            id: synthId,
+            kind: 'chat-sdk',
+            content: {
+              id: synthId,
+              text: buttonValue,
+              senderId: userId,
+              sender: senderName,
+              senderName,
+            },
+            timestamp: new Date().toISOString(),
+            isMention: true,
+            isGroup: false,
+          };
+          try {
+            await setupConfig.onInbound(channelId, tid, syntheticInbound);
+          } catch (err) {
+            log.error('Failed to route nccard click as inbound', { err });
+          }
+          return;
+        }
       });
 
       await chat.initialize();
@@ -416,21 +501,23 @@ export function createChatSdkBridge(config: ChatSdkBridgeConfig): ChannelAdapter
         const title = transformText(titleRaw);
         const question = transformText(questionRaw);
         const options: NormalizedOption[] = normalizeOptions(content.options as never);
+        // Encode button id/value with the option index rather than the full
+        // value. Telegram caps callback_data at 64 bytes, and long values
+        // (e.g. ISO datetimes, URLs) push the JSON payload well past that.
+        // The onAction handlers resolve the index back to the real value via
+        // getAskQuestionRender(questionId).
+        const askButtons = options.map((opt, idx) =>
+          Button({ id: `ncq:${questionId}:${idx}`, label: opt.label, value: String(idx) }),
+        );
+        const askLayout = (content.layout as 'vertical' | 'horizontal' | 'auto' | undefined) ?? 'auto';
+        const askRows = buildButtonRows(
+          askButtons,
+          options.map((o) => o.label),
+          askLayout,
+        );
         const card = Card({
           title,
-          children: [
-            CardText(question),
-            Actions(
-              // Encode button id/value with the option index rather than the
-              // full value. Telegram caps callback_data at 64 bytes, and
-              // long values (e.g. ISO datetimes, URLs) push the JSON payload
-              // well past that. The onAction handlers resolve the index back
-              // to the real value via getAskQuestionRender(questionId).
-              options.map((opt, idx) =>
-                Button({ id: `ncq:${questionId}:${idx}`, label: opt.label, value: String(idx) }),
-              ),
-            ),
-          ],
+          children: [CardText(question), ...askRows],
         });
         const result = await adapter.postMessage(tid, {
           card,
@@ -488,18 +575,22 @@ export function createChatSdkBridge(config: ChatSdkBridgeConfig): ChannelAdapter
 
         const actionsData = cardData.actions as Array<Record<string, unknown>> | undefined;
         if (actionsData && actionsData.length > 0) {
-          children.push(
-            Actions(
-              actionsData.map((a, idx) =>
-                Button({
-                  id: `nccard:${Date.now()}:${idx}`,
-                  label: (a.label as string) || `Option ${idx + 1}`,
-                  value: (a.value as string) || (a.label as string) || String(idx),
-                  ...(a.url ? { url: a.url as string } : {}),
-                }),
-              ),
-            ),
+          const cardButtons = actionsData.map((a, idx) =>
+            Button({
+              id: `nccard:${Date.now()}:${idx}`,
+              label: (a.label as string) || `Option ${idx + 1}`,
+              value: (a.value as string) || (a.label as string) || String(idx),
+              ...(a.url ? { url: a.url as string } : {}),
+            }),
           );
+          const cardLayout =
+            (cardData.layout as 'vertical' | 'horizontal' | 'auto' | undefined) ?? 'auto';
+          const cardRows = buildButtonRows(
+            cardButtons,
+            actionsData.map((a) => (a.label as string) || ''),
+            cardLayout,
+          );
+          children.push(...cardRows);
         }
         const card = Card({ title: title || 'ℹ️ Info', children: children as never });
         const fallback =
@@ -656,10 +747,19 @@ async function handleForwardedEvent(
       const interactionId = interaction.id as string;
       const interactionToken = interaction.token as string;
 
-      // Parse the selected option from custom_id
+      // ask_user_question (ncq:*) — pending_questions row drives the response.
+      // send_card (nccard:*) — no host state, click is routed back as synthetic
+      //   inbound so the agent that emitted the card can act on the value.
+      const isNcq = customId?.startsWith('ncq:');
+      const isNccard = customId?.startsWith('nccard:');
+
+      if (!isNcq && !isNccard) return;
+
+      // Parse the selected option from custom_id (ncq path only — nccard's
+      // value comes from interaction.data.values or the button label).
       let questionId: string | undefined;
       let tail: string | undefined;
-      if (customId?.startsWith('ncq:')) {
+      if (isNcq) {
         const colonIdx = customId.indexOf(':', 4); // after "ncq:"
         if (colonIdx !== -1) {
           questionId = customId.slice(4, colonIdx);
@@ -667,17 +767,23 @@ async function handleForwardedEvent(
         }
       }
 
-      // Update the card to show the selected answer and remove buttons
       const originalEmbeds =
         ((interaction.message as Record<string, unknown>)?.embeds as Array<Record<string, unknown>>) || [];
       const originalDescription = (originalEmbeds[0]?.description as string) || '';
       const render = questionId ? getAskQuestionRender(questionId) : undefined;
       // Discord custom_id mirrors the new index-based encoding (see Button
       // construction). Decode back to the real option value for downstream.
-      const selectedOption = resolveSelectedOption(render, tail, tail);
+      const selectedOption = isNcq ? resolveSelectedOption(render, tail, tail) : undefined;
       const cardTitle = render?.title ?? ((originalEmbeds[0]?.title as string) || '❓ Question');
       const matchedOpt = render?.options.find((o) => o.value === selectedOption);
-      const selectedLabel = matchedOpt?.selectedLabel ?? selectedOption ?? customId;
+
+      // For nccard the click value comes from the button's `value` mapped to
+      // interaction.data.custom_id tail (Discord stores the button's
+      // `custom_id` directly without a separate value field — the bridge
+      // encodes the index in the customId, so for now we fall back to the
+      // raw custom_id tail as the value).
+      const nccardValue = isNccard ? customId.split(':').slice(2).join(':') : '';
+      const selectedLabel = matchedOpt?.selectedLabel ?? selectedOption ?? nccardValue ?? customId;
       try {
         await fetch(`https://discord.com/api/v10/interactions/${interactionId}/${interactionToken}/callback`, {
           method: 'POST',
@@ -700,8 +806,34 @@ async function handleForwardedEvent(
       }
 
       // Dispatch to host
-      if (questionId && selectedOption) {
+      if (isNcq && questionId && selectedOption) {
         setupConfig.onAction(questionId, selectedOption, user?.id || '');
+      } else if (isNccard && nccardValue) {
+        // Route the button click as a synthetic inbound text message — same
+        // pattern as the Telegram chat.onAction nccard branch above.
+        const channelId = (interaction.channel_id as string) || '';
+        const userId = user?.id || '';
+        const senderName = (user?.global_name as string) || (user?.username as string) || userId;
+        const synthId = `nccard-action-${Date.now()}`;
+        const syntheticInbound: InboundMessage = {
+          id: synthId,
+          kind: 'chat-sdk',
+          content: {
+            id: synthId,
+            text: nccardValue,
+            senderId: userId,
+            sender: senderName,
+            senderName,
+          },
+          timestamp: new Date().toISOString(),
+          isMention: true,
+          isGroup: false,
+        };
+        try {
+          await setupConfig.onInbound(channelId, channelId, syntheticInbound);
+        } catch (err) {
+          log.error('Failed to route Discord nccard click as inbound', { err });
+        }
       }
       return;
     }
