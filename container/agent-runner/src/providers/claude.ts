@@ -40,10 +40,13 @@ const SDK_DISALLOWED_TOOLS = [
   'ExitWorktree',
 ];
 
-// Tool allowlist for NanoClaw agent containers.
+// Tool allowlist for NanoClaw agent containers. MCP-tool entries are derived
+// at the call site from the registered `mcpServers` map so that any server
+// added via `add_mcp_server` (or wired in container.json directly) is
+// reachable to the agent — without this, the SDK's allowedTools filter
+// silently drops every MCP namespace not listed here.
 //
 // Notable omissions (intentional, do NOT re-add without thinking):
-//
 // - SendMessage / TeamCreate / TeamDelete: SDK-native Claude Code "team
 //   messaging" — sends to internal SDK state with a fake "@target" address,
 //   returns success:true, but is NOT wired to NanoClaw's inbound.db routing.
@@ -68,8 +71,14 @@ const TOOL_ALLOWLIST = [
   'ToolSearch',
   'Skill',
   'NotebookEdit',
-  'mcp__nanoclaw__*',
 ];
+
+// MCP server names are sanitized by the SDK when forming tool prefixes:
+// any character outside [A-Za-z0-9_-] becomes '_'. Mirror that here so our
+// allowlist patterns match what the SDK actually exposes.
+function mcpAllowPattern(serverName: string): string {
+  return `mcp__${serverName.replace(/[^a-zA-Z0-9_-]/g, '_')}__*`;
+}
 
 interface SDKUserMessage {
   type: 'user';
@@ -742,10 +751,14 @@ export class ClaudeProvider implements AgentProvider {
         resume: input.continuation,
         pathToClaudeCodeExecutable: '/pnpm/claude',
         systemPrompt: instructions ? { type: 'preset' as const, preset: 'claude_code' as const, append: instructions } : undefined,
-        allowedTools: TOOL_ALLOWLIST,
+        allowedTools: [
+          ...TOOL_ALLOWLIST,
+          ...Object.keys(this.mcpServers).map(mcpAllowPattern),
+        ],
         disallowedTools: SDK_DISALLOWED_TOOLS,
         env: this.env,
         model: this.model,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         effort: this.effort as any,
         permissionMode: 'bypassPermissions',
         allowDangerouslySkipPermissions: true,
@@ -784,7 +797,8 @@ export class ClaudeProvider implements AgentProvider {
           yield { type: 'error', message: 'Rate limit', retryable: false, classification: 'quota' };
         } else if (message.type === 'system' && (message as { subtype?: string }).subtype === 'compact_boundary') {
           const meta = (message as { compact_metadata?: { pre_tokens?: number } }).compact_metadata;
-          yield { type: 'compact', preTokens: meta?.pre_tokens };
+          const detail = meta?.pre_tokens ? ` (${meta.pre_tokens.toLocaleString()} tokens compacted)` : '';
+          yield { type: 'compacted', text: `Context compacted${detail}.` };
         } else if (message.type === 'system' && (message as { subtype?: string }).subtype === 'task_notification') {
           const tn = message as { summary?: string };
           yield { type: 'progress', message: tn.summary || 'Task notification' };
