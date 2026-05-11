@@ -24,3 +24,10 @@ _Updated: 2026-04-20 09:00 CEST (morning briefing)_
 • *SUI CME FUTURES MAY 4* — Institutional access approaching.
 • *SOL: ALAMEDA LIQUIDATIONS ENDING* — Supply overhang removal.
 • *FEFE YOUTUBE REMOVED* — Channel permanently deleted. Appeal rejected. Active on X only. Reduces his content reach.
+
+## 2026-05-07
+• *BTC PUHULÁS A 80K KÖZELÉBE* — tegnap este $81.5k, reggel $80.9k (-0.81% 24h). CryptoCapo 78-80k shakeout-zónát hívott — éppen a felső szélén tartózkodunk.
+• *ETH ALULTELJESÍT* — -2.38% napon, ETH/BTC arány gyengül; rotation BTC-be vagy stableekbe.
+• *CLARITY MARKUP JÖVŐ HÉTRE* — Dennis Porter: bipartisan szavazás reális. Szabályozási tailwind, ha átmegy.
+• *AI COMPUTE SQUEEZE* — Anthropic kibérelte a teljes SpaceX/xAI Colossus 1 kapacitást (220k GPU, 300+ MW). Indirect bullish AI-coin narratívára.
+• *MEME LEG GYENGÜL* — DOGE -4.31%, alts széles körben pirosban. Top10-ből csak BNB zöld (+1.44%).

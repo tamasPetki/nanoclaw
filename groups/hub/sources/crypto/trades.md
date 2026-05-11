@@ -83,3 +83,8 @@ _BTC lost $75K overnight, now $74,396. $74,700 white line BROKEN. Sunday close t
 - **MSTR** — Bounced off 200-week MA. InvestAnswers: two buy signals. But Dr. Profit short -50%.
 - **Trade Desk** — $22 (from $141 ATH). InvestAnswers flutter pick. CEO bought at $25.
 - **Copper** — Buy at $5.28 (200-day MA). InvestAnswers.
+
+## 2026-05-07 ötletek
+- **BTC** — $80 947. Ha 78k-ig húz le shakeout-ban → CryptoCapo szerint long-belépő 85-90k retest-re. Stop 76k alatt.
+- **ETH/BTC** — relatív gyengeség folytatódik, ETH/BTC short bias amíg nincs trend-fordulás.
+- **BNB** — egyetlen zöld a top10-ben (+1.44%) — exchange-token rotation jel, watchlistre.

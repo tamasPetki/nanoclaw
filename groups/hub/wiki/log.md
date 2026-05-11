@@ -26,3 +26,14 @@ Hub Karpathy LLM-Wiki ráhúzva. `wiki/`, `sources/`, `container/skills/wiki/SKI
 ## [2026-05-06 20:10] entity | entities/erika-konyvelo.md | Számlák célállomása PietScarlet/Lupa Öbölnél; TE kivétel.
 
 ## [2026-05-06 20:10] entity | entities/toth-robert-quadrat.md | Tervező Csobánkán és Felső Törökhegyen.
+
+
+## [2026-05-07 08:00] email-check | pietscarlet: 1 új (loyalty promo PL) | trinkenessen: 1 új (bounce) | lupaobol: 1 új (FB partner request — scam-gyanús)
+## [2026-05-07 09:56] ingest | sources/crypto/persona.md | CrypTom Discord-advisor persona — angol nyelv, direkt-véleményes hangnem, minden trade-nél entry/target/stop+WHY, volatilis fájlok thesis/trades/narratives. Új oldal: wiki/crypto/persona.md.
+## [2026-05-07 10:06] update | wiki/entities/erika-konyvelo.md | Erika kommunikációs stílus részletezve: hangnem (tegezés, Szia Erika, udvarias-NEM utasító, tömör), draft sablon (számla továbbítás, opcionális kontextus-mondat), workflow (4 lépés: kategorizálás → context → card → send + evidence), tilalmak. Forrás: pietscarlet/persona.md + email-check-workflow.md (már sources-ban, külön ingest nem indokolt — project summary már lefedi).
+
+## 2026-05-11 — Görgey 32 helyszíni szemle (Tomi)
+Garázs mennyezet munkasorrend rögzítve: 1) Bérczy Gergő → klíma kültéri rézcső + tápkábel mennyezetre, 2) mennyezet-szigetelés, 3) Attila (A&D Vill) → kábeltálcák.
+
+## 2026-05-11 — DMRV (Görgey 32 vízbekötés) — nem elérhető
+Tomi próbálta hívni Fehér Istvánt (a múlt pénteki hívó-számon), nem vette föl senki. Holnap (2026-05-12) újrapróbálkozik. Kérdés: elég-e csak a vízakna kialakítása az utcáról való bekötéshez, vagy van további feltétel.

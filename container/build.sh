@@ -41,6 +41,7 @@ cp "$SCRIPT_DIR/../scripts/telegram-read.py" \
    "$SCRIPT_DIR/../scripts/telegram-auth.py" \
    "$SCRIPT_DIR/../scripts/youtube-transcript.py" \
    "$SCRIPT_DIR/../scripts/pdf-filler.cjs" \
+   "$SCRIPT_DIR/../scripts/cdp-cookies.js" \
    "$SCRIPT_DIR/_scripts/" 2>/dev/null || true
 
 # ── Stage 1: build the upstream base image ──────────────────────────────────

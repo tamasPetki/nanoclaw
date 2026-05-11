@@ -45,10 +45,15 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 # uv/uvx for mcp-email-server and similar publicly-installed Python MCPs
 RUN curl -LsSf https://astral.sh/uv/install.sh | env UV_INSTALL_DIR=/usr/local/bin sh
 
-# Python venv at /opt/pyenv with deps used by skills
-# (telethon for Telegram read, youtube-transcript-api for YT, yt-dlp for media)
+# Python venv at /opt/pyenv with deps used by skills + MCPs
+# - telethon: Telegram read
+# - youtube-transcript-api: YT skill
+# - yt-dlp: media skill
+# - mcp-email-server: pre-installed (was uvx, but uvx first-call is racy in
+#   container init — caused intermittent "MCP disconnected" aborts during
+#   spawn). Pre-installing eliminates the spawn-time PyPI fetch+resolve.
 RUN python3 -m venv /opt/pyenv && \
-    /opt/pyenv/bin/pip install --no-cache-dir telethon youtube-transcript-api requests yt-dlp
+    /opt/pyenv/bin/pip install --no-cache-dir telethon youtube-transcript-api requests yt-dlp mcp-email-server
 ENV PATH="/opt/pyenv/bin:$PATH"
 
 # ---- Utility scripts --------------------------------------------------------
@@ -64,6 +69,13 @@ RUN --mount=type=cache,target=/root/.cache/pnpm \
 # via NODE_PATH pointing at pnpm global root.
 RUN printf '#!/bin/bash\nNODE_PATH=%s node /opt/scripts/pdf-filler.cjs "$@"\n' "$(pnpm root -g)" > /usr/local/bin/pdf-filler && \
     chmod +x /usr/local/bin/pdf-filler
+
+# cdp-cookies-dump wrapper — dumps ALL cookies (httpOnly inclusive) from the
+# active stealth-browse session via CDP Network.getAllCookies. Used by the
+# rezerver Reddit warmup playbook step 9 to refresh the persisted cookie file.
+# Native WebSocket (Node 22+ built-in), no chrome-remote-interface npm dep.
+RUN printf '#!/bin/bash\nexec node /opt/scripts/cdp-cookies.js "$@"\n' > /usr/local/bin/cdp-cookies-dump && \
+    chmod +x /usr/local/bin/cdp-cookies-dump /opt/scripts/cdp-cookies.js
 
 # ---- MCP servers (per-group container.json picks which to use) --------------
 # Custom-code MCPs only — published MCPs (mcp-email-server, google-calendar,

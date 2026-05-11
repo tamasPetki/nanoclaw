@@ -54,7 +54,7 @@ Teljes Markdown működik:
 - `_italic_` (aláhúzás)
 - `•` felsoroláshoz
 - ` ``` ` code block
-- **NINCS** `##` heading, **NINCS** `[link](url)`, csak nyers URL
+- **NINCS** `##` heading, **NINCS** `[link](url)`, **NINCS** `<https://...>` (Discord embed-suppress, Telegramon MarkdownV2 parse-error → giving up), csak nyers URL
 
 ### Slack (`slack_*`)
 

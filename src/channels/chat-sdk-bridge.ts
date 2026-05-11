@@ -583,8 +583,7 @@ export function createChatSdkBridge(config: ChatSdkBridgeConfig): ChannelAdapter
               ...(a.url ? { url: a.url as string } : {}),
             }),
           );
-          const cardLayout =
-            (cardData.layout as 'vertical' | 'horizontal' | 'auto' | undefined) ?? 'auto';
+          const cardLayout = (cardData.layout as 'vertical' | 'horizontal' | 'auto' | undefined) ?? 'auto';
           const cardRows = buildButtonRows(
             cardButtons,
             actionsData.map((a) => (a.label as string) || ''),

@@ -260,3 +260,25 @@ stealth-browse close   # MINDIG zárd be
 ## Logging — `facebook_group_log.md`
 
 Minden FB akciót (belépés, kérelem, komment, lájk, incident) logold a csoport-specifikus fájlban. A `state.json`-ba csak a napi számláló kerül (`fb_actions_today`).
+
+## Reflektív riportok a hubnak (`[reflect:rezerver]`) — real-time push Tomi-Telegramra
+
+A Reddit playbook 10-step flow-jához hasonlóan a FB warmup-session is két reflektív üzenetet küld a hubnak (cross-agent send_message), `[reflect:rezerver]` prefixszel. A hub felismeri, magyarra fordítja (HU-ról HU-ra: minimal change), push-olja Tomi-Telegramjára real-time, és wiki-be is naplóz.
+
+**Korai indítás-jelzés** (warmup-session legelején, a snapshot ELŐTT). Egy mondat, Dani hangon, magyarul. Példa:
+```
+[reflect:rezerver] step=5 | reggeli FB warmup, ma a 'Vendéglátósok HU' csoportban figyelek
+```
+Ez biztosítja hogy ha a session később megakad (context-compact, FB-checkpoint), Tomi legalább látja hogy elindult.
+
+**Záró reflektív riport** (warmup-session végén, a `stealth-browse close` ELŐTT). 1-3 mondat, Dani hangon, magyarul. Tartalom-rács: (1) mit néztél (csoport + idő), (2) mire kaptad fel a fejedet (egy konkrét takeaway — egy poszt/komment/diskurzus), (3) opcionális Rezerver-ICP-szignál vagy stratégiai megfigyelés. Példa:
+```
+[reflect:rezerver] step=8 | 'Vendéglátósok HU'-ban voltam 7 percet. Egy nyári-szezon-tervezés threadnél megakadtam — több étterem-tulaj is jelzi, hogy az online foglalási flow-juk Wolt-on át megy, közvetlen booking szinte nincs. Nálunk pont a saját-domain-os foglalás a value-prop. Lájk 0, csak figyelek.
+```
+
+**ABORT-narratíva** ha bukási szignál jön (checkpoint, captcha, 2FA, "Too many requests"): a hagyományos `state.json` `fb_incident` log MELLÉ küldj egy `[reflect:rezerver] step=abort | ...` üzenetet is, hogy Tomi narratívában értse mi történt. Példa:
+```
+[reflect:rezerver] step=abort | Dani fiókon checkpoint prompt jött a 'Vendéglátósok HU' csoport megnyitásakor. Browser closed, state-be incident logolva. Tomira vár: manuális FB-belépés Dani-fiókkal a desktop-on, checkpoint feloldás.
+```
+
+Részletek a worker `CLAUDE.local.md` "Reflektív riportok" szekciójában. **Pontosan 1 záró reflexió per session**, opcionális +1 indítás-jelzés.

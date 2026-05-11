@@ -1,7 +1,7 @@
 ---
 title: Görgey Arthur u. 32. — társasház-építés (Vác)
 created: 2026-05-06
-updated: 2026-05-06
+updated: 2026-05-11
 type: project
 tags: [gorgey32, projekt, alvallalkozo, szerzodes, hataridő]
 sources: [sources/gorgey32/persona.md, sources/gorgey32/alvallalkozok.md, sources/gorgey32/redony_megallapodas.md, sources/gorgey32/status.md]
@@ -10,6 +10,16 @@ sources: [sources/gorgey32/persona.md, sources/gorgey32/alvallalkozok.md, source
 # Görgey 32 — Vác társasház
 
 PietScarlet Kft. társasházat épít Vác, Görgey Arthur u. 32. szám alatt. **7 lakás + 1 iroda, 3 szint, ~780 m².** A projekt 2025 augusztusában indult, 2026 májusára aktív kivitelezésben.
+
+## Aktuális fázis (2026-05-11 status — Tomi helyszíni szemle)
+
+**Garázs mennyezet — soron:**
+
+1. Bérczy Gergő (TLK Invest) felrögzíti a mennyezetre a klíma kültéri egységéhez vezető **rézcsövet + tápkábelt**
+2. Utána mehet a **mennyezet-szigetelés** (garázs)
+3. Utána Attila csapata (A&D Vill) felteszi a **kábeltálcákat**
+
+**Sürgős indok:** korábban betörtek a garázsba, **levagdalták a vezetékeket** (most kellett újra megcsinálni). A mennyezet-szigetelés egyúttal **védi is a vezetékeket** → minél előbb fel kéne kerüljön. Bérczy **2026-05-12 kedden** mondja a pontos időpontot a rézcső + tápkábel kihúzására.
 
 ## Aktuális fázis (2026-05-04 status)
 

@@ -1,9 +1,8 @@
 {
   "mcpServers": {
     "bulltrapp-email": {
-      "command": "uvx",
+      "command": "mcp-email-server",
       "args": [
-        "mcp-email-server@latest",
         "stdio"
       ],
       "env": {
@@ -22,9 +21,8 @@
       }
     },
     "rezerver-email": {
-      "command": "uvx",
+      "command": "mcp-email-server",
       "args": [
-        "mcp-email-server@latest",
         "stdio"
       ],
       "env": {

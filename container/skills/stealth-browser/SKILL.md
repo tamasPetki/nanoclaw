@@ -1,6 +1,6 @@
 ---
 name: stealth-browser
-description: Headed Chrome on virtual display (Xvfb) with human-like mouse/typing for Cloudflare bypass, X reply, directory submissions, registrations. Uses residential proxy + canvas/audio/WebGL fingerprint patches.
+description: Headed Chrome on virtual display (Xvfb) with human-like mouse/typing for Cloudflare bypass, X reply, directory submissions, registrations. Uses residential proxy + canvas/audio/WebGL fingerprint patches. Optional STEALTH_MOBILE=1 (Pixel 7 Android persona) and STEALTH_PARANOID=1 (×1.8 slower input timing) modes for stricter anti-bot UIs. WebRTC IP-leak prevention default-on.
 allowed-tools: Bash(stealth-browse:*), Bash(bash /home/node/.claude/skills/stealth-browser/*:*)
 secrets:
   - DISCORD_TOKEN
@@ -138,18 +138,44 @@ Always `source /workspace/agent/.secrets` before using to load proxy credentials
 
 ## Anti-detection features
 
-- **Headed Chrome on Xvfb** — not `--headless`. Real desktop Chromium running on a virtual 1920x1080 X display, so JS-detectable headless markers are gone.
-- `navigator.webdriver = false`, `platform = Win32`, `hardwareConcurrency = 8`, `deviceMemory = 8`, `maxTouchPoints = 0`
-- User-Agent: Chrome 124 on Windows 10 (overridden at network layer too)
+- **Headed Chrome on Xvfb** — not `--headless`. Real desktop Chromium running on a virtual 1920x1080 X display (mobile mode: 412×915), so JS-detectable headless markers are gone.
+- `navigator.webdriver = false`, persona-matched `platform`, `hardwareConcurrency = 8`, `deviceMemory = 8`
+- **Desktop persona** (default): User-Agent `Linux x86_64 Chrome 124`, platform=`Linux x86_64`, JA4-fingerprint matched (Chromium on Linux)
+- **Mobile persona** (`STEALTH_MOBILE=1`): User-Agent `Pixel 7 Android 14 Chrome 124`, platform=`Linux armv81`, viewport 412×915, DPR 2.625, 5 touch points, ANGLE/Mali-G710 WebGL renderer, separate user-data-dir
 - Chrome plugins present (5 PDF-style entries like real Chrome)
-- WebGL: `Google Inc. (Intel)` vendor + ANGLE Direct3D11 renderer (Windows-style)
+- **WebGL** persona-matched: desktop = Mesa Intel, mobile = ARM/Mali-G710
 - **Canvas fingerprint noise**: per-pixel LSB jitter on `toDataURL`/`getImageData`
 - **AudioContext noise**: tiny per-100-sample drift in `getChannelData`
-- **Battery API spoof**, screen colorDepth=24, userAgentData brands
-- **Bezier mouse movement**: 15-60 waypoints with perpendicular arc + jitter
+- **Battery API removed** (Chrome 124+ removed it; presence is a flag)
+- Screen colorDepth=24, userAgentData brands persona-matched
+- **WebRTC IP-leak prevention**: Chrome flag `--webrtc-ip-handling-policy=disable_non_proxied_udp` + JS RTCPeerConnection patch
+- **Bezier mouse movement** (WindMouse): 15-60 waypoints with perpendicular arc + jitter
 - **Gaussian typing**: ~95ms ± 40ms per char, punctuation/space pauses, 4% "thinking" delays
+- **Paranoid timing** (`STEALTH_PARANOID=1`): all gauss-distributed delays scaled ×1.8 (slower hover/click/type/post-action)
 - Permissions query patched, stack trace sanitized
 - Residential proxy via CDP `Fetch.continueWithAuth`
+
+## Personas + env flags
+
+| Env | Default | Effect |
+|---|---|---|
+| `STEALTH_MOBILE=1` | off | Pixel 7 Android Chrome 124 persona (mobile UA, 412×915 viewport, touch events, ARM WebGL, separate user-data-dir) |
+| `STEALTH_PARANOID=1` | off | All gauss-timing scaled ×1.8 (slower human-input pacing for stricter sites) |
+| `STEALTH_USER_DATA_DIR=<path>` | (auto) | Persistent profile path (overrides default ephemeral dir). Use when site needs cookie + LocalStorage continuity (Telegram Web, multi-session flows) |
+| `STEALTH_DISPLAY=:N` | `:99` | Xvfb display number |
+| `STEALTH_PROXY=<url>` | (none) | Proxy URL fallback when `--proxy` flag not given |
+
+**Combo example** (banking, social signup, strict anti-bot UI):
+```bash
+STEALTH_MOBILE=1 STEALTH_PARANOID=1 stealth-browse open https://example.com
+```
+
+## Known limitations — what stealth-browse CANNOT bypass
+
+1. **Google account creation** — Google's mobile-only sign-up flow ends at native carrier-attestation `Send SMS` modal (`pnv_flow=2`). The flow does NOT offer a phone-input field; it expects the device's actual SIM to send an SMS to a Google-specified number. URL hack to `pnv_flow=1` shows the same `Loading… Try Again` state. Stealth-browse cannot trigger native `tel:` schema. **Verified 2026-05-07 across 5 attempts** — `signup/error/1` instant-flag on desktop persona, `Send SMS` carrier-attestation dead-end on mobile persona. Use a real device for Google account creation, or a SMS-receiving service (smsactivate.org, 5sim.net) integration as a future skill.
+2. **Phone-verify modals** in general — any flow that requires SIM-level identification (sending FROM the user's number, not just receiving). Google, Apple, banking, and some social platforms use these.
+3. **CapSolver-resistant captchas** — Google reCAPTCHA Enterprise account-creation flow has been hardened beyond CapSolver's typical solve-rate. Reddit reCAPTCHA Enterprise during signup IS solvable (verified 2026-04-25 with u/dani_horeca + 2026-05-07 manual Lloyd attempt path).
+4. **Platforms requiring a verified phone history** (e.g., WhatsApp registration) — same SIM-level barrier as Google.
 
 ## Browser persistence
 

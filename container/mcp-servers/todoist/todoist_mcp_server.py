@@ -78,6 +78,8 @@ async def _make_request(
             method, url, params=params, json=json_body
         )
         response.raise_for_status()
+        if response.status_code == 204 or not response.content:
+            return {"success": True}
         return response.json()
     except httpx.HTTPError as e:
         await _handle_error(e)

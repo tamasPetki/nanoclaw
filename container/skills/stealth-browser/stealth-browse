@@ -22,8 +22,40 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
+// Disable HTTP proxying for localhost CDP calls. The worker container has
+// HTTP_PROXY/HTTPS_PROXY set (OneCLI agent-vault gateway on
+// host.docker.internal:10255) and Node 22's EnvHttpProxyAgent honors them
+// automatically — including for `localhost` requests. That routes the
+// stealth-browse → Chrome CDP call through the gateway, which returns
+// "Empty reply" because there's no Chrome at the gateway endpoint. Forcing
+// NO_PROXY here keeps localhost CDP traffic on the loopback interface.
+process.env.NO_PROXY = (process.env.NO_PROXY ? process.env.NO_PROXY + ',' : '') + 'localhost,127.0.0.1,::1';
+process.env.no_proxy = process.env.NO_PROXY;
+
 const STATE_FILE = '/tmp/stealth-browser-state.json';
-const CDP_PORT = 9333;
+// Default user-data-dir for non-persistent sessions — Chrome writes
+// DevToolsActivePort here when --remote-debugging-port=0 is used.
+// Mobile-mode uses a separate dir to keep desktop and mobile fingerprints
+// from cross-contaminating cookies + LocalStorage.
+const DEFAULT_USER_DATA_DIR = '/tmp/stealth-browser-userdata';
+const DEFAULT_USER_DATA_DIR_MOBILE = '/tmp/stealth-browser-userdata-mobile';
+
+// Mobile-mode toggle (Pixel 7 emulation): set STEALTH_MOBILE=1 to enable.
+// Useful for sites that gate signup-flows by detecting desktop automation
+// patterns more aggressively than mobile (e.g. Google account creation).
+const MOBILE_MODE = process.env.STEALTH_MOBILE === '1';
+
+// Paranoid-timing mode: scales all human-input gauss-distributions upward
+// by ~1.8× (slower hovering, slower typing, longer post-click pauses).
+// Set STEALTH_PARANOID=1 for sign-up flows that scrutinize behavior pacing.
+const PARANOID_MODE = process.env.STEALTH_PARANOID === '1';
+const TIMING_SCALE = PARANOID_MODE ? 1.8 : 1.0;
+// Mutable: actual CDP port assigned by Chrome at launch (read from
+// DevToolsActivePort). Hardcoded specific ports (e.g. 9333) don't reliably
+// bind on Chromium 147+ in this container — only --remote-debugging-port=0
+// works, which makes Chrome pick an ephemeral port and write it to the
+// DevToolsActivePort file in the user-data-dir.
+let cdpPort = null;
 const DEFAULT_TIMEOUT = 30000;
 const CHROME_BIN = process.env.AGENT_BROWSER_EXECUTABLE_PATH || '/usr/bin/chromium';
 const XVFB_DISPLAY = process.env.STEALTH_DISPLAY || ':99';
@@ -33,30 +65,52 @@ const XVFB_SCREEN = '1920x1080x24';
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 const rand = (min, max) => min + Math.random() * (max - min);
 const randInt = (min, max) => Math.floor(rand(min, max + 1));
-// Box-Muller gaussian, clamped
+// Box-Muller gaussian, clamped. Mean+stddev scaled by TIMING_SCALE
+// (1.0 normal, 1.8 paranoid mode) — slows pacing of human-input timing
+// (mouse-hover, key-typing, click-debounce) without changing distributions.
+// min/max are also scaled so paranoid mode doesn't get clamped back to fast.
 function gauss(mean, stddev, min, max) {
   const u1 = Math.random() || 1e-9;
   const u2 = Math.random();
   const z = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
-  const v = mean + stddev * z;
-  return Math.max(min, Math.min(max, v));
+  const scaledMean = mean * TIMING_SCALE;
+  const scaledStddev = stddev * TIMING_SCALE;
+  const scaledMax = max * TIMING_SCALE;
+  const v = scaledMean + scaledStddev * z;
+  return Math.max(min, Math.min(scaledMax, v));
 }
 
 // ── Stealth patches injected before every page load ──
-// Persona: Linux x86_64 desktop Chrome — matches real Linux Chrome JA4 fingerprint
-// (avoids the JA4-vs-UA mismatch that flags Win10-spoofed Linux Chromium)
-const STEALTH_SCRIPT = `
+// Desktop persona: Linux x86_64 Chrome (matches real Linux Chrome JA4).
+// Mobile persona: Pixel 7 Android Chrome (when STEALTH_MOBILE=1).
+// The script is built dynamically so the navigator/userAgentData/screen/
+// platform values stay consistent with whichever persona is active.
+function buildStealthScript(mobile) {
+  const platformStr = mobile ? "'Linux armv81'" : "'Linux x86_64'";
+  const maxTouchPoints = mobile ? 5 : 0;
+  const hardwareConcurrency = mobile ? 8 : 8; // Pixel 7 has 8 cores too
+  const deviceMemory = mobile ? 8 : 8;
+  const uadMobile = mobile ? 'true' : 'false';
+  const uadPlatform = mobile ? "'Android'" : "'Linux'";
+  const screenWidth = mobile ? 412 : 1920;
+  const screenHeight = mobile ? 915 : 1080;
+  const screenAvailHeight = mobile ? 893 : 1040;
+  // WebGL renderer differs: desktop = Mesa Intel, mobile = Adreno (Pixel 7 uses Mali-G710 in spec but Chrome reports as ANGLE)
+  const wglVendor = mobile ? "'Google Inc. (ARM)'" : "'Intel'";
+  const wglRenderer = mobile ? "'ANGLE (ARM, Mali-G710 MC10, OpenGL ES 3.2)'" : "'Mesa Intel(R) UHD Graphics (TGL GT1)'";
+
+  return `
   // Remove webdriver via delete from prototype (rather than getter override) — cleaner
   try { delete Object.getPrototypeOf(navigator).webdriver; } catch (e) {}
   Object.defineProperty(Navigator.prototype, 'webdriver', {get: () => undefined, configurable: true});
 
-  // Linux x86_64 platform — matches the JA4 fingerprint of real Linux Chrome
-  Object.defineProperty(Navigator.prototype, 'platform', {get: () => 'Linux x86_64', configurable: true});
+  // Platform — matches the JA4 fingerprint of real Linux/Android Chrome
+  Object.defineProperty(Navigator.prototype, 'platform', {get: () => ${platformStr}, configurable: true});
 
   // Realistic hardware
-  Object.defineProperty(Navigator.prototype, 'hardwareConcurrency', {get: () => 8, configurable: true});
-  Object.defineProperty(Navigator.prototype, 'deviceMemory', {get: () => 8, configurable: true});
-  Object.defineProperty(Navigator.prototype, 'maxTouchPoints', {get: () => 0, configurable: true});
+  Object.defineProperty(Navigator.prototype, 'hardwareConcurrency', {get: () => ${hardwareConcurrency}, configurable: true});
+  Object.defineProperty(Navigator.prototype, 'deviceMemory', {get: () => ${deviceMemory}, configurable: true});
+  Object.defineProperty(Navigator.prototype, 'maxTouchPoints', {get: () => ${maxTouchPoints}, configurable: true});
 
   // Languages (will also be set via CDP at network layer)
   Object.defineProperty(Navigator.prototype, 'languages', {get: () => ['en-US', 'en'], configurable: true});
@@ -104,9 +158,9 @@ const STEALTH_SCRIPT = `
     };
   }
 
-  // WebGL: Linux Chrome on Mesa/Intel (matches Linux Chrome 124 reality)
-  const WGL_VENDOR = 'Intel';
-  const WGL_RENDERER = 'Mesa Intel(R) UHD Graphics (TGL GT1)';
+  // WebGL: persona-specific renderer
+  const WGL_VENDOR = ${wglVendor};
+  const WGL_RENDERER = ${wglRenderer};
   const getParameterProto = WebGLRenderingContext.prototype.getParameter;
   WebGLRenderingContext.prototype.getParameter = function(param) {
     if (param === 37445) return WGL_VENDOR;       // UNMASKED_VENDOR_WEBGL
@@ -177,11 +231,11 @@ const STEALTH_SCRIPT = `
   // ⚠ NO Battery API spoof — Chrome 124+ removed it. Presence is now an instant flag.
   try { delete Navigator.prototype.getBattery; } catch (e) {}
 
-  // Screen properties (1920x1080 desktop, taskbar = 40px)
+  // Screen properties (persona-specific)
   Object.defineProperty(Screen.prototype, 'colorDepth', {get: () => 24, configurable: true});
   Object.defineProperty(Screen.prototype, 'pixelDepth', {get: () => 24, configurable: true});
-  Object.defineProperty(Screen.prototype, 'availWidth', {get: () => 1920, configurable: true});
-  Object.defineProperty(Screen.prototype, 'availHeight', {get: () => 1040, configurable: true});
+  Object.defineProperty(Screen.prototype, 'availWidth', {get: () => ${screenWidth}, configurable: true});
+  Object.defineProperty(Screen.prototype, 'availHeight', {get: () => ${screenAvailHeight}, configurable: true});
 
   // userAgentData — Linux Chrome 124
   if (navigator.userAgentData) {
@@ -193,8 +247,8 @@ const STEALTH_SCRIPT = `
           {brand: 'Not-A.Brand', version: '99'}
         ], configurable: true
       });
-      Object.defineProperty(navigator.userAgentData, 'mobile', {get: () => false, configurable: true});
-      Object.defineProperty(navigator.userAgentData, 'platform', {get: () => 'Linux', configurable: true});
+      Object.defineProperty(navigator.userAgentData, 'mobile', {get: () => ${uadMobile}, configurable: true});
+      Object.defineProperty(navigator.userAgentData, 'platform', {get: () => ${uadPlatform}, configurable: true});
     } catch (e) {}
   }
 
@@ -223,6 +277,19 @@ const STEALTH_SCRIPT = `
     };
   }
 
+  // WebRTC IP-leak prevention — RTCPeerConnection.createOffer/createAnswer
+  // can expose the real client IP via STUN even when traffic is proxied.
+  // We pair this with --webrtc-ip-handling-policy=disable_non_proxied_udp at
+  // the Chrome flag level. JS-side override is belt-and-braces in case the
+  // flag was missed or re-enabled by a site's polyfill.
+  if (window.RTCPeerConnection) {
+    const origCreateOffer = RTCPeerConnection.prototype.createOffer;
+    RTCPeerConnection.prototype.createOffer = function(opts) {
+      const o = Object.assign({}, opts || {}, { iceRestart: false });
+      return origCreateOffer.call(this, o);
+    };
+  }
+
   // Function.prototype.toString — make patched native methods look native again
   const nativeToString = Function.prototype.toString;
   const patchedFns = new WeakSet();
@@ -247,10 +314,15 @@ const STEALTH_SCRIPT = `
   fakeNative(CanvasRenderingContext2D.prototype.getImageData);
   if (navigator.mediaDevices) fakeNative(navigator.mediaDevices.enumerateDevices);
   fakeNative(Permissions.prototype.query);
+  if (window.RTCPeerConnection) fakeNative(RTCPeerConnection.prototype.createOffer);
 `;
+}
 
-// Linux x86_64 Chrome 124 — matches the JA4 fingerprint of headed Chromium on Linux
-const STEALTH_UA = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36';
+// Personas — JA4-fingerprint matched
+const STEALTH_UA_DESKTOP = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36';
+const STEALTH_UA_MOBILE = 'Mozilla/5.0 (Linux; Android 14; Pixel 7 Build/UQ1A.240205.004) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.6367.207 Mobile Safari/537.36';
+const STEALTH_UA = MOBILE_MODE ? STEALTH_UA_MOBILE : STEALTH_UA_DESKTOP;
+const STEALTH_SCRIPT = buildStealthScript(MOBILE_MODE);
 
 // ── CDP helper ──
 class CDPClient {
@@ -368,11 +440,44 @@ function launchXvfb() {
 
 // ── Chrome launcher ──
 function launchChrome(proxy) {
+  // Resolve user-data-dir. Order: explicit env > mobile-default > desktop-default.
+  // Mobile and desktop personas use separate dirs to avoid cross-fingerprint
+  // contamination of cookies + LocalStorage.
+  const defaultDir = MOBILE_MODE ? DEFAULT_USER_DATA_DIR_MOBILE : DEFAULT_USER_DATA_DIR;
+  const userDataDir = process.env.STEALTH_USER_DATA_DIR || defaultDir;
+  // For the non-persistent default dir, clear any stale Singleton lock + old
+  // DevToolsActivePort before launch — otherwise Chrome refuses to start
+  // ("Opening in existing browser session" path) and the port file lingers
+  // from a prior crashed run.
+  if (!process.env.STEALTH_USER_DATA_DIR) {
+    try {
+      execSync(`rm -f ${userDataDir}/Singleton* ${userDataDir}/DevToolsActivePort`, { stdio: 'ignore' });
+    } catch {}
+  } else {
+    // Persistent dir: only clear the stale port file, keep profile state
+    try {
+      execSync(`rm -f ${userDataDir}/DevToolsActivePort`, { stdio: 'ignore' });
+    } catch {}
+  }
+  fs.mkdirSync(userDataDir, { recursive: true });
+
   // Headed Chrome on virtual display — looks like a real user, not headless
   const args = [
     '--no-sandbox',
     '--disable-dev-shm-usage',
-    `--remote-debugging-port=${CDP_PORT}`,
+    // remote-debugging-port=0 → Chrome picks an ephemeral port and writes it
+    // to ${user-data-dir}/DevToolsActivePort. We read that file in
+    // waitForChrome() to get the actual port.
+    //
+    // Background: Chrome 136+ silently refuses to enable --remote-debugging-*
+    // unless an explicit non-default --user-data-dir is also passed (security
+    // change to prevent silent CDP-attaching to a user's regular Chrome
+    // profile). Hardcoded specific ports (e.g. 9333) further fail to bind in
+    // some containerized + Chromium 147 builds — the safest combination is
+    // port=0 + explicit user-data-dir, then read the picked port from
+    // DevToolsActivePort.
+    '--remote-debugging-port=0',
+    `--user-data-dir=${userDataDir}`,
     '--disable-blink-features=AutomationControlled',
     '--disable-features=IsolateOrigins,site-per-process,AutomationControlled',
     '--disable-infobars',
@@ -393,14 +498,20 @@ function launchChrome(proxy) {
     '--use-gl=angle',
     '--use-angle=swiftshader',
     '--enable-unsafe-swiftshader',
+    // WebRTC IP-leak prevention — only proxied UDP. STUN-binding can
+    // otherwise expose the real client IP even with HTTP proxy.
+    '--webrtc-ip-handling-policy=disable_non_proxied_udp',
+    '--force-webrtc-ip-handling-policy',
     `--user-agent=${STEALTH_UA}`,
     '--lang=en-US,en',
     '--accept-lang=en-US,en;q=0.9',
   ];
 
-  // Allow persistent browser profile via env var (e.g. for Telegram Web session)
-  if (process.env.STEALTH_USER_DATA_DIR) {
-    args.push(`--user-data-dir=${process.env.STEALTH_USER_DATA_DIR}`);
+  // Mobile mode: window-size + DPR pass-through. CDP setDeviceMetricsOverride
+  // (in getClient) further configures viewport + touch.
+  if (MOBILE_MODE) {
+    args.push('--window-size=412,915');
+    args.push('--force-device-scale-factor=2.625');
   }
 
   if (proxy) {
@@ -415,26 +526,60 @@ function launchChrome(proxy) {
     env: { ...process.env, DISPLAY: XVFB_DISPLAY },
   });
   proc.unref();
-  return proc.pid;
+  return { pid: proc.pid, userDataDir };
 }
 
 // ── Get CDP page target ──
+// Belt-and-braces: pass `agent: false` to bypass any global proxy agent that
+// Node's EnvHttpProxyAgent might attach. NO_PROXY is also set at module load,
+// but `agent: false` is the explicit guarantee.
 function getCDPTargets() {
+  if (!cdpPort) throw new Error('CDP port not yet known — call waitForChrome first');
   return new Promise((resolve, reject) => {
-    http.get(`http://localhost:${CDP_PORT}/json`, (res) => {
+    const req = http.get({
+      hostname: '127.0.0.1',
+      port: cdpPort,
+      path: '/json',
+      agent: false,
+    }, (res) => {
       let data = '';
       res.on('data', (c) => data += c);
       res.on('end', () => {
         try { resolve(JSON.parse(data)); }
         catch (e) { reject(new Error('Failed to parse CDP targets')); }
       });
-    }).on('error', reject);
+    });
+    req.on('error', reject);
   });
 }
 
-async function waitForChrome(maxWait = 10000) {
+// Read the actual CDP port Chrome picked from ${user-data-dir}/DevToolsActivePort.
+// Phase 1: poll for the file (Chrome writes it shortly after the CDP server
+// starts). Phase 2: verify the port is actually responding to /json.
+async function waitForChrome(userDataDir, maxWait = 15000) {
   const start = Date.now();
+  const portFile = path.join(userDataDir, 'DevToolsActivePort');
+  // Phase 1: wait for DevToolsActivePort
   while (Date.now() - start < maxWait) {
+    try {
+      const content = fs.readFileSync(portFile, 'utf8');
+      const firstLine = content.split('\n')[0].trim();
+      const port = parseInt(firstLine, 10);
+      if (port > 0 && port < 65536) {
+        cdpPort = port;
+        break;
+      }
+    } catch {
+      // file not yet exists or unreadable
+    }
+    await new Promise(r => setTimeout(r, 200));
+  }
+  if (!cdpPort) {
+    throw new Error(`Chrome failed to start: no DevToolsActivePort in ${userDataDir} after ${maxWait}ms`);
+  }
+  // Phase 2: verify CDP server responds
+  const phase2Deadline = start + maxWait;
+  while (Date.now() < phase2Deadline) {
     try {
       await getCDPTargets();
       return;
@@ -442,7 +587,8 @@ async function waitForChrome(maxWait = 10000) {
       await new Promise(r => setTimeout(r, 300));
     }
   }
-  throw new Error('Chrome failed to start');
+  cdpPort = null;
+  throw new Error(`Chrome started but CDP server on port ${cdpPort} not responding`);
 }
 
 // ── State management ──
@@ -469,8 +615,11 @@ function isChromeRunning(pid) {
 async function getClient(proxy) {
   let state = loadState();
 
-  // Check if existing Chrome is running
-  if (state && state.pid && isChromeRunning(state.pid)) {
+  // Check if existing Chrome is running — only if we have its CDP port
+  // recorded. State files from before the dynamic-port refactor lack
+  // cdpPort, so they can't be reused; treat them as stale and re-launch.
+  if (state && state.pid && state.cdpPort && isChromeRunning(state.pid)) {
+    cdpPort = state.cdpPort;
     try {
       const targets = await getCDPTargets();
       const page = targets.find(t => t.type === 'page' && t.id === state.pageId)
@@ -490,6 +639,8 @@ async function getClient(proxy) {
         return { client, state, isNew: false };
       }
     } catch {}
+    // Reconnect failed — fall through to relaunch (cdpPort gets reset below).
+    cdpPort = null;
   }
 
   // Launch new Chrome
@@ -501,8 +652,8 @@ async function getClient(proxy) {
   // Ensure Xvfb is running first
   const xvfbPid = launchXvfb();
 
-  const pid = launchChrome(proxy);
-  await waitForChrome();
+  const { pid, userDataDir } = launchChrome(proxy);
+  await waitForChrome(userDataDir);
 
   const targets = await getCDPTargets();
   const page = targets.find(t => t.type === 'page');
@@ -519,10 +670,10 @@ async function getClient(proxy) {
   // Inject stealth patches (fires before every page JS)
   await client.send('Page.addScriptToEvaluateOnNewDocument', { source: STEALTH_SCRIPT });
 
-  // Override UA at network level — Linux persona to match TLS JA4
+  // Override UA at network level — persona-matched to TLS JA4
   await client.send('Emulation.setUserAgentOverride', {
     userAgent: STEALTH_UA,
-    platform: 'Linux x86_64',
+    platform: MOBILE_MODE ? 'Linux armv81' : 'Linux x86_64',
     acceptLanguage: 'en-US,en;q=0.9',
     userAgentMetadata: {
       brands: [
@@ -531,13 +682,27 @@ async function getClient(proxy) {
         { brand: 'Not-A.Brand', version: '99' },
       ],
       fullVersion: '124.0.6367.207',
-      platform: 'Linux',
-      platformVersion: '6.5.0',
-      architecture: 'x86',
-      model: '',
-      mobile: false,
+      platform: MOBILE_MODE ? 'Android' : 'Linux',
+      platformVersion: MOBILE_MODE ? '14' : '6.5.0',
+      architecture: MOBILE_MODE ? '' : 'x86',
+      model: MOBILE_MODE ? 'Pixel 7' : '',
+      mobile: MOBILE_MODE,
     },
   });
+
+  // Mobile-mode device emulation — viewport + DPR + touch
+  if (MOBILE_MODE) {
+    await client.send('Emulation.setDeviceMetricsOverride', {
+      width: 412,
+      height: 915,
+      deviceScaleFactor: 2.625,
+      mobile: true,
+      screenWidth: 412,
+      screenHeight: 915,
+    });
+    await client.send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 5 });
+    await client.send('Emulation.setEmulatedMedia', { features: [{ name: 'pointer', value: 'coarse' }, { name: 'hover', value: 'none' }] });
+  }
 
   // Force English language headers on every request (overrides IP geolocation)
   await client.send('Network.setExtraHTTPHeaders', {
@@ -562,9 +727,9 @@ async function getClient(proxy) {
       patterns: [{ urlPattern: '*', requestStage: 'Request' }],
       handleAuthRequests: true,
     });
-    state = { pid, xvfbPid, pageId: page.id, proxy, proxyUser: username, proxyPass: password };
+    state = { pid, xvfbPid, pageId: page.id, proxy, proxyUser: username, proxyPass: password, cdpPort, userDataDir, mobile: MOBILE_MODE, paranoid: PARANOID_MODE };
   } else {
-    state = { pid, xvfbPid, pageId: page.id, proxy: proxy || null };
+    state = { pid, xvfbPid, pageId: page.id, proxy: proxy || null, cdpPort, userDataDir, mobile: MOBILE_MODE, paranoid: PARANOID_MODE };
   }
 
   saveState(state);
@@ -965,9 +1130,20 @@ Usage:
 Selectors: CSS selectors or @refs from snapshot (e.g. @e1, @e3)
 Proxy: DataImpulse format user:pass@host:port
 
+Env flags:
+  STEALTH_USER_DATA_DIR   persistent profile dir (default: ephemeral, cleared on close)
+  STEALTH_MOBILE=1        Pixel 7 mobile persona (touch events, mobile UA, 412×915 viewport)
+  STEALTH_PARANOID=1      slower human-input timing (×1.8 mean+stddev) for stricter sites
+  STEALTH_DISPLAY         Xvfb display (default :99)
+
+Personas:
+  desktop  Linux x86_64 Chrome 124 (Mesa Intel WebGL) — default
+  mobile   Pixel 7 Android 14 Chrome 124 (ANGLE/Mali WebGL) — STEALTH_MOBILE=1
+
 Runs headed Chrome on Xvfb display ${XVFB_DISPLAY}. The browser is a real
-desktop Chrome (not --headless), so JS-side fingerprints (canvas, audio,
-WebGL, plugins, hardware) are spoofed via injected patches.`);
+desktop/mobile Chrome (not --headless), so JS-side fingerprints (canvas, audio,
+WebGL, plugins, hardware, RTCPeerConnection) are spoofed via injected patches.
+WebRTC IP-leak prevention is on by default (--webrtc-ip-handling-policy).`);
     process.exit(0);
   }
 
@@ -979,6 +1155,12 @@ WebGL, plugins, hardware) are spoofed via injected patches.`);
       }
       if (state && state.xvfbPid) {
         try { process.kill(state.xvfbPid, 'SIGKILL'); } catch {}
+      }
+      // Clean up the non-persistent user-data-dir (default location) so the
+      // next launch starts from a clean profile. Persistent user-data-dirs
+      // (set via STEALTH_USER_DATA_DIR) are preserved.
+      if (state && state.userDataDir === DEFAULT_USER_DATA_DIR) {
+        try { execSync(`rm -rf ${DEFAULT_USER_DATA_DIR}`, { stdio: 'ignore' }); } catch {}
       }
       clearState();
       console.log('Browser closed');

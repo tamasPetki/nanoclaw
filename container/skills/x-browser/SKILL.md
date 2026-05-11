@@ -73,7 +73,7 @@ gyakran rotálódik, a script mindig a friss értéket olvassa ki.
 ```bash
 # QueryID — ez a host által automatikusan frissített érték.
 # SOHA ne találj ki saját queryId-t — KIZÁRÓLAG az alábbit használd:
-QUERY_ID="6TGLS5L5r91gMb5anQ70_Q"
+QUERY_ID="us9jUxCKI9355JaG6q7sVw"
 LIST_ID="2026028408996823510"
 
 # URL-encode a variables és features paramétereket

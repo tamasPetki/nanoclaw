@@ -12,9 +12,8 @@
       }
     },
     "email-pietscarlet": {
-      "command": "uvx",
+      "command": "mcp-email-server",
       "args": [
-        "mcp-email-server@latest",
         "stdio"
       ],
       "env": {
@@ -33,14 +32,13 @@
       }
     },
     "email-lupaobol": {
-      "command": "uvx",
+      "command": "mcp-email-server",
       "args": [
-        "mcp-email-server@latest",
         "stdio"
       ],
       "env": {
         "MCP_EMAIL_SERVER_ACCOUNT_NAME": "lupaobol",
-        "MCP_EMAIL_SERVER_FULL_NAME": "\"Lupa Öböl Kft.\"",
+        "MCP_EMAIL_SERVER_FULL_NAME": "\"Lupa \u00d6b\u00f6l Kft.\"",
         "MCP_EMAIL_SERVER_EMAIL_ADDRESS": "hello@lupaobolstrand.hu",
         "MCP_EMAIL_SERVER_IMAP_HOST": "s3.dchosting.hu",
         "MCP_EMAIL_SERVER_IMAP_PORT": "993",
@@ -54,9 +52,8 @@
       }
     },
     "email-trinkenessen": {
-      "command": "uvx",
+      "command": "mcp-email-server",
       "args": [
-        "mcp-email-server@latest",
         "stdio"
       ],
       "env": {
@@ -141,6 +138,26 @@
       "hostPath": "/root/nanoclaw-v2/data/shared/google-oauth",
       "containerPath": "google-oauth",
       "readonly": false
+    },
+    {
+      "hostPath": "/root/nanoclaw-v2/data/v2-sessions/ag-worker",
+      "containerPath": "worker-sessions",
+      "readonly": true
+    },
+    {
+      "hostPath": "/root/data/gdrive-pietscarlet",
+      "containerPath": "pietscarlet-drive",
+      "readonly": true
+    },
+    {
+      "hostPath": "/root/data/gdrive-trinkenessen",
+      "containerPath": "trinkenessen-drive",
+      "readonly": true
+    },
+    {
+      "hostPath": "/root/data/gdrive-lupaobol",
+      "containerPath": "lupaobol-drive",
+      "readonly": true
     }
   ],
   "model": "opus",

@@ -53,7 +53,7 @@ Számold: `floor((now - state.reddit.created_at) / 86400)`. A `created_at` a `st
 
 4. **Subreddit pick.** Random 1 a `state.reddit.subs_target` listából. Az előző session subjától ELTÉRŐ legyen (`state.reddit.last_subs_visited` utolsó eleme tabu).
 
-5. **Discord korai indítás-jelzés.** **MOST küldd ki**, mielőtt a hosszú lurk-flow elindul. Egy mondat, Dani hangon: *"Reggeli warmup, ma r/restaurateur-en figyelek."* Ez biztosítja hogy ha a session később megakad (context-compact, ceiling-kill), Tomi legalább látja hogy elindult és melyik subot néztük.
+5. **Korai indítás-jelzés a hubnak.** **`[reflect:rezerver]` prefixszel** — a hub felismeri, magyarra fordítja (HU-ról HU-ra: minimal change), push-olja Tomi-Telegramjára real-time. **MOST küldd ki**, mielőtt a hosszú lurk-flow elindul. Egy mondat, Dani hangon. Példa: `[reflect:rezerver] step=5 | reggeli warmup, ma r/restaurateur-en figyelek`. Ez biztosítja hogy ha a session később megakad (context-compact, ceiling-kill), Tomi legalább látja hogy elindult és melyik subot néztük. (Részletek a `groups/worker/CLAUDE.local.md` "Reflektív riportok" szekciójában.)
 
 6. **Lurk-flow (5–10 perc, RANDOM cadence — ne timer-szerű):**
    - Open `r/<sub>` hot vagy new view (random 50/50).
@@ -69,13 +69,14 @@ Számold: `floor((now - state.reddit.created_at) / 86400)`. A `created_at` a `st
    - Ha történt save/upvote: `cumulative_saves` / `cumulative_upvotes` increment
    - **Ne nyúlj** a `phase`-hez automatikusan — fázis-váltás Tomi explicit kérése.
 
-8. **Discord záró reflektív riport.** **A cookie-dump ELŐTT** küldd ki, mert a cookie-dump nem kritikus a behavior-szempontjából, de a riport értékes Tominak. 1–2 mondat, Dani hangon, magyarul. Ne bullet-tábla. Mit néztél, mire kaptad fel a fejedet. PÉLDA: *"Reggel r/restaurateur-ön voltam 8 percig. Egy POS-rendszer-váltás threadnél megakadtam, sok minden cserélődik most a tulajok körében — Toast vs SpotOn vs Square. Save 0, csak figyelek."*
+8. **Záró reflektív riport a hubnak.** **`[reflect:rezerver]` prefixszel** — push real-time Tomi-Telegramra. **A cookie-dump ELŐTT** küldd ki, mert a cookie-dump nem kritikus a behavior-szempontjából, de a riport értékes Tominak. 1–3 mondat, Dani hangon, magyarul. Ne bullet-tábla. Tartalom-rács: (1) mit néztél (sub + idő), (2) mire kaptad fel a fejedet (egy konkrét takeaway), (3) opcionális Rezerver-ICP-szignál. Példa: `[reflect:rezerver] step=8 | r/restaurateur-ön voltam 8 percet. Egy POS-rendszer-váltás threadnél megakadtam, sok minden cserélődik most a tulajok körében — Toast vs SpotOn vs Square. Save 0, csak figyelek.`
 
 9. **Cookie-dump frissítés** (token_v2 lejárhat — best-effort, ha elhasal nem baj, holnapig elbírja):
    ```bash
    NO_PROXY=localhost,127.0.0.1 HTTP_PROXY="" HTTPS_PROXY="" \
-     node /tmp/cdp-cookies.js > /workspace/agent/.reddit-cookies-dani_horeca.json
+     cdp-cookies-dump > /workspace/agent/.reddit-cookies-dani_horeca.json
    ```
+   A `cdp-cookies-dump` a container-ben pre-installált bash wrapper (`/usr/local/bin/cdp-cookies-dump` → `/opt/scripts/cdp-cookies.js`), natív Node WebSocket-et használ — `chrome-remote-interface` npm-csomag NEM kell. Ha a parancs hiányzik (régi image), azonnal STOP + Tomi-ping (kell egy container rebuild). NE írj inline `/tmp/cdp-cookies.js`-t a régi `chrome-remote-interface`-szel — a worker container-ben az nincs telepítve.
 
 10. **Browser close:** `stealth-browse close`.
 

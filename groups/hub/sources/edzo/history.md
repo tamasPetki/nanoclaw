@@ -28,6 +28,16 @@
 ### 5. hét (márc. 15-21)
 <!-- Agent: töltsd ki a Withings adatok alapján -->
 
+### 12. hét (máj. 2-8) — Malta-vakációval zárul
+- Súly: hétfő 97.2 → szerda 96.4 (outlier?) → szerda este 96.7 → csüt-vas: nem mért (Malta utazás 05-07-től)
+- Heti átlag ~96.8 kg (durva becslés 3 mérésből), enyhe csökkenés vs. 11. hét 97.3-ról
+- Edzés: hétfő 25p bringa (Upper A helyett), csüt. Upper B (10p bike + kézis evezés + floor press + Arnold press) — visszaesés 5-6/hét tervhez képest
+- Lower A, Lower B kihagyva, Upper A bringával helyettesítve
+- Kalória: pénteki vakációs nap ~2700 kcal (lasagne + cézár + cappuccino × 2 + édességek), egyébként nem logolva (Foodvisor!)
+- Hideg fürdő: ismeretlen egész héten, Malta hotel valószínűleg kihagyva
+- Alvás: Szandra matraca egész héten, Tomi adatai vakok; Malta vasárnapig folytatódik
+- Konklúzió: 4. hét linkeskedés-szerű mintázat, csak a súly mozgott enyhén lefelé. Vakáció után reset szükséges.
+
 ### 11. hét (ápr. 25 - máj 1) — tracking szétesik
 - Súly: csak 2 mérés (hétfő 97.3, máj 2 reggel 97.2), 5 napos lyuk
 - Edzés: zéró visszajelzés egész héten (Upper A, Lower A, kardió, Upper B, Lower B)
@@ -65,7 +75,12 @@
 2026-05-04 hétfő — súly 97.2 kg reggel, edzés: 25p bringa délután (Upper A helyett, Tomi szóban közölte), Withings activity: 0 (bringa nem szinkronizál)
 2026-05-05 reggel — súly még nem mért, alvás (Tomi vagy Szandra?): AHI 4.8-4.9 két napja konzisztensen, mai fókusz: Lower A (+ Upper A pótlás vagy nem)
 2026-05-05 napközben mérve: 96.4 kg (!)
-2026-05-06 reggel — súly 96.7 kg (két egymást követő mérés 97 alatt), AHI 4.0 (három nap egymás után 4-5 között stabil), deep sleep 3h42m (kiemelkedő), mai fókusz: szerda kardió
+2026-05-06 reggel — súly 96.7 kg (két egymást követő mérés 97 alatt), alvásadat NEM Tomi (Szandra matraca: AHI 4.0, deep 3h42m — Tomi adatai vakok), mai fókusz: szerda kardió | este — edzés: ismeretlen (admin-blokk 14:30-17:45 + Pollit teniszre 18-19), kcal: nem logolva (Foodvisor!), hideg fürdő: ismeretlen | Tomi 21:02 megerősítette: a matrac Szandráé, az AHI/alvás-értékek NEM rá vonatkoznak
+2026-05-07 reggel — súly még nem mért (legutóbbi 05-06: 96.7 kg), alvásadat NEM Tomi (Szandra matraca: AHI 4.0, deep 3h42m, REM 1h44m, score 68), mai fókusz: Upper B húzó edzés (csütörtök) — 10p bike + kézis evezés + floor press + Arnold press | este — Malta-repülő 18:15 (WIZZ), edzés/kcal/hideg fürdő: utazási nap, valószínűleg kihagyva
+2026-05-08 reggel — súly nem mért (Tomi Máltán nyaral, csak vasárnap reggel jön haza), alvásadat NEM Tomi (Szandra matraca Pesten: total 9h28m, REM 3h48m, deep 2h58m, AHI 0.0, score 66), activity 0 (telefon nem szinkronizál Maltán), mai fókusz: Lower B csípődominás — DE Maltán nyaralás, edzés átteendő hétfőre. Helyette: 10-15k lépés a hop-on/Dingli/Popeye programmal organikusan meglesz | este — edzés: 0 (vakáció, organikus lépések), kcal: ~2700 (rántotta + almatorta + Snickers + Cézár + 2 cappuccino + gumicukor + fél smoothie + lasagne, vakációs nap), hideg fürdő: ismeretlen (hotel, valószínűleg kihagyva)
+2026-05-09 szombat — Malta utolsó teljes nap (Marsaxlokk halpiac, Blue Grotto, Birgu, Tartarun vacsora) | este — edzés: 0 (vakáció, organikus lépések ~10-15k), kcal: nem logolva (Foodvisor!), hideg fürdő: kihagyva (hotel)
+2026-05-10 vasárnap — utazási nap, FR2203 12:35 Malta→Bp, hazaérkezés 17:26 körül | este — edzés: 0 (utazónap), kcal: nem logolva (Foodvisor!), hideg fürdő: ismeretlen
+2026-05-11 reggel — súly még nem mért (legutóbbi 05-06: 96.7 kg, vakáció alatt nem mért), AHI 16.2 (!! visszaugrott — saját matrac + nincs hideg fürdő), score 90/100, total 7h52m, REM 1h39m, deep 1h53m, snoring 1h11m / 8 epizód, mai fókusz: Upper A nyomó (vakáció utáni reset)
 
 ## Fontos megfigyelések
 

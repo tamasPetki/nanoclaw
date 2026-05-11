@@ -4,15 +4,27 @@
  * via CDP Network.getAllCookies. Writes JSON array to stdout.
  */
 const fs = require('fs'), http = require('http');
+// Bypass any HTTP proxy (OneCLI agent-vault gateway). Node 22's
+// EnvHttpProxyAgent honors HTTP_PROXY/HTTPS_PROXY for localhost too — that
+// would route the CDP call through the gateway and fail with "Empty reply".
+process.env.NO_PROXY = (process.env.NO_PROXY ? process.env.NO_PROXY + ',' : '') + 'localhost,127.0.0.1,::1';
+process.env.no_proxy = process.env.NO_PROXY;
 const state = JSON.parse(fs.readFileSync('/tmp/stealth-browser-state.json', 'utf8'));
-function getJSON(u) {
-  return new Promise((res, rej) => http.get(u, r => {
-    let d = ''; r.on('data', c => d += c); r.on('end', () => res(JSON.parse(d)));
-  }).on('error', rej));
+function getJSON(port, path_) {
+  return new Promise((res, rej) => {
+    const req = http.get({ hostname: '127.0.0.1', port, path: path_, agent: false }, r => {
+      let d = ''; r.on('data', c => d += c); r.on('end', () => res(JSON.parse(d)));
+    });
+    req.on('error', rej);
+  });
 }
 (async () => {
-  const port = process.env.CDP_PORT || '9333';
-  const tabs = await getJSON(`http://127.0.0.1:${port}/json`);
+  // Port resolution priority: explicit env var → state file (where stealth-browse
+  // records the actual ephemeral port Chrome picked) → legacy fallback.
+  // The state file is the canonical source post Chrome 136+ migration to
+  // --remote-debugging-port=0 + DevToolsActivePort.
+  const port = process.env.CDP_PORT || state.cdpPort || '9333';
+  const tabs = await getJSON(port, '/json');
   const tab = tabs.find(t => t.id === state.pageId);
   if (!tab) { console.error('page not found'); process.exit(1); }
   const ws = new WebSocket(tab.webSocketDebuggerUrl);

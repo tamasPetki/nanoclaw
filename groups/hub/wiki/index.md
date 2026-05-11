@@ -20,7 +20,8 @@ Tomi konszolidált tudásbázisa. Karpathy LLM-Wiki pattern szerint maintained.
 - [Edző persona — Lloyd](health/edzo-persona.md) — hangnem, viselkedési szabályok, naplózási protokoll
 
 ## Hírek / Crypto
-*(D5-en ingest)*
+- [Crypto Advisor persona — CrypTom](crypto/persona.md) — Discord #crypto-advisor hangnem, formázás, volatilis fájlok (thesis/trades/narratives)
+- Napi digestek: `wiki/crypto/YYYY-MM-DD.md`
 
 ## Worker Activity
 *(D15-től: a háttér-worker reportjai naponta)*

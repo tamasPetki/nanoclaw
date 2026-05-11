@@ -36,6 +36,7 @@ const COMMANDS: Array<{ command: string; description: string }> = [
   { command: 'naptar',    description: 'Mai + holnapi naptár-események' },
   { command: 'wiki',      description: 'Wiki keresés — argumentum: keresett téma' },
   { command: 'szia',      description: 'Hub-bemutatkozás / kezdés' },
+  { command: 'worker',    description: 'Worker állapot / 24h log / üzenet' },
   { command: 'help',      description: 'Súgó — elérhető parancsok listája' },
 ];
 
