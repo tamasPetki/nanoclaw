@@ -125,7 +125,11 @@ describe('createChatSdkBridge.deliver — display cards (send_card)', () => {
     expect(msg.card).toBeDefined();
   });
 
-  it('drops actions without url (send_card is fire-and-forget; non-URL buttons would have nowhere to land)', async () => {
+  it('renders label-only actions as nccard callback buttons (downstream extension)', async () => {
+    // Downstream override: the bridge installs a chat.onAction handler that
+    // routes `nccard:*` callbacks back into the session as synthetic inbound
+    // text, so non-URL action buttons DO have somewhere to land. Upstream
+    // dropped these as fire-and-forget; we keep them.
     const { calls, postMessage } = makePostCapture();
     const bridge = createChatSdkBridge({
       adapter: stubAdapter({ postMessage }),
@@ -143,13 +147,22 @@ describe('createChatSdkBridge.deliver — display cards (send_card)', () => {
       },
     });
     expect(calls).toHaveLength(1);
-    // Cast through the public Card shape to read the children we set
-    const msg = calls[0].message as { card?: { children?: Array<{ type?: string }> } };
-    const childTypes = (msg.card?.children ?? []).map((c) => c.type);
-    expect(childTypes).not.toContain('actions');
+    const msg = calls[0].message as {
+      card?: { children?: Array<{ type?: string; children?: Array<{ type?: string; id?: string }> }> };
+    };
+    const actionsRow = msg.card?.children?.find((c) => c.type === 'actions');
+    expect(actionsRow).toBeDefined();
+    const buttons = actionsRow?.children ?? [];
+    expect(buttons).toHaveLength(2);
+    expect(buttons.every((b) => b.type === 'button')).toBe(true);
+    expect(buttons.every((b) => typeof b.id === 'string' && b.id.startsWith('nccard:'))).toBe(true);
   });
 
-  it('renders url actions as link buttons inside an Actions row', async () => {
+  it('renders url + non-url actions both as nccard callback buttons (downstream extension)', async () => {
+    // Downstream override: every action becomes an nccard button; the URL is
+    // attached as an extra link, but the button stays a callback button. The
+    // upstream "drop non-URL" filter was removed for the hub agent's
+    // multi-button display cards.
     const { calls, postMessage } = makePostCapture();
     const bridge = createChatSdkBridge({
       adapter: stubAdapter({ postMessage }),
@@ -166,14 +179,15 @@ describe('createChatSdkBridge.deliver — display cards (send_card)', () => {
       },
     });
     const msg = calls[0].message as {
-      card?: { children?: Array<{ type?: string; children?: Array<{ type?: string; url?: string }> }> };
+      card?: { children?: Array<{ type?: string; children?: Array<{ type?: string; label?: string }> }> };
     };
     const actionsRow = msg.card?.children?.find((c) => c.type === 'actions');
     expect(actionsRow).toBeDefined();
     const buttons = actionsRow?.children ?? [];
-    expect(buttons).toHaveLength(1);
-    expect(buttons[0].type).toBe('link-button');
-    expect(buttons[0].url).toBe('https://example.com');
+    expect(buttons).toHaveLength(2);
+    expect(buttons.every((b) => b.type === 'button')).toBe(true);
+    expect(buttons[0].label).toBe('Open');
+    expect(buttons[1].label).toBe('No-link');
   });
 
   it('skips delivery when the card has neither title nor body content', async () => {
