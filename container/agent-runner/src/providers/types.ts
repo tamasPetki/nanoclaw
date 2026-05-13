@@ -92,12 +92,10 @@ export type ProviderEvent =
   | { type: 'activity' }
   /**
    * The provider's underlying SDK auto-compacted the conversation context.
-   * The poll-loop reacts by injecting a destination reminder back into
-   * the live query so the agent doesn't drop `<message to="…">` wrapping
-   * after compaction. Downstream additionally ends the stream so the outer
-   * loop opens a fresh query from the persisted continuation — works around
-   * an SDK state where push()-ed follow-ups after compact silently produce
-   * no further events (heartbeat freezes, container only recovers via
-   * stuck-kill). See nanocoai/nanoclaw#2325.
+   * Downstream-only event (upstream reverted PR #2325). The poll-loop ends
+   * the stream on this event so the outer loop opens a fresh query from
+   * the persisted continuation — works around an SDK state where push()-ed
+   * follow-ups after compact silently produce no further events (heartbeat
+   * freezes, container only recovers via stuck-kill).
    */
   | { type: 'compacted'; text: string };
