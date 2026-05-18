@@ -16,8 +16,8 @@ Vendéglátóipari cég, **két alegységgel**:
 
 ## Cégadatok
 - Email: hello@trinkenessen.eu
-- Drive: `/workspace/extra/trinkenessen-drive/` (read-only, napi 3:00 CET sync)
-  Főkategóriák: `01_Cégadatok`, `02_Pénzügyek`, `03_Szerződések`, `04_Üzemeltetés`, `05_Grafika`, `06_Fotók`. Fájlkeresésnél **először `_INDEX.md`** a Drive gyökerében (~1000 fájl).
+- Drive: MCP-n keresztül (`mcp__google-drive__search_files` + `read_file_content`/`readSpreadsheet`). Lokál sync letiltva 2026-05-18 — Tomi ritkán használja.
+  Főkategóriák: `01_Cégadatok`, `02_Pénzügyek`, `03_Szerződések`, `04_Üzemeltetés`, `05_Grafika`, `06_Fotók`. Fájlkeresésnél **először `_INDEX.md`** a Drive gyökerében (`mcp__google-drive__search_files name="_INDEX.md"` → `read_file_content`, ~1000 fájl).
 - Részletes cégadatok: `/workspace/global/references/cegadatok.md`
 
 ## Email kezelés (kötelező workflow)

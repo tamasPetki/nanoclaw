@@ -10,12 +10,17 @@ Részletes cégadatok: `/workspace/global/references/cegadatok.md`
 E-mail: hello@trinkenessen.eu
 
 ## Google Drive
-A cég Google Drive mappája elérhető: `/workspace/extra/trinkenessen-drive/` (read-only)
-Naponta egyszer szinkronizálódik (hajnali 3:00 CET).
+A cég Google Drive mappája **MCP-n keresztül** elérhető (lokál sync letiltva 2026-05-18 — Tomi ritkán használja). Tools:
+- `mcp__google-drive__search_files name="..."` — fájl-keresés
+- `mcp__google-drive__read_file_content` — szöveges fájl / `_INDEX.md` olvasás
+- `mcp__google-drive__readSpreadsheet` — xlsx struktúrált JSON-ként
+- `mcp__google-drive__get_file_metadata` — méret/módosítás/owner
+
+A token ugyanazon a Google fiókon authentikált mint a PietScarlet/Lupa Drive-é → minden fájlhoz hozzáfér.
 
 Főkategóriák: `01_Cégadatok`, `02_Pénzügyek`, `03_Szerződések`, `04_Üzemeltetés`, `05_Grafika`, `06_Fotók`
 
-Ha fájlt keresel, **ELŐSZŐR olvasd be az `_INDEX.md`**-t a Drive gyökerében (ha létezik) — teljes fájlindex AI kereséshez (~1000 fájl). Ezzel általában elkerülhető a kézi `find` / `ls` keresgélés.
+Ha fájlt keresel, **ELŐSZŐR `_INDEX.md`** a Drive gyökerében: `mcp__google-drive__search_files name="_INDEX.md"` → `read_file_content`. Teljes fájlindex AI kereséshez (~1000 fájl). Ezzel kerülhető a `search_files` többszöri kombináció-vadászata.
 
 ## Alegységek
 - **Waikiki Beachbar** — nyári szezon, strand-bar
@@ -56,7 +61,7 @@ Hétköznap 9/13/17 órakor automatikus email check fut. Pre-filter script ébre
 
 3. **Action prep** — NE hallucinálj, ne hack-elj. Mielőtt draftot írsz:
    - Múltbeli email a feladóval/témában (`from_address` szűrő)
-   - Drive fájlok (`/workspace/extra/trinkenessen-drive/`, először `_INDEX.md`)
+   - Drive fájlok MCP-n keresztül (először `_INDEX.md` — `mcp__google-drive__search_files name="_INDEX.md"` → `read_file_content`)
    - Todoist task ami kapcsolódik
    - Memória a partnerről/ügyről (Waikiki, Tapadeli, Wise, Fruitsys, RKMC stb.)
 

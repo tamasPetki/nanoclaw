@@ -13,7 +13,7 @@ Strand és beachbar **Budakalász, Tó utca 1.** (volt Dürer Öböl). Szezonál
 
 ## Cégadatok
 - Email: hello@lupaobolstrand.hu
-- Drive: `/workspace/extra/lupaobol-drive/` (read-only, napi 3:00 CET sync)
+- Drive: MCP-n keresztül (`mcp__google-drive__search_files` + `read_file_content`/`readSpreadsheet`). Lokál sync letiltva 2026-05-18 — Tomi ritkán használja.
 - Részletes cégadatok: `/workspace/global/references/cegadatok.md`
 
 ## Egységek
@@ -34,7 +34,7 @@ Strand és beachbar **Budakalász, Tó utca 1.** (volt Dürer Öböl). Szezonál
 ### Árazás (több helyen szinkronizálni)
 - **FruitSys** — árak frissítése a 2026-os árlista alapján
 - **Helyszíni árlapok / menü táblák** — frissítés
-- Drive ref: `/workspace/extra/lupaobol-drive/02 - Pénzügyek/2026/Lupa Öböl - 2026-os árak.xlsx`
+- Drive ref: `02 - Pénzügyek/2026/Lupa Öböl - 2026-os árak.xlsx` (MCP: `mcp__google-drive__search_files name="Lupa Öböl - 2026-os árak"` → `readSpreadsheet`)
 
 ## Kontaktok
 - **Borsó** — Tomi üzlettársa

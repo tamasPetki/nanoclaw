@@ -199,7 +199,9 @@ Tomi minden aktív projekthez (Görgey 32, Csobánka, Törökhegy, Rózsa u., Lu
 ### Workflow ütemterv-frissítésnél
 
 1. **Először lokátor**: a `wiki/projects/<projekt>/summary.md`-ben **mindig** legyen rögzítve az ütemterv-fájl pontos elérési útja és Google Drive file_id-ja (formátum: `**Ütemterv**: `<path>` (file_id: `<id>`)`). Ha hiányzik → kérdezd Tomi-t a path-ról + Drive file_id-ról, és **mielőtt bármit írnál**, jegyezd a wiki/projects/<projekt>/summary.md-be a Drive-pointer-t.
-2. **Olvasás**: a rclone-mountolt drive read-only-ban elérhető — `/workspace/extra/pietscarlet-drive/`, `/workspace/extra/trinkenessen-drive/`, `/workspace/extra/lupaobol-drive/`. Itt **megtekintheted** az xlsx tartalmát (`pdf-reader` xlsx-re NEM működik; használj `mcp__google-drive__readSpreadsheet` a file_id-val a Drive API-n át).
+2. **Olvasás**: a Drive-tartalmat kétféleképp éred el:
+   - **PietScarlet**: lokál mount read-only-ban — `/workspace/extra/pietscarlet-drive/`. Itt **megtekintheted** az xlsx tartalmát (`pdf-reader` xlsx-re NEM működik; használj `mcp__google-drive__readSpreadsheet` a file_id-val a Drive API-n át).
+   - **Trinken Essen + Lupa Öböl**: lokál sync letiltva 2026-05-18-tól (ritkán használjuk). MCP-only: `mcp__google-drive__search_files name="..."` → file_id-val `mcp__google-drive__read_file_content` vagy `mcp__google-drive__readSpreadsheet`. Ugyanaz a Google fiók birtokolja mindhárom cég Drive-ját, tehát a token mindenhez hozzáfér.
 3. **Írás**: a meglévő fájl-id-vel `mcp__google-drive__updateSpreadsheet` vagy ekvivalens "update existing" tool. NE `createDocument`, NE `uploadFile`, NE `createGoogleDoc`. A meglévő fájl frissül, NEM új jön létre.
 4. **Megerősítés**: a sikeres update után a returnt ellenőrizd (kell a frissített file_id + revisionId). Ha nem stimmel az eredeti file_id-val → STOP, hibajelzés Tomi-nak.
 

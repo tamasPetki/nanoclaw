@@ -10,8 +10,13 @@ Részletes cégadatok: `/workspace/global/references/cegadatok.md`
 E-mail: hello@lupaobolstrand.hu
 
 ## Google Drive
-A cég Google Drive mappája elérhető: `/workspace/extra/lupaobol-drive/` (read-only)
-Naponta egyszer szinkronizálódik (hajnali 3:00 CET).
+A cég Google Drive mappája **MCP-n keresztül** elérhető (lokál sync letiltva 2026-05-18 — Tomi ritkán használja). Tools:
+- `mcp__google-drive__search_files name="..."` — fájl-keresés
+- `mcp__google-drive__read_file_content` — szöveges fájl olvasás
+- `mcp__google-drive__readSpreadsheet` — xlsx tartalom struktúrált JSON-ként
+- `mcp__google-drive__get_file_metadata` — méret/módosítás/owner
+
+A token ugyanazon a Google fiókon authentikált mint a PietScarlet/Trinken Drive-é → minden fájlhoz hozzáfér.
 
 ## Aktív ügyek / nyitott teendők
 Élő nyilvántartás: `/workspace/agent/projekt-allapot.md`

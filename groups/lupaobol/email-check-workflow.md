@@ -80,7 +80,7 @@ Saját UID state-et tárolok itt: `/workspace/agent/lupaobol-last-uid.txt`
    - `egyéb` → edge case, jelzéssel + kérdéssel Tomihoz
 3. **Action prep** — kontextus forrásai (HALLUCINÁCIÓ TILOS):
    - Múltbeli email (ugyanattól a feladótól)
-   - Drive: `/workspace/extra/lupaobol-drive/` (2026-os árlista, étlap kalkuláció, szerződések)
+   - Drive: MCP-n keresztül `mcp__google-drive__search_files` + `read_file_content`/`readSpreadsheet` (2026-os árlista, étlap kalkuláció, szerződések — lokál sync letiltva 2026-05-18)
    - Todoist (mcp__todoist__*)
    - Saját memória (CLAUDE.local.md, jegyzetek)
    - Hiányzó kontextusnál → kérdezek, nem találok ki

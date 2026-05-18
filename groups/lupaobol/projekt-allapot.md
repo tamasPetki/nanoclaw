@@ -18,7 +18,7 @@
 - **FruitSys** — árak frissítése a 2026-os árlista alapján
 - **Kiírások** (helyszíni árlapok / menü táblák) — frissítés
 - Forrás: Tomi 2026-05-04
-- Drive referencia: `/workspace/extra/lupaobol-drive/02 - Pénzügyek/2026/Lupa Öböl - 2026-os árak.xlsx`
+- Drive referencia: `02 - Pénzügyek/2026/Lupa Öböl - 2026-os árak.xlsx` (MCP-n: `mcp__google-drive__search_files name="Lupa Öböl - 2026-os árak"` → file_id-val `readSpreadsheet`)
 
 ## Kontaktok (rögzítendő)
 - **Borsó** — Tomi üzlettársa
