@@ -28,6 +28,8 @@ USER root
 # python3-venv/pip: Python-based MCP servers (todoist, withings)
 # jq: skill scripting
 # poppler-utils: pdftotext (used by pdf-reader skill)
+# fonts-dejavu: DejaVu Sans for Unicode-safe PDF fills (Hungarian ő/ű
+#   silently break with default Helvetica — see pdf-filler SKILL.md Step E).
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     apt-get update && apt-get install -y --no-install-recommends \
@@ -39,7 +41,32 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
         python3-pip \
         jq \
         poppler-utils \
+        fonts-dejavu \
+        libreoffice-writer \
+        pandoc \
+        tesseract-ocr \
+        tesseract-ocr-hun \
+        tesseract-ocr-eng \
+        ffmpeg \
+        p7zip-full \
+        unrar-free \
+        yq \
+        httpie \
+        default-jre-headless \
     && rm -rf /var/lib/apt/lists/*
+
+# ---- mnemon — persistent agent memory ---------------------------------------
+# Graph-based memory (temporal/entity/causal/semantic). `mnemon setup` in
+# entrypoint.sh registers Claude Code hooks per session-start. Data persists
+# in MNEMON_DATA_DIR which sits inside the per-agent-group `.claude-shared`
+# host mount (already wired at /home/node/.claude).
+ARG MNEMON_VERSION=0.1.3
+RUN ARCH=$(dpkg --print-architecture) && \
+    curl -fsSL "https://github.com/mnemon-dev/mnemon/releases/download/v${MNEMON_VERSION}/mnemon_${MNEMON_VERSION}_linux_${ARCH}.tar.gz" \
+    | tar -xz -C /usr/local/bin mnemon && \
+    chmod +x /usr/local/bin/mnemon
+
+ENV MNEMON_DATA_DIR=/home/node/.claude/mnemon
 
 # ---- uv + Python venv -------------------------------------------------------
 # uv/uvx for mcp-email-server and similar publicly-installed Python MCPs
@@ -52,8 +79,30 @@ RUN curl -LsSf https://astral.sh/uv/install.sh | env UV_INSTALL_DIR=/usr/local/b
 # - mcp-email-server: pre-installed (was uvx, but uvx first-call is racy in
 #   container init — caused intermittent "MCP disconnected" aborts during
 #   spawn). Pre-installing eliminates the spawn-time PyPI fetch+resolve.
+# - openpyxl: hub agent project-tracker workflow (Görgey32 ütemterv xlsx
+#   read/write via Drive API + openpyxl). Without it the hub falls back to
+#   creating new docs (the 2026-05-11 incident) or pip-install-on-spawn that
+#   fails behind the OneCLI MITM proxy (no Python CA-cert trust).
+# - pymupdf (fitz): PDF rendering + form extraction + Unicode-safe overlay
+#   (pdf-filler skill Step A/B/E/F). Without it the hub falls back to
+#   `pip install pymupdf` mid-task, which hits the same MITM-proxy CA-trust
+#   problem as openpyxl did. Preinstalling closes the 2026-05-14 PDF-fill
+#   incident (wrong-coordinate overlay because skill workflow was skipped).
+# - pdfplumber: alternative PDF text extraction with table-aware parsing
+#   (complements PyMuPDF dict-mode for complex layouts).
+# - Pillow: image manipulation (used by pdf-filler render-and-verify loop).
+# - python-docx: .docx field manipulation (open source Document, replace
+#   placeholder cells with values, layout preserved). Combined with the
+#   libreoffice-writer apt package above, this closes the .doc/.docx
+#   fill loop — soffice converts .doc → .docx, python-docx edits in place.
+# - olefile: OLE compound binary inspection (raw .doc structure when needed).
 RUN python3 -m venv /opt/pyenv && \
-    /opt/pyenv/bin/pip install --no-cache-dir telethon youtube-transcript-api requests yt-dlp mcp-email-server
+    /opt/pyenv/bin/pip install --no-cache-dir \
+        telethon youtube-transcript-api requests yt-dlp mcp-email-server \
+        openpyxl pymupdf pdfplumber Pillow python-docx olefile \
+        python-pptx mammoth xlrd \
+        pytesseract opencv-python reportlab beautifulsoup4 \
+        pillow-heif tabula-py csvkit
 ENV PATH="/opt/pyenv/bin:$PATH"
 
 # ---- Utility scripts --------------------------------------------------------
@@ -97,6 +146,16 @@ RUN cd /opt/mcp-servers/withings && \
 
 # Precache uvx mcp-email-server — first-call download avoided at runtime.
 RUN uvx mcp-email-server@latest --help 2>/dev/null || true
+
+# ---- Pre-cache npx MCPs as the node user so cold-start race goes away ------
+# Each spawn would otherwise pull these from npm on first invocation. With the
+# cache primed at /home/node/.npm/_npx, container start is instant and the
+# SDK doesn't see "MCP server not responding" during the initial poll.
+USER node
+RUN npx -y @cocal/google-calendar-mcp --help >/dev/null 2>&1 || true; \
+    npx -y @piotr-agier/google-drive-mcp --help >/dev/null 2>&1 || true; \
+    npx -y @kimtaeyoon83/mcp-server-youtube-transcript --help >/dev/null 2>&1 || true
+USER root
 
 # ---- Skill binaries (PATH-installed) ----------------------------------------
 COPY skills/stealth-browser/stealth-browse /usr/local/bin/stealth-browse
