@@ -152,6 +152,83 @@ function parseTranscript(content: string): ParsedMessage[] {
   return messages;
 }
 
+/**
+ * Auto-extract project-mention sentences from a transcript so they survive
+ * compaction. Triggered as part of the PreCompact hook — every compact runs
+ * an extra pass that appends any new project-related Tomi-message to
+ * wiki/log.md. Idempotent via timestamp-keyed section headers.
+ *
+ * Background: 2026-05-13 the hub lost an entire morning's worth of project
+ * updates (DMRV/Bérczy/Tóth Robi/Lupa/Espár/Törökhegy) because the LLM did
+ * not write them to wiki/log.md before context compaction. This hook is the
+ * automatic safety net so a similar amnesia incident cannot recur silently.
+ */
+const WIKI_EXTRACT_PROJECTS = [
+  'görgey', 'gorgey', 'csobánka', 'csobanka', 'törökhegy', 'torokhegy',
+  'rózsa', 'rozsa', 'lupa', 'trinken', 'pietscarlet', 'piet scarlet',
+  'bulltrapp', 'bull trapp', 'rezerver', 'pilates',
+];
+
+const WIKI_EXTRACT_ENTITIES = [
+  'bérczy', 'berczy', 'dmrv', 'tóth robi', 'toth robi', 'tóth róbert', 'toth robert',
+  'milán', 'milan', 'fehér istván', 'feher istvan', 'fehér lászló', 'feher laszlo',
+  'erika', 'kövesdi', 'kovesdi', 'espár', 'espar', 'borsó', 'borso',
+];
+
+const WIKI_EXTRACT_ACTIONS = [
+  'hívtam', 'hivtam', 'hívott', 'hivott', 'visszahívott', 'visszahivott', 'felhívom',
+  'ajánlat', 'ajanlat', 'megegyez', 'döntés', 'dontes', 'megrendelés', 'megrendeles',
+  'beszéltem', 'beszeltem', 'találkoz', 'talalkoz', 'elfogad', 'elutasít', 'elutasit',
+  'vakolás', 'vakolas', 'szigetelés', 'szigeteles', 'tervtanács', 'tervtanacs', 'meeting',
+];
+
+function extractProjectMentions(messages: ParsedMessage[]): string[] {
+  const found: string[] = [];
+  for (const msg of messages) {
+    if (msg.role !== 'user') continue; // only Tomi-messages
+    const lower = msg.content.toLowerCase();
+    const hasProject = WIKI_EXTRACT_PROJECTS.some((p) => lower.includes(p));
+    const hasEntity = WIKI_EXTRACT_ENTITIES.some((e) => lower.includes(e));
+    const hasAction = WIKI_EXTRACT_ACTIONS.some((a) => lower.includes(a));
+    // Trigger if a project name appears OR an (entity + action) pair appears.
+    // Single bare entity or action is too noisy.
+    if (hasProject || (hasEntity && hasAction)) {
+      // Trim message-XML wrappers if present (the SDK transcript stores raw text).
+      let clean = msg.content
+        .replace(/<message[^>]*>/g, '')
+        .replace(/<\/message>/g, '')
+        .replace(/<context[^>]*\/?>/g, '')
+        .trim();
+      if (clean.length > 400) clean = clean.slice(0, 400) + '…';
+      // Skip if empty after cleanup
+      if (clean.length > 5) found.push(clean.replace(/\s+/g, ' '));
+    }
+  }
+  return found;
+}
+
+function appendProjectMentionsToWikiLog(mentions: string[]): void {
+  if (mentions.length === 0) return;
+  try {
+    const wikiLogPath = '/workspace/agent/wiki/log.md';
+    if (!fs.existsSync(wikiLogPath)) return; // not a wiki-enabled group (worker etc.)
+    const ts = new Date().toISOString().slice(0, 16).replace('T', ' ');
+    const headerLine = `## [${ts}] pre-compact-extract`;
+    const existing = fs.readFileSync(wikiLogPath, 'utf-8');
+    // Idempotency: minute-granular header — if a compact already wrote one this minute, skip.
+    if (existing.includes(headerLine)) {
+      log(`[pre-compact-wiki] skip — section already exists for ${ts}`);
+      return;
+    }
+    const block = `\n${headerLine} — ${mentions.length} project-mention(s) parsed before context compaction\n` +
+      mentions.map((m) => `- ${m}`).join('\n') + '\n';
+    fs.appendFileSync(wikiLogPath, block);
+    log(`[pre-compact-wiki] ${mentions.length} project-mention(s) appended to wiki/log.md`);
+  } catch (err) {
+    log(`[pre-compact-wiki] append failed: ${err instanceof Error ? err.message : String(err)}`);
+  }
+}
+
 function formatTranscriptMarkdown(messages: ParsedMessage[], title?: string | null, assistantName?: string): string {
   const now = new Date();
   const dateStr = now.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true });
@@ -541,6 +618,48 @@ const APPROVAL_HINT = [
   'NE küldj előtte / utána szöveges magyarázatot a draft mellé. EGY tool-hívás.',
 ].join('\n');
 
+/**
+ * Wiki-discipline reminder: project-mention triggers in the user's prompt
+ * cause a one-time per-turn injection telling the agent to write the new
+ * info to wiki/log.md and the relevant project page BEFORE responding.
+ *
+ * Conditional (zero-cost on no-match turns) — uses the same trigger lists
+ * as the PreCompact auto-extract for consistency. The 2026-05-13 incident
+ * showed CLAUDE.local.md disciplines are insufficient on their own; a hard
+ * per-turn nudge is needed for project-update messages.
+ */
+const WIKI_REMINDER = [
+  '📝 WIKI DISCIPLINE — projekt-említést érzékelek Tomi üzenetében.',
+  '',
+  'A Telegram-válasz ELŐTT (még ebben a turn-ben):',
+  '1. `Read wiki/projects/<projekt>/summary.md` vagy `wiki/entities/<személy>.md` az érintett oldal',
+  '2. `Edit` — appendelj rövid bekezdést a friss info-val (dátum, takeaway, ki/mi/mikor)',
+  '3. `wiki/log.md` 1-soros bullet append: `## [YYYY-MM-DD HH:MM] <projekt> | <1 mondat>`',
+  '4. CSAK EZUTÁN válaszolj Tominak (és megemlítheted: "beírtam: wiki/...")',
+  '',
+  'Ha most nem írod le, a context-compactnál ELVESZIK. Tegnap (2026-05-13) egy egész napi project-update-burst veszett el így — ne ismétlődjön.',
+  'Apró infók is fontosak (egy "rendben" / "csütörtök" / "X.Y M Ft" — minden konkrét tény beleírandó).',
+].join('\n');
+
+function createWikiReminderHook(): HookCallback {
+  return async (input) => {
+    if (input.hook_event_name !== 'UserPromptSubmit') return {};
+    const prompt = (input.prompt ?? '').toLowerCase();
+    if (!prompt || prompt.length < 8) return {};
+    const hasProject = WIKI_EXTRACT_PROJECTS.some((p) => prompt.includes(p));
+    const hasEntity = WIKI_EXTRACT_ENTITIES.some((e) => prompt.includes(e));
+    const hasAction = WIKI_EXTRACT_ACTIONS.some((a) => prompt.includes(a));
+    if (!hasProject && !(hasEntity && hasAction)) return {};
+    log(`[wiki-discipline] project mention in prompt → injecting wiki-update reminder`);
+    return {
+      hookSpecificOutput: {
+        hookEventName: 'UserPromptSubmit',
+        additionalContext: WIKI_REMINDER,
+      },
+    } as unknown as ReturnType<HookCallback>;
+  };
+}
+
 function createApprovalHintHook(): HookCallback {
   return async (input) => {
     if (input.hook_event_name !== 'UserPromptSubmit') return {};
@@ -632,6 +751,16 @@ function createPreCompactHook(assistantName?: string): HookCallback {
       const messages = parseTranscript(content);
       if (messages.length === 0) return {};
 
+      // Auto-wiki-extract: scan user messages for project mentions and
+      // append them to wiki/log.md before the compact summary erases the
+      // detail. No-ops on non-wiki groups (file missing → return).
+      try {
+        const mentions = extractProjectMentions(messages);
+        appendProjectMentionsToWikiLog(mentions);
+      } catch (err) {
+        log(`[pre-compact-wiki] extract error: ${err instanceof Error ? err.message : String(err)}`);
+      }
+
       // Try to get summary from sessions index
       let summary: string | undefined;
       const indexPath = path.join(path.dirname(transcriptPath), 'sessions-index.json');
@@ -673,6 +802,11 @@ function createPreCompactHook(assistantName?: string): HookCallback {
         'Plain text WITHOUT a wrapper goes ONLY to your user channel — the named agent receives nothing.',
         'Before claiming "I told X" / "I delegated to X", verify the wrapper/tool call is in your output.',
         'Re-read the "Sending messages" section of your system prompt for the full destination list.',
+        '',
+        '📝 WIKI DISCIPLINE (post-compact recovery):',
+        'If wiki/log.md exists in your workspace, check it for a recent `[YYYY-MM-DD HH:MM] pre-compact-extract` section — that contains the project-mentions your context just lost.',
+        'If any of those bullets are NOT yet integrated into the matching `wiki/projects/<name>/summary.md` or `wiki/entities/<person>.md`, integrate them NOW (Edit + 1-line wiki/log.md bullet) before responding to the user.',
+        'Future-you depends on it: the next compaction WILL drop the chat-context again.',
       ].join('\n'),
     };
   };
@@ -742,6 +876,7 @@ export class ClaudeProvider implements AgentProvider {
     const quickLearningHintHook = createQuickLearningHintHook();
     const slashCommandHintHook = createSlashCommandHintHook();
     const formatReminderHook = createFormatReminderHook();
+    const wikiReminderHook = createWikiReminderHook();
 
     const sdkResult = sdkQuery({
       prompt: stream,
@@ -769,7 +904,7 @@ export class ClaudeProvider implements AgentProvider {
           PostToolUse: [{ hooks: [postToolUseHook] }],
           PostToolUseFailure: [{ hooks: [postToolUseHook, mcpRecoveryHook, toolFailureLogger] }],
           PreCompact: [{ hooks: [createPreCompactHook(this.assistantName)] }],
-          UserPromptSubmit: [{ hooks: [mcpHealthCheckHook, slashCommandHintHook, approvalHintHook, quickLearningHintHook, formatReminderHook, tomiFeedbackLogger] }],
+          UserPromptSubmit: [{ hooks: [mcpHealthCheckHook, slashCommandHintHook, approvalHintHook, quickLearningHintHook, wikiReminderHook, formatReminderHook, tomiFeedbackLogger] }],
         },
       },
     });

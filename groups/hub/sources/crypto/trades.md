@@ -1,4 +1,14 @@
 # Open Trade Ideas & Watchlist
+
+**HYPE — UPDATE 05-18** — $45.31 (+7.86%). Entry zóna $40-42 áttörve felfelé. Ha pozíció nyitva: +7% PnL. TP $55-60 érvényes, SL $38. Ha még nem volt entry: várj visszatesztre $42-43-ra vagy hagyd futni.
+
+**XRP CLARITY PLAY — 2026-05-15 (UPDATE 05-16)** — Entry: $1.49. Thesis: direkt Clarity Act beneficiary (Ripple-SEC precedens), +4.3% tegnap vezette a top10-et. TP: $1.80-2.00. SL: $1.35. R:R ~2.7:1. Invalidáció: bill halasztás, BTC $78K alá.
+
+**CLARITY ACT BINARY PLAY — 2026-05-13** — Entry: BTC long before máj. 14. 10:30 ET. Thesis: 13/13 Republican votes needed, Chairman Scott "in the red zone," Kennedy is the only holdout. If passes → short squeeze + Citi $143K narrative reignites, ETF $15B inflow catalyst. TP: $85-88K. SL: $79K (swing below pre-hearing low). If fails → exit fast, $76-77K retest likely. R:R ~2.5:1 on pass scenario. Note: binary event — sizing down is warranted. UPDATE 2026-05-14: BTC $79,267 — SL szinten. Ha tight SL nem vállalható, kivár a szavazás eredményéig és reagál.
+
+**SOL BOUNCE PLAY — 2026-05-14 WATCHLIST** — Ha CLARITY Act átmegy és BTC kitör $80K+ fölé: SOL $90 körüli szintről bounce lehetséges. Entry: $91-92K megerősítésnél. TP: $100-105K. SL: $86K. Invalidáció: vote halasztás vagy BTC $77K alá.
+
+
 <!-- The agent updates: entry, target, SL, R/R, status -->
 
 **Dr. Profit BTC LONG** — Entry: $71,750 (Apr 9). TP: $79-84K (purple line). SL: AT ENTRY (risk-free). Currently +3.7% at $74,396. Riding FULL position. NEW: Contingency long at $70K if Monday volatility (valid only if $79-84K not hit first).
@@ -83,6 +93,11 @@ _BTC lost $75K overnight, now $74,396. $74,700 white line BROKEN. Sunday close t
 - **MSTR** — Bounced off 200-week MA. InvestAnswers: two buy signals. But Dr. Profit short -50%.
 - **Trade Desk** — $22 (from $141 ATH). InvestAnswers flutter pick. CEO bought at $25.
 - **Copper** — Buy at $5.28 (200-day MA). InvestAnswers.
+
+## 2026-05-12 ötletek
+- **BTC LONG DIP SETUP** — $79-80K zóna (CryptoCapo shakeout-tartomány). Entry: $79.5K körül. TP: $85K (dealer short gamma kitörési szint). SL: $76.5K. R:R ~3:1. Invalidáció: weekly close $76K alatt.
+- **SOL LONG — PULLBACK KIVÁR** — Jelenlegi $96.20. Alpenglow + TVL ATH alapok erősek. Ha altcoin rotation megerősödik és BTC tartja $81K+, entry $90-92K pullbacknél. TP $110+. SL $86K.
+- **SUI — EXTENDED, NE CHASE** — +29% után ne kergesd. Ha 3-5 nap konszolidáció $18-20K-ra húz vissza, akkor watchlistre. Most early rotation play.
 
 ## 2026-05-07 ötletek
 - **BTC** — $80 947. Ha 78k-ig húz le shakeout-ban → CryptoCapo szerint long-belépő 85-90k retest-re. Stop 76k alatt.

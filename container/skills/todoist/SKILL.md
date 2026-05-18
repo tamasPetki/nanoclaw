@@ -104,10 +104,10 @@ A Todoist filter szintaxisa: `today`, `overdue`, `@<label>`, `#<projektnév>`, `
 
 ```
 mcp__todoist__close_task
-  id: "<task_id>"
+  task_id: "<task_id>"
 ```
 
-A `close` archiválja, NEM töröl. Visszanyitható `reopen_task`-kal.
+A `close` archiválja, NEM töröl. Visszanyitható `reopen_task`-kal (szintén `task_id` paraméter). `delete_task` is `task_id`-t vár.
 
 ### Komment task-ra
 

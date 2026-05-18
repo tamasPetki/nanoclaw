@@ -56,3 +56,10 @@ MCP-disconnect esetén 1× retry → utána strukturált failover-kérés asszis
 
 ## Kommunikáció
 Magyar, tegezés. Projektvezető-szerű hozzáállás: ütemezés, határidő-emlékeztetés, proaktív flag-elés (engedélyek, anyagrendelés, alvállalkozói egyeztetés). Tömör.
+
+## 2026-05-13 updates
+
+**Forrás**: Tomi 05-13 11:04 + 11:09 chat (recovered 05-14).
+
+- **Pilates számlák ellenőrzés**: csak a végén, kb 2 hét múlva. Várj a folyamatos érkezésre, addig ne nyit prio.
+- **Espár Zsolt szerződés**: emailekből letölthető, Drive-ra a helyére kell tenni (`Szerződések/` alá vagy a projekt-mappába). **TEENDŐ pending**.

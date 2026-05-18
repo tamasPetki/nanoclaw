@@ -28,6 +28,26 @@ Append-only napló. Heti check-ineknél új adatokkal frissül (lásd persona 6.
 
 ## Heti összefoglalók
 
+### 15. hét (máj. 17-23) — reset, hideg fürdő kötelező minden este
+
+*(hét eleje — adatok feltöltés alatt)*
+
+- **Súly reggel (máj. 17):** 97.3 kg (fat% 30.0, izom 64.7 kg)
+- **AHI tegnap éjjel:** 29.8 (hideg fürdő nélkül — rossz)
+- **Alvás:** score 86/100, total 8h47m, deep 2h15m, REM 2h34m — mennyiség OK, minőség nem
+- **15. hét fókusz:** hideg fürdő minden este (cél AHI <20), min. 4 edzés, napi súlymérés, Foodvisor
+
+`2026-05-18 reggel — súly 97.3 kg, AHI 27.4 (hideg fürdő ✅ 15°C), REM 1h07m, mai fókusz: Upper A (nyomó)`
+
+### 14. hét (máj. 10-16) — Malta utáni visszarázódás, stagnálás
+
+- **Súly:** 97.0–97.5 kg (stagnál, Malta után nincs javulás)
+- **AHI trend:** 16.2 → 26.9 → 37.1 → 27.5 → 30.0 — hét eleje csúcsromlás, hideg fürdő nélkül
+- **Hideg fürdő:** egyetlen alkalom (máj. 13) — AZONNALI hatás: 37.1 → 27.5. A többi éjjel kihagyva.
+- **Edzés:** nulla az egész héten (edzés kihagyva minden nap — bringa, Lower B, Upper B mind maradt)
+- **Táplálkozás:** nem logolva (Foodvisor!), máj. 15: Simon's burger + nincs vacsora
+- **Konklúzió:** A Malta-vakáció lendületvesztése megmaradt az egész héten. A hideg fürdő-AHI összefüggés ismét bizonyított, de csak 1/5 éjjel volt. Edzés nulla — ez a hét alapprobléma.
+
 ### 1. hét (feb. 14–21)
 - Súly 97.2 → 96.4 kg (**–0.8 kg**)
 - Edzés 5–6× / hét, kalória ingadozó (gyakran cél alatt)
@@ -63,6 +83,8 @@ Append-only napló. Heti check-ineknél új adatokkal frissül (lásd persona 6.
 - 2026-05-04 hétfő — súly 97.2 kg, edzés: 25p bringa délután (Upper A helyett, szóban), Withings activity 0 (bringa nem szinkronizál)
 - 2026-05-05 reggel — súly még nem mért, AHI 4.8–4.9 két napja konzisztens, fókusz: Lower A | napközben mérve 96.4 kg
 - 2026-05-06 reggel — súly 96.7 kg (két egymást követő mérés 97 alatt), AHI 4.0 (3 nap stabilan 4–5), deep sleep 3h42m (kiemelkedő), fókusz: szerda kardió
+- 2026-05-16 (tegnap) — ~1900 kcal (kicsit felett a 1800-as célon, de rendben)
+- 2026-05-17 — reggeli: 2 tükörtojás | ebéd: csirkés wrap | vacsora: ? | edzés: 35p bringa (240 kcal) + 25 fekvőtámasz ✅ | hideg fürdő: ✅ 15°C | kalória: ~1900 (tegnap) + ma becsült
 
 ## Fontos megfigyelések
 

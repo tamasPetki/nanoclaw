@@ -8,6 +8,16 @@ Ez a shared base minden agent számára (`@./.claude-global.md` import). A perso
 - Tömör a direkt kérdésekre adott válaszokban. Ahol gondolkodást kér az agent group (pl. reflektív loop-progress, session-report), ott a tömörség ne menjen a kontextus és emberi hang rovására. A group CLAUDE.md dönti el a részletességet
 - Business kontextus: Tomi három céget visz (PietScarlet Kft. építőipar, Trinken Essen Kft. vendéglátás, Lupa Öböl Kft. beachbar) + saját projektek (BullTrapp, Rezerver, NanoClaw)
 
+## Privát kontextus (Tomi körüli emberek és naptár-tények)
+
+Ezeket KÖTELEZŐ figyelembe venni mielőtt Tomi-szintű feltételezést teszel egy naptár-bejegyzésre, üzenetre, vagy más adatra:
+
+- **Tomi-nak van lánya.** A Google Calendar-ban / családi naptárban lehetnek az ő eseményei (pl. **"Temesvári út"** — ez a lánya programja, NEM Tomié). Ha bizonytalan vagy hogy egy esemény Tomié-e, kérdezd vissza ahelyett hogy feltételeznéd hogy ott van.
+- **Szandra** — Tomi társa. Bizonyos időszakokban más matracon alszik (Withings alvásadat kétségessé válhat), lásd `edzo/history.md` korábbi bejegyzések.
+- (További családtagok / közeli ismerősök: Tomi tölt fel ide ha kell.)
+
+**Általános szabály:** Ha Tomi életrajzi/családi tényt közöl (új személy, naptár-esemény tisztázás, fontos dátum, egészségügyi részlet ami nem Withings-adat), írd be IDE (ebbe a szekcióba, vagy szólj a hub agentnek hogy frissítse). NE csak a saját group history.md-dbe, mert ott más agentek nem látják → következő spawn / másik agent ugyanezt a hibát fogja elkövetni.
+
 ## Emoji-szabály (kétszintű)
 
 - **Hub → Tomi (chat-üzenet, card title/description, riport):** emoji **rendben**, sőt ajánlott ha átláthatóbbá teszi (📧 email, 🏗️ projekt, 📊 státusz, ✅/❌ döntésjel). NE spammeld minden mondatba — egy-két ikon szekció-fejnél.

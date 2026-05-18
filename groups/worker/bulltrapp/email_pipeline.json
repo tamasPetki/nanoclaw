@@ -252,7 +252,7 @@
     "sent": "2026-04-12",
     "followup": "2026-04-21",
     "reply": null,
-    "notes": "Popular daily crypto newsletter. Email verified from contact page (editorial/story pitch). Also has paid sponsorship and podcast options. Follow-up sent Apr 16."
+    "notes": "Popular daily crypto newsletter. Email verified from contact page (editorial/story pitch). Also has paid sponsorship and podcast options. Follow-up sent Apr 16. FU-2 draft cancelled by Tomi 2026-05-11."
   },
   {
     "site": "Bankless",
@@ -833,11 +833,12 @@
     "contact_page": "https://coinranking.com/blog/contact/",
     "category": "listicle",
     "priority": "HIGH",
-    "status": "CONTACTED",
+    "status": "FOLLOWED_UP",
     "sent": "2026-04-19",
-    "followup": "2026-04-24",
+    "followup": "2026-05-19",
     "reply": null,
-    "notes": "Crypto data platform. 'Top 5 Bitcoin Portfolio Trackers' blog post. Accepts guest posts. info@ from contact page."
+    "notes": "Crypto data platform. 'Top 5 Bitcoin Portfolio Trackers' blog post. Accepts guest posts. info@ from contact page.",
+    "followup_sent": "2026-05-12"
   },
   {
     "site": "TokenMinds",
@@ -881,11 +882,12 @@
     "contact_page": "https://benzinga.com/contact",
     "category": "listicle",
     "priority": "HIGH",
-    "status": "CONTACTED",
+    "status": "FOLLOWED_UP",
     "sent": "2026-04-19",
-    "followup": "2026-04-24",
+    "followup": "2026-05-12",
     "reply": null,
-    "notes": "Major financial news site. Crypto portfolio tracker comparison with 13 tools. Very high authority. info@ from contact page."
+    "notes": "Major financial news site. Crypto portfolio tracker comparison with 13 tools. Very high authority. info@ from contact page. Follow-up sent May 12.",
+    "followup_sent": "2026-05-12"
   },
   {
     "site": "Quantoshi",
@@ -941,11 +943,12 @@
     "contact_page": "https://bitcompare.net/contact",
     "category": "listicle",
     "priority": "HIGH",
-    "status": "CONTACTED",
+    "status": "FOLLOWED_UP",
     "sent": "2026-04-20",
-    "followup": "2026-04-25",
+    "followup": "2026-05-19",
     "reply": null,
-    "notes": "9 Best Crypto Portfolio Trackers. info@ from contact page. Legitimacy: GREEN. 7yr domain, Blue Venture Studios (Australia)."
+    "notes": "9 Best Crypto Portfolio Trackers. info@ from contact page. Legitimacy: GREEN. 7yr domain, Blue Venture Studios (Australia).",
+    "followup_sent": "2026-05-12"
   },
   {
     "site": "CoinSpot.io",
@@ -985,9 +988,11 @@
     "contact_page": "https://invezz.com/about/contact/",
     "category": "listicle",
     "priority": "HIGH",
-    "status": "CONTACTED",
-    "notes": "UK fintech news site. Top 5 Portfolio Trackers article. High authority. Legitimacy check needed.",
-    "sent": "2026-04-21"
+    "status": "FOLLOWED_UP",
+    "notes": "UK fintech news site. Top 5 Portfolio Trackers article. High authority. Legitimacy check needed. Follow-up sent May 12.",
+    "sent": "2026-04-21",
+    "followup": "2026-05-12",
+    "followup_sent": "2026-05-12"
   },
   {
     "site": "Coinpedia",
@@ -995,9 +1000,11 @@
     "contact_page": "https://coinpedia.org",
     "category": "listicle",
     "priority": "HIGH",
-    "status": "CONTACTED",
-    "notes": "Established crypto news agency. Crypto tracking tools article. Legitimacy check needed.",
-    "sent": "2026-04-21"
+    "status": "FOLLOWED_UP",
+    "notes": "Established crypto news agency. Crypto tracking tools article. Legitimacy check needed. Follow-up sent May 12.",
+    "sent": "2026-04-21",
+    "followup": "2026-05-12",
+    "followup_sent": "2026-05-12"
   },
   {
     "site": "Fortunly",
@@ -1062,9 +1069,11 @@
     "contact_page": "https://tokenmetrics.com/blog/contact-us/",
     "category": "polymarket",
     "priority": "HIGH",
-    "status": "CONTACTED",
-    "notes": "AI crypto research platform. 'Top Crypto Prediction Markets 2026' guide on blog.tokenmetrics.com. Perfect PM angle. partnerships@tokenmetrics.com verified from help center. Crunchbase+ZoomInfo profiles. Legitimacy check needed. Added Apr 20.",
-    "sent": "2026-04-21"
+    "status": "FOLLOWED_UP",
+    "notes": "AI crypto research platform. 'Top Crypto Prediction Markets 2026' guide on blog.tokenmetrics.com. Perfect PM angle. partnerships@tokenmetrics.com verified from help center. Crunchbase+ZoomInfo profiles. Legitimacy check needed. Added Apr 20. Follow-up sent May 12.",
+    "sent": "2026-04-21",
+    "followup": "2026-05-12",
+    "followup_sent": "2026-05-12"
   },
   {
     "site": "QuickNode Builders Guide",
@@ -1096,10 +1105,10 @@
     "contact_page": "https://info.dextools.io/",
     "category": "listicle",
     "priority": "HIGH",
-    "status": "PENDING",
-    "notes": "Apr 22 exploration: info@ is DEXTools general inbox per public search results. NOT previously tried (media@ + hello@ both bounced). Third attempt queued for Apr 23 session. Partnership/backlink angle. Same company legitimacy check (GREEN). Fallback if bounces too: partnerships@dextools.io or abandon email channel for DEXTools.",
-    "sent": null,
-    "followup": null
+    "status": "CONTACTED",
+    "notes": "Apr 22 exploration: info@ is DEXTools general inbox per public search results. NOT previously tried (media@ + hello@ both bounced). Third attempt queued for Apr 23 session. Partnership/backlink angle. Same company legitimacy check (GREEN). Fallback if bounces too: partnerships@dextools.io or abandon email channel for DEXTools. Sent May 12 to info@ (3rd address attempt after media@ + hello@ bounced).",
+    "sent": "2026-05-12",
+    "followup": "2026-05-19"
   },
   {
     "site": "insights4vc",
@@ -1107,7 +1116,10 @@
     "contact_page": "https://insights4.vc/contact",
     "category": "newsletter",
     "priority": "HIGH",
-    "status": "RESEARCHED",
-    "notes": "Apr 22 19:00 exploration. 142K+ subscribers on Substack, publishes 'Prediction Markets at Scale: 2026 Outlook'. Management consulting + on-chain analytics firm, founded 2023. Substack at insights4vc.substack.com, site insights4.vc, LinkedIn company page. Contact email: office@insights4.vc. Legitimacy check NEEDED before outreach. Angle: BullTrapp unifies PM + spot crypto + stocks, potential research-data partnership or /resources backlink swap. Queue for Apr 24 after Apr 23 DEXTools attempt."
+    "status": "CONTACTED",
+    "sent": "2026-05-12",
+    "followup": "2026-05-19",
+    "reply": null,
+    "notes": "Apr 22 19:00 exploration. 142K+ subscribers on Substack, publishes 'Prediction Markets at Scale: 2026 Outlook'. Management consulting + on-chain analytics firm, founded 2023. Substack at insights4vc.substack.com, site insights4.vc, LinkedIn company page. Contact email: office@insights4.vc. Legitimacy: GREEN (May 12). Angle: PM portfolio tooling, /resources backlink swap, data/screenshots offer. Sent May 12."
   }
 ]

@@ -54,3 +54,12 @@ MCP-disconnect → 1× retry → strukturált failover-kérés asszisztenshez (`
 
 ## Kommunikáció
 Magyar, tegezés. Operatív ügyintéző hozzáállás. Szezonalitás-tudatos: szezon előtt/alatt/után más a prioritás (előkészítés / üzemeltetés / zárás+elszámolás).
+
+## 2026-05-13 update — pénteki meeting napirend
+
+**Forrás**: Tomi 05-13 11:05 + 11:11 chat (recovered 05-14).
+
+Pénteki Lupa-meeting napirendi pontok (MUST ADD a meeting notesba):
+- **MOHU egyeztetés** (Bio-Eu alvállalkozó-váltás kontextus, lásd trinkenessen email 2026-05-13/1611)
+- **Wolt terméklista** (szezonkezdés előtti termék-feltöltés)
+- **Milán bankkártya** — új üzletvezető vásárláshoz tudjon költeni

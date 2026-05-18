@@ -147,7 +147,7 @@ if (choice === "edit") { /* kérdezz vissza szövegesen az edit-tel */ }
 - `question` 1-2 mondat: a tét + a draft összefoglalója
 - `options` minimum 3, max 4. Mindig adj egy "Várj/Halasszd"-t és egy "Mégsem"-et (ne csak Igen/Nem)
 - `selectedLabel` post-tap visszajelzés — emoji + ige múlt időben ("✅ Elküldve", "❌ Mégsem")
-- `timeout`: alapértelmezett 300s. Ha egy döntés tényleg várhat (pl. esti email-summary): 600-1800s. Ha kritikus most: 60-120s.
+- `timeout`: alapértelmezett 300s. Ha egy döntés tényleg várhat (pl. esti email-summary): 600-1800s. Ha kritikus most: 60-120s. **Scheduled/cron task kontextusban** (pl. reggeli email-summary, heti review) ahol Tomi órákkal később válaszolhat: `86400` (24h) — különben a kérdés lejár mire Tomi a chathez ül, és az agent kénytelen default-tal továbbmenni vagy semmit sem csinálni.
 
 ## Tomi UX preferenciák
 

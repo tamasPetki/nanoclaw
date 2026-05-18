@@ -79,8 +79,18 @@
 2026-05-07 reggel — súly még nem mért (legutóbbi 05-06: 96.7 kg), alvásadat NEM Tomi (Szandra matraca: AHI 4.0, deep 3h42m, REM 1h44m, score 68), mai fókusz: Upper B húzó edzés (csütörtök) — 10p bike + kézis evezés + floor press + Arnold press | este — Malta-repülő 18:15 (WIZZ), edzés/kcal/hideg fürdő: utazási nap, valószínűleg kihagyva
 2026-05-08 reggel — súly nem mért (Tomi Máltán nyaral, csak vasárnap reggel jön haza), alvásadat NEM Tomi (Szandra matraca Pesten: total 9h28m, REM 3h48m, deep 2h58m, AHI 0.0, score 66), activity 0 (telefon nem szinkronizál Maltán), mai fókusz: Lower B csípődominás — DE Maltán nyaralás, edzés átteendő hétfőre. Helyette: 10-15k lépés a hop-on/Dingli/Popeye programmal organikusan meglesz | este — edzés: 0 (vakáció, organikus lépések), kcal: ~2700 (rántotta + almatorta + Snickers + Cézár + 2 cappuccino + gumicukor + fél smoothie + lasagne, vakációs nap), hideg fürdő: ismeretlen (hotel, valószínűleg kihagyva)
 2026-05-09 szombat — Malta utolsó teljes nap (Marsaxlokk halpiac, Blue Grotto, Birgu, Tartarun vacsora) | este — edzés: 0 (vakáció, organikus lépések ~10-15k), kcal: nem logolva (Foodvisor!), hideg fürdő: kihagyva (hotel)
-2026-05-10 vasárnap — utazási nap, FR2203 12:35 Malta→Bp, hazaérkezés 17:26 körül | este — edzés: 0 (utazónap), kcal: nem logolva (Foodvisor!), hideg fürdő: ismeretlen
+2026-05-10 vasárnap — utazási nap, FR2203 12:35 Malta→Bp, hazaérkezés 17:26 körül | este — edzés: 0 (utazónap), kcal: nem logolva (Foodvisor!), hideg fürdő: kihagyva (AHI másnap 16.2 — megerősítve)
 2026-05-11 reggel — súly még nem mért (legutóbbi 05-06: 96.7 kg, vakáció alatt nem mért), AHI 16.2 (!! visszaugrott — saját matrac + nincs hideg fürdő), score 90/100, total 7h52m, REM 1h39m, deep 1h53m, snoring 1h11m / 8 epizód, mai fókusz: Upper A nyomó (vakáció utáni reset)
+2026-05-12 reggel — súly 97.0 kg (Malta után +0.3 kg vs 05-06), AHI 26.9 (!!! rosszabb — hideg fürdő kihagyva, 2. éjszaka egymás után), score 87/100, total 7h14m, REM 2h44m, deep 0h50m, snoring 1h22m / 11 epizód, mai fókusz: Lower A guggolás (kedd) | este — edzés: ismeretlen, kcal: nem logolva (Foodvisor!), hideg fürdő: ismeretlen
+2026-05-13 reggel — súly 97.1 kg (+0.1 vs tegnap), AHI 37.1 (!!!! LEGROSSZABB — 3. éjszaka hideg fürdő nélkül, trend: 16.2→26.9→37.1), score 92/100, total 8h03m, REM 3h14m (jó!), deep 1h15m, snoring 2h07m / 15 epizód, mai fókusz: szerda kardió (30-40p bringa 130 BPM) + HIDEG FÜRDŐ ESTE KÖTELEZŐ | este — edzés: 0 (kardió bringa kihagyva), kcal: nem logolva (krumplis tészta vacsora), hideg fürdő: ✅ MEGVOLT
+
+2026-05-14 reggel — súly 97.5 kg (+0.4 vs tegnap, krumplis tészta szénhidrát vízkötés), AHI 27.5 (JAVULT — hideg fürdő hatott: 37.1→27.5, de még mindig magas), score 87/100, total 7h39m, REM 0h31m (!! anomálisan alacsony), deep 1h25m, snoring 2h55m / 9 epizód, mai fókusz: Upper B húzó edzés (csütörtök) | este — edzés: check-in várt, kcal: check-in várt, hideg fürdő: check-in várt
+
+2026-05-16 reggel — szombat, aktív pihenő / kardió nap (30-40p bringa 130 BPM + nyújtás), fű lenyírás 10:00 | este — edzés: check-in várt, kcal: check-in várt, hideg fürdő: check-in várt
+
+2026-05-15 reggel — súly 97.3 kg (-0.2 vs tegnap), AHI 30.0 (↑ ROMLOTT — 27.5→30.0, hideg fürdő valószínűleg nem volt tegnap este), score 84/100, total 7h01m, REM 1h44m (javult a tegnapi 0h31m-ről), deep 1h13m, snoring 1h21m / 10 epizód, mai fókusz: Lower B csípődominás (Tomi otthon — Polli utazik Temesvárra) | este — edzés: ❌ 0 (nem volt bringa sem edzés), kcal: Simon's burger délután, vacsora nem volt, hideg fürdő: ❌ meleg fürdő
+
+2026-05-18 reggel — hétfő, Upper A nyomó nap | este — edzés: check-in várt, kcal: check-in várt, hideg fürdő: check-in várt
 
 ## Fontos megfigyelések
 

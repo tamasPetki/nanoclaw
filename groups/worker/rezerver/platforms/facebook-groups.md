@@ -152,7 +152,19 @@ stealth-browse wait 3000
 stealth-browse eval "document.querySelector(\"[role=feed]\") ? \"FEED_OK\" : \"NO_FEED\""
 ```
 
-Ha `NO_FEED` vagy login form / bármi más "unusual" → **AZONNAL stop, Discord ping**, ne folytasd.
+Ha `NO_FEED`, NE STOP-olj rögtön — előbb diagnoszticáld:
+
+1. **Account-picker (több profil-tile, pl. "Bene Dani" + "Száblet Tomi")** → NEM session-expired. A cookie-k jók, FB csak nem tudja melyik profilba lépjen. Klikkelj a saját profil-tile-ra (`Bene Dani`), `wait 2000`, FEED_OK újrapróba. Ez tipikusan akkor jön elő, ha a böngészőben több FB c_user-szal jártunk korábban (multi-account state).
+   ```bash
+   stealth-browse eval "Array.from(document.querySelectorAll('a,div[role=button]')).find(e => e.innerText && e.innerText.includes('Bene Dani'))?.click()"
+   stealth-browse wait 2500
+   stealth-browse eval "document.querySelector(\"[role=feed]\") ? \"FEED_OK\" : \"STILL_NO_FEED\""
+   ```
+2. **Login form (email+password input látható, profil-name NEM)** → session valóban expired, STOP, ping Tomi (cookie-refresh kell, de **NE Tomi saját böngészőjéből** — agent-direct relogin a clean path, lásd `feedback_fb_direct_login_vs_chrome_export`).
+3. **Checkpoint URL (`/checkpoint/`), captcha, 2FA modal** → HARD STOP, ping.
+4. **Egyéb "unusual"** → STOP, ping, ne kísérletezz.
+
+**KRITIKUS**: Tomi NEM lép be saját IP-ről FB-re — a residential HU proxy → home IP váltás flag-eli a fiókot. Minden cookie-frissítést az agent old meg containerből.
 
 ## AZONNALI STOP szabályok
 

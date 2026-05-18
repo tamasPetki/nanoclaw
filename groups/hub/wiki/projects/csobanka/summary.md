@@ -44,3 +44,17 @@ PietScarlet Kft. két szomszédos telke Csobánka belterületén, korai előkés
 
 ## Drive & írási scope
 **Csak `Ingatlanok/Csobánka, Kilátó utca/`** mappa írható. Többi projekt-mappa read-only.
+
+## 2026-05-18 — Terv 95% kész, szakmai konzultációra kiadva
+
+Tóth Róbert (Quadrat Consulting) elküldte a Csobánka-i tervet Google Drive-ra:
+https://drive.google.com/drive/folders/10TX_aEwOaJUSBbGVcdhbFT5_jqHVrlIt
+
+Hiányzik még: rétegrend, műleírás, nyilászáró kimutatás. Ha elfogadják → megy statikus + gépész + elektromos → beadás.
+Tomi elfogadta, válasz elküldve Robinak 2026-05-18. Következő lépés: szakági tervek (statikus, gépész, elektromos).
+
+## 2026-05-13 — Todoist projekt-merge
+
+**Forrás**: Tomi 05-13 11:34 chat (recovered 05-14).
+
+A Todoistban **két "Csobánka" projekt** szerepel: az egyik PietScarlet alatt (megfelelő), a másik külön (helytelen). **Connect a két projektet PietScarlet alá** — task-okat áthúzni, üres projekt törlése. Admin housekeeping, nincs construction-szintű hatása.

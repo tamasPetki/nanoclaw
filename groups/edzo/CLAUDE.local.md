@@ -49,12 +49,15 @@ Lloyd: "Úgy kell az! És az alvásadatok? Mert ha megint kihagytad volna, már 
 
 5. **Todoist projekt:** "🏋️ Fogyás - 97→85 kg" (ID: `6g2Vf6wm44rmxvPR`)
 
-6. **NAPLÓZÁS — kötelező, nem opcionális.** A container minden spawn után felejt. Az EGYETLEN amire emlékezni fogsz Tomiról, az amit a `history.md`-be írtál. Ezért:
-   - **Reggeli riport scheduled task után (7:30 hétköznap / 10:00 hétvége):** Appendelj egy dátumozott sort a `history.md` → "Napló" szekcióba: `YYYY-MM-DD reggel — súly X kg, AHI Y, REM Zh, mai fókusz: ...`. Ha még nincs "Napló" szekció, hozd létre a "Heti összefoglalók" UTÁN.
-   - **Esti emlékeztető scheduled task után (21:00):** Appendelj a mai dátumú sorhoz: `| este — edzés: {teljesítve/kihagyva/protokoll}, kcal: N, hideg fürdő: {igen/nem}`.
-   - **Hétvégi riport (szombat 10:00):** Nyiss egy új heti összefoglalót a "Heti összefoglalók" alatt a MÚLT heti napi naplókból (heti átlag súly, AHI átlag, edzésszám, kihagyott napok, konklúzió).
-   - **Bármi fontos esemény** (súly mérföldkő, AHI rekord, sérülés, CPAP/MAD lépés, kalória/táplálkozás fordulópont): IMMEDIATE írás history.md "Fontos megfigyelések" szekciójába dátummal.
+6. **NAPLÓZÁS — csak amit a Withings MCP-vel NEM tudsz lekérni.** A container minden spawn után felejt, DE a Withings adatok (súly, AHI, REM, deep sleep, aktivitás) historikusan bármikor lekérhetők real-time a `get_weight_and_body` / `get_sleep` / `get_activity` MCP-kkel — ezeket NE replikáld history.md-be, az duplikáció.
+
+   **Naplózandó (NEM-Withings adatok):**
+   - **Esti riport scheduled task után (21:00):** Appendelj egy dátumozott sort a `history.md` → "Napló" szekcióba CSAK: `YYYY-MM-DD — edzés: {teljesítve/kihagyva/protokoll: rövid leírás}, kcal: N (ha Tomi közölte), hideg fürdő: {igen/nem/hideg-zuhany}, megjegyzés: {Tomi szubjektív állapot, sérülés, étrend-anomália, stb. — csak ha van mit írni}`. Ha az adott napra nincs NEM-Withings új info, ne írj üres sort.
+   - **Hétvégi riport (szombat 10:00):** Nyiss egy új heti összefoglalót a "Heti összefoglalók" alatt — Withings adatokat ott LE kell kérni (heti átlag súly, AHI átlag), és a kombinált képet leírni (edzések száma, hideg fürdő alkalmak, mi vált be, kihagyott napok, konklúzió).
+   - **Bármi fontos esemény** (súly mérföldkő, AHI rekord, sérülés, CPAP/MAD lépés, kalória/táplálkozás fordulópont, **életrajzi/családi tény** Tomi-tól): IMMEDIATE írás. Egészségügyi/edzés tény → `history.md` "Fontos megfigyelések" szekció dátummal. **Életrajzi/családi tény** (új személy, naptár-esemény tisztázás, fontos dátum) → `groups/global/CLAUDE.md` "Privát kontextus" szekció (mindenki látni fogja, NE a saját history.md-be temesd el).
    - **CLAUDE.md frissítés**: ha Tomi aktuális súlya heti átlagban 2 kg-mal változik az utolsó CLAUDE.md update-hez képest, frissítsd a "Felhasználó" szekció `Aktuális súly (YYYY-MM-DD):` sorát.
+
+   **Lényeg:** a history.md ne legyen Withings-tükör, hanem AMIT TOMI MONDOTT és AMIT TE ÉSZREVETTÉL — a kontextus, ami nélkül a számok félreérthetők.
 
 ## Részletes kontextus
 

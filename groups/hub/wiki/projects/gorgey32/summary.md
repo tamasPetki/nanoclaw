@@ -23,9 +23,23 @@ PietScarlet Kft. társasházat épít Vác, Görgey Arthur u. 32. szám alatt. *
 
 ## Aktuális fázis (2026-05-04 status)
 
-**Tetőszerkezet / cserepezés** — folyamatban. Tetőablakok az egyik oldalon benn vannak. **1, max 2 héten belül kész az egyik oldal → átállványozás** a másik oldalra.
+**Tetőszerkezet / cserepezés** — **egyik oldal becserepezve (2026-05-11)**. Tetőablakok az egyik oldalon benn vannak. **Hamarosan átállványozás** a másik oldalra.
 
-**Homlokzat** — EPS ragasztás kb. félnél, egyik oldal felállványozva.
+**Homlokzat** — EPS ragasztás **1. emeletnél tart (2026-05-11)**, hamarosan átállványozás a másik oldalra.
+
+### Ütemterv-csúszások (Görgey kivitelezési tervezet.xlsx vs. valóság 2026-05-11)
+
+| Feladat | Tervezett (Excel) | Valós állapot | Csúszás |
+|---------|-------------------|---------------|---------|
+| Tetőszerkezet ácsolás+fedés | 2025-12 → 2026-03 | egyik oldal becserepezve, másik még nincs | **~2 hónap** |
+| Nyílászárók (Fsz/Em) beépítés | 2026-01 (2 hét) | nyílászárós **2026-05-13 szerda** jön | **~4 hónap** |
+| Gép/Vill alapszerelés Fsz/Em | 2026-02 → 2026-03 (5 hét) | folyamatban, hibák feltárva (vezetékek strangoknál, D konyha lefolyócső) | **~2 hónap** |
+| QC + Nyomáspróba | 2026-05 (2 hét) | pár héten belül várható | ~tartja |
+| Esztrich (1. em.) | 2026-06 (3 hét) | cél: máj. vége — blokkolva (garázs kábeltálca lánc) | **kockázat** |
+| Vakolás | 2026-05 → 2026-06 (6 hét) | még nincs | csúszhat |
+| Homlokzat-szigetelés (VI.) | Excel: dátum-nélkül | 1. emeletnél, fél-épület átállványozva | — |
+
+**Összkép:** ~2-4 hónap csúszás, de az esztrich-cél (máj. vége) **tartható ha a garázs mennyezet-lánc (Bérczy → szigetelés → kábeltálcák) gyorsan megvan**. Ez most a kritikus út.
 
 **Vízszerelés / gépészet (TLK Invest, Bérczy Gergely)** — máj. 5-én folytatódik. Pár hét → **nyomáspróba**. Utána szervezhető a padlószigetelés az 1. emeleten.
 
@@ -79,3 +93,33 @@ Eredetileg 3 lakás (C, E, F) szerepelt, később 5-re bővült (B, G hozzáadva
 
 - Drive scope: **csak `Ingatlanok/Vác, Görgey u. 32./` írható**, többi projekt-mappa read-only.
 - Plugin skillek: `gorgey-koltsegvetes` (xlsx + QuiCK), `gorgey-utemterv` (Gantt). Az ütemterv xlsx **nem feltétlenül naprakész** — „hol tartunk" kérdéseknél a `status.md`/ezen oldal az alap.
+
+### Kanonikus fájlok (file_id-vel — a Drive MCP-hez)
+
+- **Ütemterv**: `04 - Ingatlanok/Vác - Görgey utca 32/03 - Költségvetés/Aktuális állapot/Görgey32 - Ütemterv.xlsx`
+  - file_id: `1l_cg08hkka-hv1MHQCQMzOUXGXV4Ox0-` *(frissítve 2026-05-11 — csúszások + bádogos/vakolatok átütemezve)*
+  - Sheet-struktúra: lásd `utemterv-structure.md` (mellette ebben a mappában)
+  - **NE hozz létre új fájlt!** Az xlsx-et `mcp__google-drive__updateSpreadsheet` / Sheets API-n frissítsd, NEM `createDocument`-tel.
+- **Költségvetés**: `04 - Ingatlanok/Vác - Görgey utca 32/03 - Költségvetés/Aktuális állapot/vac_gorgey32_koltsegvetes.xlsx`
+  - file_id: `1b2cyhs7gBuzx5VysF-etA6P0HAm69W4s`
+  - Backup fájlok ugyanitt `vac_gorgey32_koltsegvetes_backup_*` névvel — ezekhez ne nyúlj.
+- **Alvállalkozók (xlsx)**: `04 - Ingatlanok/Vác - Görgey utca 32/03 - Költségvetés/Aktuális állapot/gorgey32_alvallalkozok.xlsx`
+  - file_id: `1H2DRjKG1ul-If4ChaKM-ArrQ5de6CSdU`
+
+### 2026-05-11 incident — bizalom-törő
+Aznap 3 random `.docx` fájlt hozott létre az agent ahelyett, hogy a meglévő xlsx-et frissítette volna (`Görgey32 - Frissített ütemterv (...).docx` × 3). Ezeket Tomi-i jóváhagyással kell törölni a Drive-on. **Az xlsx maradt frissítetlenül, NE használd az incident `.docx`-ek tartalmát forrásként** — a 2026-05-11 helyszíni szemle infók a `status.md` és a fenti "Aktuális fázis" szekció alá kerültek, az igazi update az xlsx-be a következő turn-ben menjen.
+
+## 2026-05-13 délelőtti updates (visszamentve 2026-05-14)
+
+**Forrás**: tegnap délelőtti Tomi-chat (10:35–11:03), session-amnesia recovery útján beírva.
+
+- **Közműcsatlakozás 2 ajánlat** (víz + csapadék + szennyvíz) — nagy árkülönbség. Eldöntendő: szakfelügyelet/közút hozzájárulás/forgalomtechnikai terv tételei reálisak-e. **Ajánlatok kiértékelése pending.**
+- **DMRV — Fehér László (illetékes)**: vízakna kialakítása az ELSŐ lépés, utána DMRV helyszíni szemle. A gerincre csatlakozást ŐK csinálják (a 2 ajánlatban ez a tétel ezért lehet különböző). Péntek 05-15 deadline áll → vízakna prioritás.
+- **Tóth Robi + nyílászárósok 05-13 helyszíni**: szemöldök-magasságok meghatározva, nyílászárók szabhatók (rendben).
+- **Bérczy Gergő (05-13)**: kazánház vakolás csütörtök-péntek (05-15–16). Kazánház vakolás → garázs mennyezet munkasorrend folytatás.
+
+## Új teendők (2026-05-13 burst)
+
+1. **Közmű-ajánlatok döntés** (Tomi) — 2 ajánlat összevetése.
+2. **Vízakna kialakítás start** — Bérczy / kivitelező egyeztetés, DMRV-szemle előfeltétel, péntek 05-15 deadline.
+3. **Todoist Csobánka merge** (PietScarlet alá vonni a független Csobánka projektet) — admin housekeeping.

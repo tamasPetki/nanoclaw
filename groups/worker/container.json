@@ -59,9 +59,8 @@
       "readonly": false
     }
   ],
-  "model": "opus",
-  "effort": "low",
   "skills": "all",
+  "provider": "claude",
   "groupName": "Worker",
   "assistantName": "Worker",
   "agentGroupId": "ag-worker"

@@ -201,28 +201,37 @@ export async function runPollLoop(config: PollLoopConfig): Promise<void> {
         setContinuation(config.providerName, continuation);
       }
       if (result.abortedForSilence) {
-        // The continuation is likely poisoned (compact-stall, broken
-        // history). Clear it so the next message starts fresh instead
-        // of hitting the same stall again and looping forever.
-        if (continuation) {
-          log(`Silence-abort — clearing continuation ${continuation} to break compact-stall loop`);
-          continuation = undefined;
-          clearContinuation(config.providerName);
-        }
-        // Suppress the watchdog notification on a2a routes — two stalled
-        // agents pinging each other with "Beragadtam..." creates a
-        // cross-agent infinite loop. Humans get notified; agents stay quiet.
-        if (routing.channelType !== 'agent') {
-          writeMessageOut({
-            id: generateId(),
-            kind: 'chat',
-            platform_id: routing.platformId,
-            channel_type: routing.channelType,
-            thread_id: routing.threadId,
-            content: JSON.stringify({
-              text: 'Beragadtam az előző feladat közben — leállítottam magam. Kérlek küldd újra amit kértél.',
-            }),
-          });
+        if (result.abortedAfterClean) {
+          // The turn finished normally — we only timed out waiting for a
+          // follow-up that never came. The stream wasn't actually stuck.
+          // Keep the continuation (it's a valid resume point) and don't
+          // bother the user with a watchdog notification.
+          log(`Silence-abort after clean result — turn finished normally, no recovery needed`);
+        } else {
+          // Stream was stuck mid-turn (compact-stall, broken history, MCP
+          // silent stall). The continuation is likely poisoned — clear it
+          // so the next message starts fresh instead of hitting the same
+          // stall again and looping forever.
+          if (continuation) {
+            log(`Silence-abort mid-turn — clearing continuation ${continuation} to break compact-stall loop`);
+            continuation = undefined;
+            clearContinuation(config.providerName);
+          }
+          // Suppress the watchdog notification on a2a routes — two stalled
+          // agents pinging each other with "Beragadtam..." creates a
+          // cross-agent infinite loop. Humans get notified; agents stay quiet.
+          if (routing.channelType !== 'agent') {
+            writeMessageOut({
+              id: generateId(),
+              kind: 'chat',
+              platform_id: routing.platformId,
+              channel_type: routing.channelType,
+              thread_id: routing.threadId,
+              content: JSON.stringify({
+                text: 'Beragadtam az előző feladat közben — leállítottam magam. Kérlek küldd újra amit kértél.',
+              }),
+            });
+          }
         }
       }
     } catch (err) {
@@ -296,6 +305,14 @@ interface QueryResult {
   continuation?: string;
   /** True if the stream-silence watchdog force-aborted the query. */
   abortedForSilence?: boolean;
+  /**
+   * True if `abortedForSilence` happened AFTER a clean `result` event for
+   * the current turn — i.e. the turn finished normally and we only timed
+   * out waiting for a follow-up. Caller suppresses the user-facing
+   * "Beragadtam…" notification in that case (false positive); when this
+   * is false, the stream was stuck mid-turn and the user should be told.
+   */
+  abortedAfterClean?: boolean;
 }
 
 async function processQuery(
@@ -307,6 +324,11 @@ async function processQuery(
   let queryContinuation: string | undefined;
   let done = false;
   let unwrappedNudged = false;
+  // Tracks whether the SDK already emitted a `result` for the current turn.
+  // When true, a subsequent silence-watchdog abort means we only timed out
+  // waiting for a follow-up — not a stuck mid-turn stream — so the caller
+  // can suppress the user-facing "Beragadtam…" notification.
+  let sawResultThisTurn = false;
 
   // Concurrent polling: push follow-ups into the active query as they arrive.
   // We do NOT force-end the stream on silence — keeping the query open avoids
@@ -411,6 +433,7 @@ async function processQuery(
         const prompt = formatMessages(keep);
         log(`Pushing ${keep.length} follow-up message(s) into active query`);
         unwrappedNudged = false;
+        sawResultThisTurn = false;
         query.push(prompt);
         markCompleted(keptIds);
       } catch (err) {
@@ -448,6 +471,7 @@ async function processQuery(
         // follow-up pushes. The agent may have responded via MCP
         // (send_message) mid-turn, or the message may not need a response
         // at all — either way the turn is finished.
+        sawResultThisTurn = true;
         markCompleted(initialBatchIds);
         if (event.text) {
           const { hasUnwrapped } = dispatchResultText(event.text, routing);
@@ -482,7 +506,11 @@ async function processQuery(
     clearInterval(pollHandle);
   }
 
-  return { continuation: queryContinuation, abortedForSilence };
+  return {
+    continuation: queryContinuation,
+    abortedForSilence,
+    abortedAfterClean: abortedForSilence && sawResultThisTurn,
+  };
 }
 
 function handleEvent(event: ProviderEvent, _routing: RoutingContext): void {
@@ -590,7 +618,11 @@ function resolveDestinationThread(
          ORDER BY seq DESC LIMIT 1`,
       )
       .get(channelType, platformId) as { thread_id: string | null; id: string } | undefined;
-    if (row) return { threadId: row.thread_id, inReplyTo: row.id };
+    // Normalize empty-string thread_id to null. Ad-hoc scheduled `task` rows
+    // inserted with an unset thread_id (some bash scripts and host-side INSERTs
+    // write '' instead of NULL) would otherwise propagate the blank through
+    // every subsequent outbound and crash delivery downstream.
+    if (row) return { threadId: row.thread_id || null, inReplyTo: row.id };
   } catch (err) {
     log(`resolveDestinationThread error: ${err instanceof Error ? err.message : String(err)}`);
   }

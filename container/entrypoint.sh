@@ -11,6 +11,10 @@
 
 set -e
 
+# Register mnemon Claude Code hooks (idempotent, per-agent-group .claude/ mount).
+# Routed to stderr so it doesn't interfere with the JSON stdin handshake below.
+mnemon setup --target claude-code --yes --global >/dev/stderr 2>&1 || true
+
 cat > /tmp/input.json
 
 exec bun run /app/src/index.ts < /tmp/input.json

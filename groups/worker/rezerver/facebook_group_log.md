@@ -339,6 +339,50 @@ Minden csoporthoz egy blokk. Formatum:
 
 ---
 
+## 2026-05-13 FB session discovery ("catering Magyarország" + "étteremvezetők" search)
+
+Két keresés: "catering Magyarország" (mixed eredmény, kevés B2B-specifikus) + "étteremvezetők" (jobb batch). NOT joined (Phase 2 tilalom). 1 SAFE lájk: Vik Demeter humor post ("Kedd délutáni osztályfőnöki óra...").
+
+**Új csoportok:**
+
+### Éttermek, Üzletvezetők és Konyhavezetők csoportja
+- **URL:** https://www.facebook.com/groups/2054419648105914/
+- **Tagság:** ~5,100
+- **Típus:** nyilvános
+- **Nyelv:** HU
+- **Kategória:** B2B supply (konyhai eszköz adásvétel — FIGYELEM: nem szakmai közösség!)
+- **Relevancia-score:** 2
+- **Csatlakozási státusz:** NOT_YET_REQUESTED
+- **Discovered:** 2026-05-13 (FB search: "étteremvezetők")
+- **Aktivitás:** 10+ bejegyzés/nap
+- **Jegyzet:** Megtévesztő cím — a description "Hirdesse itt eladó konyhagépeit korlátlan mennyiségben!" = inkább marketplace/hirdetési csoport, nem szakmai közösség. Tököl lokáció. Nem shortlist-re.
+- **Phase-action:** Elutasítva (hirdetési csoport, nem szakmai)
+
+---
+
+### Fesztiváli árusok, szolgáltatók és szervezők közössége
+- **URL:** https://www.facebook.com/groups/875132292961832/
+- **Tagság:** ~6,500
+- **Típus:** nyilvános
+- **Nyelv:** HU
+- **Kategória:** B2B supply + demand (fesztiváli szolgáltatók/szervezők)
+- **Relevancia-score:** 3
+- **Csatlakozási státusz:** NOT_YET_REQUESTED
+- **Discovered:** 2026-05-13 (FB search: "étteremvezetők")
+- **Aktivitás:** 10+ bejegyzés/nap
+- **Szülő szervezet:** Fesztiválozók érdekvédelmi csoportja
+- **Leírás:** "Célunk, hogy segítsük és támogassuk a kiállítókat, szolgáltatókat, szervezőket és látogatókat, akik a magyar fesztiválokon, vásárokon, rendezvényeken..."
+- **Jegyzet:** Fesztivál/vásár/rendezvény fókusz, de nem HoReCa-specifikus. Mai tartalom: íjász edzés (nem releváns). Széles közönség — fesztiváli árus, nem venue-tulaj. Indirekt ICP.
+- **Phase-action:** Phase 4-re halasztva (indirekt, nem core HoReCa)
+
+---
+
+**Megerősítés (már logged, most megnyitva + tartalom látva):**
+
+- https://www.facebook.com/groups/707694661916866/ — "Rendezvényt szervezek - szolgáltatót keresek!" — **ICP SIGNAL 2026-05-13:** Aktív event organizer poszt: fotóst keresnek a 2026-os Ceglédi Laskafesztivál gasztronómiai fesztiválra (Cegléd, jún. 13-14, 10+ éves rendezvény, több ezer látogató). Ez a demand-oldal: szervezők aktívan keresnek szolgáltatókat. Rezerver value-prop pontosan ide illik. Score: 5, Phase 3-ra shortlist. **Felülmúlja a Rendezvénykereső Ajánlókat — ide kell belépni Phase 3-ban.**
+
+---
+
 ## Uj csoport hozzaadasa
 
 Ha felfedezel uj relevans HU HoReCa FB csoportot, add hozza a fenti formatummal. Jegyezd meg honnan halottal rola (link, forras), hogy kesobb visszavezetheto legyen.
@@ -382,3 +426,60 @@ Hipotézis igazolva: tagolt narrow keyword (vs. előző "esküvőhelyszín" öss
 - https://www.facebook.com/groups/eskuvoiszolgaltatokcsoportja/ — "Esküvő-esküvői szolgáltatók" — duplikál előzővel, supply-fókusz. Score: 3.
 - https://www.facebook.com/groups/2071187562929460/ — "Esküvőre készülők!" — pure B2C demand. Score: 3.
 - https://www.facebook.com/groups/538288546328326/ — "Esküvő adok veszek" — marketplace, tangenciális (használt cuccok). Score: 2.
+
+## 2026-05-15 FB session discovery ("vendéglátás" + "rendezvény Magyarország" search)
+
+"vendéglátás" keyword főleg vendor-marketplace típusú csoportokat hozott (berendezések, adásvétel). 2 újdonság:
+- https://www.facebook.com/groups/650382321695092/ — "A Vendéglátós Csoport" — általános HU vendéglátós szakmai csoport. Score: 4. Phase 3-ra jelölt (URL ismert, tagszám TBD — ellenőrizni).
+- https://www.facebook.com/groups/2006392399611269/ — "Vendéglátás Adok - Veszek & Állás keres - kínál" — marketplace + álláshirdetés mix. Score: 2. Elutasítva (nem ICP-fókusz).
+
+"rendezvény Magyarország" keyword: 2 új csoport (a többi már loggolva korábban):
+- https://www.facebook.com/groups/1149910545062354/ — "Rendezvény árusok, kitelepülők, fellépők // Rendezvény szervező" — vendor+kitelepülős. Score: 3. Phase 4-re halasztva.
+- https://www.facebook.com/groups/365495235325742/ — "Koncertek, fesztiválok, rendezvények" — event-listing, B2C fókusz. Score: 2. Elutasítva.
+
+Megerősítve (már logban): VENDÉGLÁTÓSOK ÉS VENDÉGEIK VLM, Vendéglátós Csoport HORECA, Fesztiválok/rendezvények/szervezők, Rendezvények közeli szállások, Rendezvényszervezés+koncertek, Rendezvényt szervezek (707694661916866, ICP-core), Fesztiváli árusok.
+
+---
+
+### Rendezvényszervező FALUNAPOK, FESZTIVÁLOK, FELLÉPŐK
+- **URL:** https://www.facebook.com/groups/rendezvenyszervezo/
+- **Tagsag:** ~22E tag
+- **Tipus:** Nyilvános
+- **Nyelv:** HU
+- **Kategoria:** B2C demand + rendezvényszervező szakmai
+- **Relevancia-score:** 4
+- **Csatlakozasi statusz:** NOT_YET_REQUESTED
+- **Aktivitas:** 30+ bejegyzes/nap
+- **Discovered:** 2026-05-18
+- **Phase-action:** Phase 3-ra shortlisted
+- **Jegyzet:** Falunapok/fesztiválok szervezők — rendezvényhelyszín-keresés releváns, de fesztiválfókusz kevésbé éttermi. Közepes prioritás.
+
+---
+
+### Minden ami rendezvény és szervezés — szakmai csoport
+- **URL:** https://www.facebook.com/groups/mindenamirendezvenyesszervezes/
+- **Tagsag:** ~5.6E tag
+- **Tipus:** Nyilvános
+- **Nyelv:** HU
+- **Kategoria:** B2C demand (rendezvényszervező szakmai)
+- **Relevancia-score:** 3
+- **Csatlakozasi statusz:** NOT_YET_REQUESTED
+- **Aktivitas:** 3 bejegyzes/nap (alacsony)
+- **Discovered:** 2026-05-18
+- **Phase-action:** Phase 4-re halasztva (alacsony aktivitás)
+- **Jegyzet:** Szakmai fókuszú de kis aktivitás. Nem prioritás.
+
+---
+
+### A Vendéglátós Csoport
+- **URL:** https://www.facebook.com/groups/650382321695092/
+- **Tagsag:** ~19E tag
+- **Tipus:** Privát (admin-approval)
+- **Nyelv:** HU
+- **Kategoria:** B2B supply (vendéglátós szakmai)
+- **Relevancia-score:** 4
+- **Csatlakozasi statusz:** NOT_YET_REQUESTED
+- **Aktivitas:** 8 bejegyzes/nap
+- **Discovered:** 2026-05-18
+- **Phase-action:** Phase 3-ra shortlisted (privát = admin-approval = kisebb kockázat)
+- **Jegyzet:** Privát csoport, admin-approval — pontosan amit keresünk. 19k tag, napi 8 poszt, vendéglátós szakmai fókusz.

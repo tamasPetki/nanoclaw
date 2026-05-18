@@ -72,3 +72,7 @@ Koncepciós terv elfogadása után a maradék terület felosztása ~1 000 m²-es
 
 ## Drive & írási scope
 **Csak `Ingatlanok/Vác, Felső Törökhegy/`** írható. Többi projekt-mappa read-only.
+
+## 2026-05-14 — tervtanácsi gyűlés
+
+Tomi 05-13 11:32 chat (recovered 05-14): **MA (2026-05-14) tervtanácsi gyűlés Felső Törökhegyen**. Tomi részvétel után beszámol — beszámoló után wiki/log.md frissítendő.

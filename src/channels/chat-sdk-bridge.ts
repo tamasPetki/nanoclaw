@@ -88,6 +88,15 @@ export interface ChatSdkBridgeConfig {
    * and reactions still target the head of the reply.
    */
   maxTextLength?: number;
+  /**
+   * Override for the channel-type / adapter name. When a second instance of an
+   * existing channel type is needed (e.g. two Telegram bots on the same host),
+   * the underlying chat-sdk adapter exposes a hardcoded `name` ('telegram'),
+   * which would collide in the `activeAdapters` registry. Set this to a unique
+   * identifier per registration (e.g. 'telegram-stokes') and it replaces both
+   * `name` and `channelType` on the resulting ChannelAdapter.
+   */
+  channelType?: string;
 }
 
 /**
@@ -259,9 +268,10 @@ export function createChatSdkBridge(config: ChatSdkBridgeConfig): ChannelAdapter
     };
   }
 
+  const effectiveChannelType = config.channelType ?? adapter.name;
   const bridge: ChannelAdapter = {
-    name: adapter.name,
-    channelType: adapter.name,
+    name: effectiveChannelType,
+    channelType: effectiveChannelType,
     supportsThreads: config.supportsThreads,
 
     async setup(hostConfig: ChannelSetup) {
@@ -488,8 +498,12 @@ export function createChatSdkBridge(config: ChatSdkBridgeConfig): ChannelAdapter
 
     async deliver(platformId: string, threadId: string | null, message): Promise<string | undefined> {
       // platformId is already in the adapter's encoded format (e.g. "telegram:6037840640",
-      // "discord:guildId:channelId") — use it directly as the thread ID
-      const tid = threadId ?? platformId;
+      // "discord:guildId:channelId") — use it directly as the thread ID.
+      // `||` (not `??`) on purpose: upstream rows can carry thread_id='' (empty
+      // string) when a scheduling INSERT or poll-loop inheritance writes blanks
+      // instead of NULL — nullish-coalescing would pass that empty through and
+      // crash the platform adapter with chat_id is empty.
+      const tid = threadId || platformId;
       const content = message.content as Record<string, unknown>;
 
       if (content.operation === 'edit' && content.messageId) {

@@ -33,5 +33,8 @@ Tomi konszolidált tudásbázisa. Karpathy LLM-Wiki pattern szerint maintained.
 - [Erika — könyvelő](entities/erika-konyvelo.md) — penzugy@pietscarlet.hu, számlák célállomása (PietScarlet, Lupa Öböl)
 - [Tóth Róbert — Quadrat Consulting](entities/toth-robert-quadrat.md) — tervező (Csobánka, Felső Törökhegy)
 
+## Személyes / Család
+- [Petki család — személyes adatok](personal/family.md) — Tomi, Szandra, Adelina adatok, allergia, iskola
+
 ## Koncepciók
 *(visszatérő témák, döntési minták)*
