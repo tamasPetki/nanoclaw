@@ -55,6 +55,13 @@ MCP-disconnect → 1× retry → strukturált failover-kérés asszisztenshez (`
 ## Kommunikáció
 Magyar, tegezés. Operatív ügyintéző hozzáállás. Szezonalitás-tudatos: szezon előtt/alatt/után más a prioritás (előkészítés / üzemeltetés / zárás+elszámolás).
 
+## 2026-05-21 — Napozóágy számla megérkezett, utalás szükséges
+
+Hódos Katalin (Báthory Imre Kft, 06 20 411 1937) elküldte a számlát (SKM_C36826052009380.pdf).
+- Megrendelt: 25db LETTINO FIX NAPÁGY FEHÉR O42 · egységár 15.775 Ft · ~394k Ft bruttó
+- Megjegyzés: Katalin jelezte, lehet hogy 30db is lesz — Tomi egyelőre a 25-nél maradt
+- Teendő: átutalás + banki igazolás visszaküldése → szállítás ütemezése
+
 ## 2026-05-13 update — pénteki meeting napirend
 
 **Forrás**: Tomi 05-13 11:05 + 11:11 chat (recovered 05-14).

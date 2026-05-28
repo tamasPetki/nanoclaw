@@ -70,6 +70,9 @@ groups/*/.fb-cookies-*.json
 groups/*/.*-cookies-*.json
 groups/*/*-cookies.json
 
+# Embedded clones of agent-managed external repos (have their own git + node_modules)
+groups/*/headlesstracker/repo/
+
 # Vendored Python libs mounted into containers (not source)
 groups/*/pylibs/
 

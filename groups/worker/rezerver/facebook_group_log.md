@@ -473,13 +473,47 @@ Megerősítve (már logban): VENDÉGLÁTÓSOK ÉS VENDÉGEIK VLM, Vendéglátós
 
 ### A Vendéglátós Csoport
 - **URL:** https://www.facebook.com/groups/650382321695092/
-- **Tagsag:** ~19E tag
+- **Tagsag:** ~20E tag (20,0k a group page-en)
 - **Tipus:** Privát (admin-approval)
 - **Nyelv:** HU
-- **Kategoria:** B2B supply (vendéglátós szakmai)
+- **Kategoria:** B2B supply (vendéglátós szakmai + HR/állás komponens is)
 - **Relevancia-score:** 4
-- **Csatlakozasi statusz:** NOT_YET_REQUESTED
+- **Csatlakozasi statusz:** APPROVED
+- **Kerelem_datuma:** 2026-05-25
+- **Approval_datuma:** 2026-05-26
 - **Aktivitas:** 8 bejegyzes/nap
 - **Discovered:** 2026-05-18
-- **Phase-action:** Phase 3-ra shortlisted (privát = admin-approval = kisebb kockázat)
-- **Jegyzet:** Privát csoport, admin-approval — pontosan amit keresünk. 19k tag, napi 8 poszt, vendéglátós szakmai fókusz.
+- **Phase-action:** Phase 3 — tag, passzív olvasás fázis (2026-05-26 – 2026-06-02)
+- **Akciók:**
+  - 2026-05-25: join_request (tagsági kérdés megválaszolva: "Olvastam." + rules checkbox checked, státusz: PENDING admin-approval)
+  - 2026-05-26: group_join_approved (email_id 141: "Dani, mostantól az A Vendéglátós Csoport csoport tagja vagy." 15:30Z. Phase 3 rule: 1 hét passzív olvasás, 0 akció a csoportban, 0 lájk, 0 komment)
+  - 2026-05-26: read (~9 perc, első látogatás — feed: főleg ÁLLÁS hirdetések (pizza szakács, SZIGET fesztiválos diákmunka), 1 venue-promo: Pekáry Kastély étterem. Takeaway: tulajdonosok jelen vannak de főleg HR-célra, nem booking-diskurzus. 0 akció.)
+- **Passzív_olvasas_vege:** 2026-06-02 (után engedélyezett: max 1 lájk/hét másik tag SAFE-posztjára, Phase 4+ szabályok szerint)
+- **Jegyzet:** Privát csoport, admin-approval — Phase 3 első target. 20k tag, napi 8 poszt, vendéglátós szakmai fókusz. Szabályok főleg HR/álláshirdetés-moderálásra fókuszálnak. JÓVÁHAGYVA 2026-05-26 15:30Z — 1 hét passzív olvasás, 0 akció.
+
+---
+
+## 2026-05-27 FB session discovery (feed sidebar — javasolt csoportok)
+
+Reggeli warmup (~6 perc feed scroll) alatt a jobb oldalsávban 8+ új csoport-javaslat surfaced. Többsége adásvétel/munkák fókuszú (alacsony relevancia), de néhány venue-adjacent érdekesebb.
+
+**Már loggoltak, megerősítve látottak:**
+- "Rendezvény árusok, kitelepülők, fellépők // Rendezvény szervező" (groups/1149910545062354/) — megerősítve
+- "Rendezvényt szervezek - szolgáltatót keresek!" (groups/707694661916866/) — megerősítve, ICP-core
+- "Rendezvények és rendezvény közeli szállások Magyarországon" (groups/1072652926134887/) — megerősítve
+- "Rendezvények, szolgáltatók, helyszínek" (groups/254791949698374/) — megerősítve
+- "Fesztiváli árusok, szolgáltatók és szervezők közössége" (groups/875132292961832/) — megerősítve
+- "Vendéglátós Csoport HORECA – GASZTRO, Adok-veszek" (groups/1526131270935595/) — megerősítve
+- "Vendéglátás Adok - Veszek & Állás keres - kínál" (groups/2006392399611269/) — megerősítve
+
+**Új, még nem loggolt csoportok (URL-ek verifikálandók):**
+- "Rendezvényszervezés" — valószínűleg groups/rendezvenyre/ (loggolt) vagy új; ellenőrizendő
+- "Használt VENDÉGLÁTÓIPARI gépek, Berendezések adás-vétele" — adásvétel, score: 2 (nem ICP)
+- "Kiadó - eladó vendéglátó és üzlethelyiségek, albérletek" — venue buy/sell/rent, score: 3 (venue-adjacent)
+- "Vendéglátós Munkák - azonnali munkalehetőségek" — állás-fókusz, score: 1 (nem ICP)
+- "Vendéglátós adok-veszek Magyarország" — marketplace, score: 2
+- "Programok, Koncertek, Fesztiválok, Gasztronómia - Kultúrles" — gasztronómia rész érdekes, score: 3
+- "gasztro piac VLM /nyilvános csoport" (groups/rozsdamentesgepek/) — konyhai berendezések, score: 2
+- "Pékek, Pizza szakácsok VLM" (groups/vendeglatosmunkakpekekpizzas) — szakma/állás, score: 1 (nem ICP)
+
+**Takeaway:** A sidebar-javaslatok főleg marketplace/állás-fókuszú csoportokat adnak — jelzi hogy Dani feedje még nem venue-owner heavy. Phase 4-tól, amikor "A Vendéglátós Csoport"-ban aktív lesz, várhatóan relevancebb szomszédok jelennek meg. pipeline_counters.fb_groups_discovered: 24→32.

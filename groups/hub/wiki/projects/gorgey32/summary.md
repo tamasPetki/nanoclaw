@@ -78,16 +78,29 @@ Forrás: 2025-09-02 email Gergely Tamástól (`fixik@kabelfix.hu`), `Lakás_ár_
 
 Eredetileg 3 lakás (C, E, F) szerepelt, később 5-re bővült (B, G hozzáadva — ők kapták a redőny-extrát). Az A, D, H és iroda lakásokra nincs redőny-megállapodás emailben.
 
+## 2026-05-27 — Járda vázlat elfogadva (email)
+
+**Riez elfogadta a járda vázlatot.** Espár (kivitelező) vár visszajelzésre Tomitól.
+
+- **Teljes járda terület:** 202,5 m²
+- **PietScarlet (Tomi) rész:** 161,5 m²
+- **Önkormányzati extra (plusz):** 41 m²
+
+**Teendő: Tomi → Espárnak OK üzenet küldése** (visszaigazolás a munkakezdéshez)
+
+**TLK INVEST számla (uid 2482)** — Erikának továbbítandó
+
 ## Következő teendők (pri sorrendben)
 
-1. Cserepezés folytatás (1–2 hét) → átállványozás
-2. EPS ragasztás 2. fele
-3. Vízszerelés befejezés + nyomáspróba (TLK Invest)
-4. Padlószigetelés → fólia/háló → fűtéscső → estrich 1. emelet (cél: máj. vége)
-5. Villany rough-in folytatás (A&D Vill, jövő hét 2. fele)
-6. E.ON műszaki-gazdasági tájékoztató bevárása → betáplálás
-7. Bádogos munkák ütemezése (Bádog Varázs)
-8. **QuiCK számla-címkézés (Tomi, ezen a héten)**
+1. **Espárnak OK üzenet** (járda kivitelezés engedélyezése) — TOMI
+2. TLK INVEST számla (uid 2482) → Erika
+3. Cserepezés folytatás (1–2 hét) → átállványozás
+4. EPS ragasztás 2. fele
+5. Vízszerelés befejezés + nyomáspróba (TLK Invest)
+6. Padlószigetelés → fólia/háló → fűtéscső → estrich 1. emelet (cél: máj. vége)
+7. Villany rough-in folytatás (A&D Vill, jövő hét 2. fele)
+8. E.ON műszaki-gazdasági tájékoztató bevárása → betáplálás
+9. Bádogos munkák ütemezése (Bádog Varázs)
 
 ## Drive & toolok
 
@@ -109,6 +122,19 @@ Eredetileg 3 lakás (C, E, F) szerepelt, később 5-re bővült (B, G hozzáadva
 ### 2026-05-11 incident — bizalom-törő
 Aznap 3 random `.docx` fájlt hozott létre az agent ahelyett, hogy a meglévő xlsx-et frissítette volna (`Görgey32 - Frissített ütemterv (...).docx` × 3). Ezeket Tomi-i jóváhagyással kell törölni a Drive-on. **Az xlsx maradt frissítetlenül, NE használd az incident `.docx`-ek tartalmát forrásként** — a 2026-05-11 helyszíni szemle infók a `status.md` és a fenti "Aktuális fázis" szekció alá kerültek, az igazi update az xlsx-be a következő turn-ben menjen.
 
+## 2026-05-22 — helyszíni találkozó 9:00
+
+Ütemezett helyszíni találkozó Görgey u.-ban (máj. 22, 09:00). Résztvevők és napirend ismeretlen — Stokes heti összefoglalóból. Kimenetel/update pending (Tomi visszajelzésétől függ).
+
+## 2026-05-18 esti update (Tomi)
+
+- **Gépész tervező kint volt** — egyeztet Szeghő Tamás közmű tervezővel: elegendő-e 6 m³-es esővíz tározó a 10 m³ helyett (döntés pending)
+- **Vízakna helye**: ki kell jelölni az utat pontosan, ahhoz képest kell a vízakna pozíciója (Benke György / DMRV egyeztetés szükséges)
+- **Vízakna specifikáció (WAVIN Basic — projekt dokumentumból)**: A kiviteli tervben (251013_KIVITELI TERV V1.2) WAVIN Basic vizsgálóakna van előírva — PP (polipropilén) ellenőrző/tisztítóakna csatorna rendszerhez. Típusok: Basic 315 (belső átmérő DN315), Basic 400 (DN364), Basic 600 (DN600). Max telepítési mélység 6m. Csatlakozócső: KG DN/OD 110-315. MSZ EN 13598-2 szabvány. Helye az út kijelölése után határozható meg. Korábbi DMRV vízmérőakna info TÉVES volt — az itt szereplő akna csatorna vizsgálóakna, nem vízmérőakna.
+- **TLK Invest email (2026-05-12)**: Bérczy kérte, hogy hőszivattyú alapszerelés ELŐTT vakoljanak a kazánházi ajtóval szembeni falon (beltéri egységek fala) — ezt koordinálni kell a vakolás-ütemezéssel
+- **Tető**: átállványozás megvolt, tetőmunka halad
+- **Homlokzati szigetelés**: halad
+
 ## 2026-05-13 délelőtti updates (visszamentve 2026-05-14)
 
 **Forrás**: tegnap délelőtti Tomi-chat (10:35–11:03), session-amnesia recovery útján beírva.
@@ -117,6 +143,11 @@ Aznap 3 random `.docx` fájlt hozott létre az agent ahelyett, hogy a meglévő 
 - **DMRV — Fehér László (illetékes)**: vízakna kialakítása az ELSŐ lépés, utána DMRV helyszíni szemle. A gerincre csatlakozást ŐK csinálják (a 2 ajánlatban ez a tétel ezért lehet különböző). Péntek 05-15 deadline áll → vízakna prioritás.
 - **Tóth Robi + nyílászárósok 05-13 helyszíni**: szemöldök-magasságok meghatározva, nyílászárók szabhatók (rendben).
 - **Bérczy Gergő (05-13)**: kazánház vakolás csütörtök-péntek (05-15–16). Kazánház vakolás → garázs mennyezet munkasorrend folytatás.
+
+## 2026-05-19 updates (email)
+
+- **TLK INVEST számla érkezett** (Számlázz.hu, uid 2482) — összeg a letöltött PDF-ben, Erikának továbbítandó
+- **Nyomáspróba kész — A/B/C/D lakás** (Bérczy Gergely, uid 2483) — 4 db .doc melléklet (vízvezeték). Bérczy: "Ha így megfelel, nyomtatom és aláírva küldöm." → Tomi jóváhagyása szükséges, majd visszajelzés Bérczynek
 
 ## Új teendők (2026-05-13 burst)
 

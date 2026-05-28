@@ -35,15 +35,39 @@ PietScarlet Kft. két szomszédos telke Csobánka belterületén, korai előkés
 - 2026-03-09 hete meeting volt a tervezővel — utána tisztult a kép
 - Sok földmunka várható, behajtási engedélyek bonyolultak lesznek
 
+## 2026-05-27 — Faragó Csaba: végleges tervezési térkép + számla (email)
+
+- Végleges **tervezési térkép megérkezett** — nincs túlhasználat
+- **Számla megküldve** — megállapodás: **400 000 Ft**
+- **Teendő: Tomi letölti és kifizeti** (400 000 Ft)
+
 ## Következő teendők
 
-1. Meeting Tóth Róberttel
-2. **Épületek elhelyezési terve** (előfeltétel a víz-igényléshez)
-3. Víz, csatorna, Telekom közműigénylés
+1. **Faragó Csaba számla kifizetése** (400 000 Ft) — TOMI
+2. Szakági tervek befogadása (statikus, gépész, elektromos) — Tóth Róbert után
+3. Víz, csatorna, Telekom közműigénylés (épületek elhelyezési terve után)
 4. Behajtási engedélyek
 
 ## Drive & írási scope
 **Csak `Ingatlanok/Csobánka, Kilátó utca/`** mappa írható. Többi projekt-mappa read-only.
+
+## 2026-05-19 — Kitűzés a földmérővel
+
+- Tomi holnap (2026-05-19) elmegy kitűzésre Benke Györggyel (földmérő)
+- Tervek 95%-os készültségben (rétegrend, műleírás, nyilászáró kimutatás még hiányzik)
+- Quadrat emailek átnézése folyamatban (hub ellenőrzi)
+
+## 2026-05-21 — ingatlan.com ár-változás értesítő (referencia)
+
+Két Csobánkán eladó ház ára változott (150M+ szűrő):
+- **Ady Endre utca**: 189.9M Ft · 203m² · 985m² telek · 5+2 félszoba
+- **Üdülők útja**: 159.9M Ft · 150m² · 1 370m² telek · 6 szoba
+
+Referencia-árak a helyi piaci szinthez.
+
+## 2026-05-24 — Árfigyelő: Kerekdombi utca csökkent
+
+**Csobánka, Villaövezet, Kerekdombi utca** — 6 szoba, 240m²: 270M Ft → **250M Ft** (-20M Ft). Elmentett ingatlan Tominál (ingatlan.com árfigyelő). Piaci komparátor a Kilátó utcai projekthez.
 
 ## 2026-05-18 — Terv 95% kész, szakmai konzultációra kiadva
 

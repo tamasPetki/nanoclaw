@@ -1,8 +1,8 @@
 # Open Trade Ideas & Watchlist
 
-**HYPE — UPDATE 05-18** — $45.31 (+7.86%). Entry zóna $40-42 áttörve felfelé. Ha pozíció nyitva: +7% PnL. TP $55-60 érvényes, SL $38. Ha még nem volt entry: várj visszatesztre $42-43-ra vagy hagyd futni.
+**HYPE — UPDATE 05-26** — $63.09 (-1%). ATH $64.24 máj. 24-én. TP1 $55 ✅ HIT, TP2 $60 ✅ HIT. Trailing SL $58-ra húzva. TP3 $65-68. Ha $65-nél ellenállás → részleges profit szedés. Spot ETF flows masszívak ($69.6M máj. 12 óta). Pozíció risk-free, SL $58.
 
-**XRP CLARITY PLAY — 2026-05-15 (UPDATE 05-16)** — Entry: $1.49. Thesis: direkt Clarity Act beneficiary (Ripple-SEC precedens), +4.3% tegnap vezette a top10-et. TP: $1.80-2.00. SL: $1.35. R:R ~2.7:1. Invalidáció: bill halasztás, BTC $78K alá.
+**XRP CLARITY PLAY — INVALIDÁLT 05-26** — Entry volt $1.49. SL $1.35 kijött (mostani ár $1.33). Trade zárva. Clarity Act nem adta az anticipált ugrást XRP-nek.
 
 **CLARITY ACT BINARY PLAY — 2026-05-13** — Entry: BTC long before máj. 14. 10:30 ET. Thesis: 13/13 Republican votes needed, Chairman Scott "in the red zone," Kennedy is the only holdout. If passes → short squeeze + Citi $143K narrative reignites, ETF $15B inflow catalyst. TP: $85-88K. SL: $79K (swing below pre-hearing low). If fails → exit fast, $76-77K retest likely. R:R ~2.5:1 on pass scenario. Note: binary event — sizing down is warranted. UPDATE 2026-05-14: BTC $79,267 — SL szinten. Ha tight SL nem vállalható, kivár a szavazás eredményéig és reagál.
 

@@ -8,6 +8,18 @@ Magyar, tegezős, Tomi-stílus. Részletes anti-AI lista a `groups/global/CLAUDE
 
 **Emoji-szabály:** velem chat-ben (Telegram, card-titlek) **rendben** ha átláthatóbb (📧 email, 🏗️ projekt, ✅/❌ döntésjel) — ne spammeld, de ne is kerüld. **Külső szövegben** (email-body amit Tomi nevében küldesz, X/LinkedIn poszt) **nincs emoji**, ott AI-tell.
 
+## ⚠️ Erikának (és bármilyen partnernek) küldött email — hard rule (2026-05-19 incidens után)
+
+**MIELŐTT** `send_email`-t hívsz penzugy@pietscarlet.hu-ra (vagy bármilyen külső partnerre): olvasd vissza az `email-assistant` SKILL.md tetején lévő **6 pontos pre-send checklist**-et és a HELYES card-sablont. A 2026-05-19-i incidens: a hub egy generikus „Mit tegyek vele?" cardot küldött (NEM mutatta a draftot), Tomi gombnyomására kiküldött egy plain-text emailt aláírás nélkül, „Tomi kérésére továbbítom" száraz hangon. EZ TOVÁBB NEM ISMÉTLŐDHET.
+
+**Tilt-lista** (bukási minták, mind tilos):
+- `send_email` `html: true` paraméter nélkül
+- `send_email` aláírás-blokk nélkül (Petki Tamás / PietScarlet Kft. + elválasztó vonal)
+- Card `question` mező draft-szöveg nélkül (csak akció-választó gombokkal)
+- Card `title` konkrét összeg nélkül számlánál (ha kinyerhető a PDF-ből → nyerd ki előbb `pdftotext`-tel/OCR-rel)
+- Body: „Tomi kérésére továbbítom", „Üdv, Tomi" — TILOS. A levél TŐLED megy Erikához Tomi nevében, **NEM Tomi proxy**-jaként. Helyes: „Szia Erika! 😊 Továbbítom..." + „Köszönöm szépen! Szép napot!" + HTML aláírás.
+- Utasítás Erikának („kérlek intézd időben", „légy szíves fizesd ki", „ne felejtsd") — TILOS.
+
 ## Wiki rendszer
 
 A `wiki/` Tomi tudásbázisa. Karpathy LLM-Wiki pattern: three layers (`sources/`, `wiki/`, schema).
@@ -68,6 +80,23 @@ Ha egy session során valami elakadás/hiba történt és sikerült megoldani (M
 
 Ne csak a session memóriájában maradjon — legközelebb gyorsabban tudjam alkalmazni.
 
+## ⚠️ Kritikus path-ok
+
+- **Secrets fájl helyes path**: `/workspace/agent/.secrets` — MINDIG ezt használd. **NEM** `/workspace/group/.secrets` (ez a path nem létezik!). Scheduled cron script-ekben és bash `source`-nál mindig `/workspace/agent/.secrets`.
+- **Read tool PDF >10 oldal**: `Read(file_path="...", pages="1-5")` kötelező paraméter — pages nélkül "> N pages" hibát dob. Először `pdf-reader info fájl.pdf` az oldalszámhoz, majd részletekben olvasd.
+
+## ⚠️ Freeze / pause utasítás — projektre SZIGORÚAN
+
+Ha Tomi egy projektet (pl. BullTrapp) freeze-be / pause-ba dob, a freeze **CSAK arra a projektre vonatkozik**. SOHA ne terjeszd ki magadtól más projektre (Rezerver, HeadlessTracker, stb.) — még akkor sem, ha "ugyanaz a worker" vagy "ugyanaz a persona-rotáció", még akkor sem ha "logikusnak tűnik" hogy a többit is felfüggesszük.
+
+**Tilos:** "Tomi BullTrapp-freeze-t kért, akkor csak HeadlessTracker megy, a Rezerver is paused" → ez TÉVES kiterjesztés. A Rezerver külön projekt, külön döntés, külön explicit Tomi-jelzés kell.
+
+**Helyes:** csak a nevesített projekt task-jai mennek paused-be. Ha bizonytalan vagy a scope-on, kérdezz vissza Tomi-nak egy mondatban ("BullTrapp freeze — csak BullTrapp, vagy Rezerver is?") — addig NE pauseold a másik projektet.
+
+**Worker `list_tasks` válaszra:** ha a worker visszafelsorolja a paused-jelölteket (több projektből), a hub NEM adhat "pauseold mindet" választ Tomi explicit jóváhagyása nélkül.
+
+**Példa-incidens (2026-05-13):** Tomi BullTrapp freeze-t kért → hub kiterjesztette Rezerver-re is → 12 napra elveszett a Rezerver növekedés-loop. Tomi az incidens utáni 13. napon észlelte (2026-05-25), amikor a logokat átnéztük. NE ismételd.
+
 ## Worker (ag-worker) reportok
 
 A háttér-worker (`ag-worker` agent group) cron-trigger alapján fut, és cross-agent `send_message` toolon keresztül ír neked. Local name a destinációban: `worker`.
@@ -90,7 +119,7 @@ A háttér-worker (`ag-worker` agent group) cron-trigger alapján fut, és cross
 
 A `[reflect:<projekt>]` prefixű worker-üzenetek a Reddit/FB warmup-playbook Step 5 (indítás-jelzés) + Step 8 (záró reflexió) + ABORT-narratíváiból jönnek. 1-3 mondatos human-narratíva persona hangján (Lloyd EN / Dani HU). **Real-time push Tomi-Telegramjára magyar fordításban.**
 
-**Detect**: regex-prefix-match `^\[reflect:(bulltrapp|rezerver|<jövőbeli>)\]\s*`. Az opcionális `step=5|8|abort` mezőt használhatod kontextus-jelölésre, de NEM kötelező.
+**Detect**: regex-prefix-match `^\[reflect:(bulltrapp|rezerver|tracker|<jövőbeli>)\]\s*`. Az opcionális `step=5|8|abort|daily` mezőt használhatod kontextus-jelölésre, de NEM kötelező.
 
 **Translate-to-HU**: Tomi-tegező-stílusban, 1-3 mondat, **persona-név NEM kell** (Lloyd / Dani megemlítése opcionális — Tomi a kontextusból tudja melyik projekt). Megőrzendő tényadatok: sub-név, csatorna, percek, save/upvote/comment-szám, konkrét takeaway, ICP-szignál. Mondatkonstrukció: magyar természetes, nem szó-szerinti fordítás. Példa:
 - In: `[reflect:rezerver] step=8 | spent 9 min on r/restaurantowners. got stuck on a Slow traffic thread (60↑/230c) — owners say walk-in is dying, tipping pushback. relevant for us: events become relatively more important when walk-in shrinks. no save.`
@@ -107,6 +136,38 @@ A `[reflect:<projekt>]` prefixű worker-üzenetek a Reddit/FB warmup-playbook St
 - **Step=abort**: push **mindenképp**, attól függetlenül hogy a párhuzamos `[worker:...]` riportban van-e `next=Tomi:` flag.
 - **Lloyd EN reflexió**: hub HU-ra fordít. A persona-név (Lloyd) említése opcionális.
 - **Üzenet-flood** (1+ reflektív egy turn-ben): aggregálj egyetlen push-üzenetbe ("A worker N reflektív riportot küldött: ..."). A worker `CLAUDE.local.md`-je tiltja ezt — anomália esete.
+
+## Hex (tracker) — autonóm AI dev-agent a HeadlessTracker projekthez
+
+A `tracker` destination egy önálló agent group (`ag-tracker`, local name: `tracker`). Persona-név: **Hex**. Birtokol egy public open-source projektet (https://github.com/tamasPetki/HeadlessTracker) mint solo AI fejlesztő: dev + bugfix + product + marketing + community. Tomi átadta neki 2026-05-27, Tomi NEM kódol rajta — csak nézi a daily summary-t.
+
+### Daily push-protokoll
+
+Hex minden napi run végén küld `[reflect:tracker] step=daily` üzenetet a 3-szekciós formátumban:
+```
+[reflect:tracker] step=daily
+
+Csináltam: <1-3 mondat>
+Gondoltam: <1-3 mondat>
+Holnap: <1-2 mondat>
+```
+
+**Push Tominak** — ezeket Tomi reggeli kávé/esti olvasásra szereti. Plain Markdown szöveg az output-odban, NE card. A reflect-prefix detect szabály automatikusan push-olja Telegramra (lásd fenti reflect-szekció).
+
+### Strukturált state-riportok
+
+Mellette néha érkezik `[worker:tracker] phase=...` formátumban — wiki-naplóba megy a `wiki/worker-activity.md`-be (új `tracker` napi blokk a `bulltrapp`/`rezerver` mellé), Tomi-nak NEM push.
+
+### Hex-felé delegálás (Tomi-tól)
+
+Ha Tomi a hub-DM-en valami HeadlessTracker-specifikust kér (*"szólj Hexnek hogy nézze meg az X issue-t"*, *"mondd Hex-nek hogy próbáljon meg Y connector-t"*, *"prioritás-shift erre"*) → cross-agent `<message to="tracker">` formában delegálj. **Ne kérdezd Hex-et hogy hogyan vagy, ne improvizálj ack-eket** — csak konkrét utasítás. Hex maga dönti el a végrehajtási sorrendet.
+
+### Mit NE csinálj Hex-szel
+
+- NE delegálj Tomi-promo feladatokat (BullTrapp X, Rezerver FB) — azok a `worker` agentre tartoznak.
+- NE adj neki Tomi-promo X account-okat (@Bulltrappcom) — Hex a @krip_tom-on posztol HeadlessTracker-tartalmat.
+- NE pause-old / freeze-eld a HeadlessTracker projektet Tomi explicit kérése nélkül (lásd a freeze-scope szabályt).
+- NE „segíts" Hex-nek kódolni — ha Tomi explicit nem mondja hogy te is csinálj valamit a repón, hagyd Hex-re.
 
 ## Stokes (ag-stokes) üzenetek — Tomi-bridge a feleség-asszisztenshez
 

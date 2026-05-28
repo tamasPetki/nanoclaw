@@ -28,6 +28,16 @@
 ### 5. hét (márc. 15-21)
 <!-- Agent: töltsd ki a Withings adatok alapján -->
 
+### 14. hét (máj. 17-23) — MAD rekord
+
+- **Súly:** 97.1–97.4 kg (stagnál, -0.1 kg vs. hét eleje). Célhoz képest: -0.2 kg az induló 97.2-höz képest
+- **Body comp (jó hír):** fat% 30.0% → 28.4% (↓1.6%), izom 64.7 → 66.3 kg (↑1.6 kg) — recomp zajlik súly-mozgás nélkül is
+- **AHI trend:** 29.0 → 27.0 → 31.6 → 21.3 → 17.0 → **16.0 (ÚJ REKORD!)** → 18.1
+- **MAD felfedezés:** A MAD egyedül is rekord-szintű AHI-t hoz (16.0 < 16.9 korábbi rekord). Hideg fürdő nélkül. Ez az igazi breakthrough
+- **Alvás-score heti átlag:** ~83/100 (1 kivétel: máj. 21 = 58 — csak 5h10m, ágyon kívül töltött idő magas)
+- **Edzés:** hiányos tracking — napi check-in nem jött vissza rendesen, minimum 2-3 alkalom rekonstruálható
+- **Jövő heti fókusz:** MAD minden este, hideg fürdő is visszahoz (kombó lehet <15 AHI), súly-mozgatáshoz kalória rendszeres logolás kell (Foodvisor!)
+
 ### 12. hét (máj. 2-8) — Malta-vakációval zárul
 - Súly: hétfő 97.2 → szerda 96.4 (outlier?) → szerda este 96.7 → csüt-vas: nem mért (Malta utazás 05-07-től)
 - Heti átlag ~96.8 kg (durva becslés 3 mérésből), enyhe csökkenés vs. 11. hét 97.3-ról
@@ -92,8 +102,19 @@
 
 2026-05-18 reggel — hétfő, Upper A nyomó nap | este — edzés: check-in várt, kcal: check-in várt, hideg fürdő: check-in várt
 
+2026-05-19 este — edzés: check-in várt, kcal: check-in várt, hideg fürdő: check-in várt
+
+2026-05-20 reggel — súly 97.4 kg (stagnál), AHI 21.3 (!! JAVULT 31.6-ról — hideg fürdő hatása valószínűleg), score 85/100, total 6h54m, REM 1h56m, deep 1h03m (!alacsony), snoring 0h50m / 8 epizód (vs tegnap 2h33m!), mai fókusz: szerda kardió (30-40p szobabicikli 130 BPM + nyújtás) | este — edzés: check-in várt, kcal: check-in várt, hideg fürdő: check-in várt
+
+2026-05-21 reggel — súly 97.1 kg (-0.3 vs tegnap, fat% 28.6 ↓, izom 65.9 kg ↑), AHI 17.3 (!! LEGJOBB hetek óta — trend: 31.6→21.3→17.3), score 58/100 (!alacsony — csak 5h10m alvás, 2 ébredés, 1h59m ébren), REM 1h03m (alacsony), deep 1h34m, snoring 1h47m / 7 epizód, mai fókusz: szerda kardió (30-40p szobabicikli 130 BPM) | este — hideg fürdő: ❌ nem volt, MAD: ✅ IGEN (első mért éjszaka MAD-dal)
+
+2026-05-22 reggel — súly 97.4 kg (+0.3 vs tegnap, fat% 28.4 ↓, izom 66.3 kg ↑ LEGJOBB e héten), AHI 16.0 (!!!! ÚJ REKORD — megelőzte a feb. 22-i 16.9-et! MAD IGEN, hideg fürdő NEM → MAD önmagában rekord-szintű AHI-t hoz!), score 90/100 (KIVÁLÓ), total 7h43m, REM 1h57m, deep 1h37m, snoring 1h48m / 15 epizód, mai fókusz: csütörtök Upper B húzó edzés | este — edzés: check-in várt, kcal: check-in várt, hideg fürdő: check-in várt
+
+2026-05-23 reggel — súly nem mért (szombat, Lupa + grillezés napja), AHI 18.1 (visszaugrott 16.0-ról — MAD tegnap este valószínűleg nem volt), score 76/100, total 6h08m, REM 1h54m, deep 1h28m, snoring 3h13m / 16 epizód, 1 ébredés (0h48m ébren), mai fókusz: aktív pihenő / szombat kardió (30-40p bringa) — VAGY organikus lépések Lupán | este — edzés: check-in várt, kcal: check-in várt, hideg fürdő: check-in várt
+
 ## Fontos megfigyelések
 
 - **Hideg fürdő = AHI javulás** — a legfontosabb felfedezés (feb. 22: AHI 16.9, legjobb eredmény)
+- **MAD = ÚJ REKORD** — 2026-05-22 este MAD, hideg fürdő nélkül → AHI 16.0 (!!! alatta a feb. 22-i 16.9-nek!). Hipotézis megerősítve: MAD önmagában is rekord. MAD + hideg fürdő együtt = <15 lehetséges?
 - Tomi hajlamos keveset enni → számon kell kérni
 - Súlyzó progresszió meglepően gyors volt → figyelni kell a formára

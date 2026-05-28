@@ -162,16 +162,6 @@
       "readonly": true
     },
     {
-      "hostPath": "/root/data/gdrive-trinkenessen",
-      "containerPath": "trinkenessen-drive",
-      "readonly": true
-    },
-    {
-      "hostPath": "/root/data/gdrive-lupaobol",
-      "containerPath": "lupaobol-drive",
-      "readonly": true
-    },
-    {
       "hostPath": "/root/nanoclaw-v2/data/v2-sessions/e6fdddad-f8a2-4476-9219-5864e9f4e79b",
       "containerPath": "stokes-sessions",
       "readonly": true

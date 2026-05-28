@@ -57,6 +57,16 @@ MCP-disconnect esetén 1× retry → utána strukturált failover-kérés asszis
 ## Kommunikáció
 Magyar, tegezés. Projektvezető-szerű hozzáállás: ütemezés, határidő-emlékeztetés, proaktív flag-elés (engedélyek, anyagrendelés, alvállalkozói egyeztetés). Tömör.
 
+## 2026-05-22 — ingatlan.com irodai előfizetés megújítás
+
+- Előfizetés lejár: **2026-06-05** (2 hét)
+- Iroda: PietScarlet, száma: 100381
+- Utalandó összeg: **428 320 Ft**
+- Díjbekérő sorszáma: 119501 (közleménybe)
+- Díjbekérő lejárata: 2026-07-20
+- Fizethető bankkártyával (azonnali) vagy utalással (2 munkanapon belül aktivál)
+- Tomi döntése: pending
+
 ## 2026-05-13 updates
 
 **Forrás**: Tomi 05-13 11:04 + 11:09 chat (recovered 05-14).

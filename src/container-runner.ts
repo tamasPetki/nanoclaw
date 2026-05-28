@@ -523,7 +523,7 @@ async function buildContainerArgs(
   // the HOME directory.
   args.push(
     '-c',
-    'if [ -d /workspace/extra/.mcp-auth ]; then ln -sfn /workspace/extra/.mcp-auth "$HOME/.mcp-auth"; fi; exec bun run /app/src/index.ts',
+    'if [ -d /workspace/extra/.mcp-auth ]; then ln -sfn /workspace/extra/.mcp-auth "$HOME/.mcp-auth"; fi; export GIT_SSL_CAINFO="${NODE_EXTRA_CA_CERTS:-/tmp/onecli-combined-ca.pem}"; exec bun run /app/src/index.ts',
   );
 
   return args;

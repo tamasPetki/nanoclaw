@@ -38,6 +38,7 @@ Append-only napló. Heti check-ineknél új adatokkal frissül (lásd persona 6.
 - **15. hét fókusz:** hideg fürdő minden este (cél AHI <20), min. 4 edzés, napi súlymérés, Foodvisor
 
 `2026-05-18 reggel — súly 97.3 kg, AHI 27.4 (hideg fürdő ✅ 15°C), REM 1h07m, mai fókusz: Upper A (nyomó)`
+`2026-05-19 reggel — súly 97.4 kg, fat 29.3%, AHI 31.6 (hideg fürdő ❓ — check-in nem érkezett), REM 1h58m, mai fókusz: Lower A (guggolás)`
 
 ### 14. hét (máj. 10-16) — Malta utáni visszarázódás, stagnálás
 
@@ -85,6 +86,11 @@ Append-only napló. Heti check-ineknél új adatokkal frissül (lásd persona 6.
 - 2026-05-06 reggel — súly 96.7 kg (két egymást követő mérés 97 alatt), AHI 4.0 (3 nap stabilan 4–5), deep sleep 3h42m (kiemelkedő), fókusz: szerda kardió
 - 2026-05-16 (tegnap) — ~1900 kcal (kicsit felett a 1800-as célon, de rendben)
 - 2026-05-17 — reggeli: 2 tükörtojás | ebéd: csirkés wrap | vacsora: ? | edzés: 35p bringa (240 kcal) + 25 fekvőtámasz ✅ | hideg fürdő: ✅ 15°C | kalória: ~1900 (tegnap) + ma becsült
+- 2026-05-24 reggel — súly 97.1 kg, AHI 16.0, REM 1h45m, deep 2h16m, sleep score 87/100, fókusz: V pihenő | este — edzés: ?, hideg fürdő: ?, kcal: ? (check-in pending)
+- 2026-05-25 reggel — súly 97.5 kg, AHI 16.4, REM 1h36m, deep 2h16m, sleep score 77/100, fókusz: Upper A (nyomó) — munkaszüneti nap | este — edzés: ?, hideg fürdő: ?, kcal: ? (check-in pending)
+- 2026-05-26 reggel — súly 97.6 kg, fat 28.8%, AHI 17.9, REM 1h50m, deep 1h35m, sleep score 77/100, fókusz: Lower A (guggolás) | este — edzés: Freeletics ✅, hideg fürdő: ?, kcal: ? (check-in pending)
+- 2026-05-28 reggel — súly: n/a (mérj le!), AHI 11.8 ✅ (MAD), REM 1h02m ⚠️ (kevés), deep 2h29m, sleep score 67/100 🔴, alvás 6h01m (2h16m ébrenlét!), fókusz: kardió 30-40p (130 BPM) | este — edzés: ?, hideg fürdő: ?, kcal: ? (check-in pending)
+- 2026-05-27 reggel — súly 97.8 kg, fat 27.6%, AHI 12.4 ✅ (MAD készülék — NEM hideg fürdő), REM 2h22m, deep 2h42m, sleep score 85/100, edzés tegnap: Freeletics ✅, fókusz: kardió 30-40p (130 BPM) | este — edzés: ?, hideg fürdő: ?, kcal: ? (check-in pending)
 
 ## Fontos megfigyelések
 

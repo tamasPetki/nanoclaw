@@ -1,6 +1,28 @@
 # Active Narratives
 <!-- The agent updates: what is gaining/losing momentum -->
-_Updated: 2026-04-20 09:00 CEST (morning briefing)_
+_Updated: 2026-05-28 03:30 CEST (morning briefing)_
+
+## 2026-05-28
+
+• *BTC $73,677 (-2.72%) — $74,700 FEHÉR VONAL ELVESZÍTVE* — Bull trap confirmed. Következő szintek: $73,500 (Fefe short trigger), $70K (Dr. Profit contingency long). Weekly red close esélyes → bearish dominancia.
+• *ETH $2K ELVESZÍTVE* — $1,988 (-4.16%). ETH/BTC gyengülés folytatódik, nincs önálló strength. Pszichológiai szint átlépve.
+• *HYPE $58.26 — SL KÖZELÉBEN* — Trailing SL $58-on van, ár $58.26. Ha zár $58 alatt, pozíció lezárul. TP3 $65-68 még él de egyre távolabb.
+• *PIAC ÁLTALÁNOSAN VÖRÖS* — BTC, ETH, SOL, XRP, DOGE mind -2-4%. Nincs outlier, nem szelektív gyengülés.
+
+## 2026-05-27
+
+• *BTC $77K SUPPORT ELVESZÍTVE* — $75,734 (-0.94%). Hétvégi $74,344 mélypontból visszapattant de $77K-t nem tudta visszavenni. Következő szint: $74-75K (Dr. Profit fehér vonal). Semleges → enyhén bearish.
+• *HYPE RECOVERING* — ATH $64.24 után ~$59-re esett, ma $60.64 (+2.74%). Trailing SL $58 tartja, TP3 $65-68 aktív. Spot ETF flows erősek.
+• *AI + CRYPTO TOOLING NARRATÍVA ÉLESEDIK* — Coinbase Base MCP launch (ChatGPT DeFi wallet integráció). MCP protokoll mainstream crypto tooling-ban = HeadlessTracker thesis megerősítve.
+• *QBTC CFTC JÓVÁHAGYÁS PENDING* — Nasdaq BTC opciók gamma catalyst potenciál, de még nincs meg.
+
+## 2026-05-26
+
+• *HYPE ATH $64.24 (máj. 24) — TRAILING SL $58* — Spot ETF flows $69.6M máj. 12 óta. TP1 $55 ✅, TP2 $60 ✅. Most $63.09 (-1%), pullback a ATH-ból. Trail SL $58, TP3 $65-68. Ecosystem erős: HYPE ranked #11 market cap-ban.
+• *BTC $77K RANGE — SEMLEGES* — Triple top $82K tartja az ellenállást. ETF outflow $2.26B 2 hét alatt = strukturális headwind. QBTC Nasdaq opciók várják a CFTC jóváhagyást = gamma catalyst potenciál. $75-79K range dominál.
+• *ETH ALULTELJESÍT* — $2,112, ETH/BTC trend tovább gyengül. HYPE narratíva szívja az L1-es figyelmet.
+• *ZEC & NEAR — WATCHLIST* — blknoiz06 szerint ezek a következő outlierek HYPE/VVV ATH után. Nem aktív pozíció, figyeljük.
+• *SEC TOKENIZÁLT RÉSZVÉNY DELAY* — DeFi narratíva headwind, intézményi innovation window szűkül.
 
 ## 2026-05-18
 

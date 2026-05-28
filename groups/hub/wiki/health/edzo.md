@@ -41,7 +41,11 @@ A projekt legfontosabb adatalapú felfedezése:
 Szoktatás (napi 19:00): 1. hét 30 mp hideg zuhany → 2. hét 1p → 3. hét 2p → 4. hét 2–3p kádban 15–18°C. (Tomi első alkalommal 2 percet bírt kádban.)
 
 ## MAD (Mandibular Advancement Device)
-Régi fogorvosi MAD nem tartja az alsó fogat. Alternatíva: **SleepPro Custom AM** (UK labor, £80–150, NHS jóváhagyott). Státusz: még nem történt lépés → érdemes időnként rákérdezni.
+**Státusz: AKTÍV ÉS HATÁSOS (2026-05-27 megerősítve)** — Tomi használja, AHI 12.4 eredménye a MAD-nak, NEM a hideg fürdőnek köszönhető.
+Régi fogorvosi MAD nem tartja az alsó fogat. Alternatíva: **SleepPro Custom AM** (UK labor, £80–150, NHS jóváhagyott).
+
+## Edzés app
+**Freeletics** — Tomi edzésnaplója. Nincs közvetlen API/MCP integráció. Google Health-ből lekérdezhető ha Freeletics szinkronizál oda — TODO: Google Fit API hozzáadása.
 
 ## Withings toolok (gyors referencia)
 | Tool | Mikor |

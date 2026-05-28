@@ -10,6 +10,13 @@
 
 ## Reddit warmup napló
 
+### 2026-05-19 — Day 6 (lloyd_bt, r/SaaS, lurk-only) — **Week 1 KÉSZ**
+
+- r/SaaS, ~8 perc, 0 save, 0 vote, 0 anomália
+- Feed tanulság: sok solo builder "first revenue" + "stuck on distribution" téma — BullTrapp/HeadlessTracker ICP-egyezés erős
+- **Week 2 holnaptól (Day 7): +1 save/session engedélyezett**
+- Komment: Week 6+ (karma-building fázis, Tomi explicit GO kell)
+
 ### 2026-05-18 — Day 5 (lloyd_bt, r/startups, lurk-only)
 
 - r/startups, ~8 perc, 0 save, 0 vote, 0 anomália

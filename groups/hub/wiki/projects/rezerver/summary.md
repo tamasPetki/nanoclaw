@@ -17,6 +17,42 @@
 - Összesen 29 csoport logolva (kumulált)
 - Session clean, 0 anomália
 
+### 2026-05-28 — esti trigger event check + pipeline audit
+
+**Gault&Millau 2026 HU** — Gála 2025-09-26 volt (már lezajlott). Top csillagos Tier 1 célpontok:
+- Stand (18/20, Chef of Year: Szulló Szabina)
+- Platán Gourmet (17.5/20), Babel (17/20), Rumour (17/20), Salt (17/20)
+- Sommelier of Year venue: Arany Kaviár (15.5/20)
+
+**Michelin HU 2025** (dec 2025) — budapesti csillagok: Babel, Borkonyha Winekitchen, Costes, essència, Rumour, Salt, Stand. Bib Gourmand új: 94' Konyha & Bar. → Mind Tier 1 Rezerver célpontok, G&M + Michelin hook erős outreach opener.
+
+**SIRHA 2026** (március): lezajlott. Nincs aktív közelgő HoReCa trigger event. Következő monitoring: Michelin HU 2026 (~dec 2026).
+
+**⚠️ KRITIKUS GAP: venue_pipeline.json eltűnt** (context compaction). 109 venue-s fájl hiányzik. Legitimacy check (0/109) nem futtatható. Rekonstruálható state.json history alapján — **Tomi döntés kell: agent rebuild most, vagy más prioritás?**
+
+**FB cookie**: még mindig lejárt (Dani Bene) — manuális relogin szükséges.
+
+### 2026-05-27 — reggeli FB warmup (Bene Dani)
+
+- Feed scroll ~6 perc, HU sticky (Szigetszentmiklós), 1 értesítés
+- **Szablet Tomi** friend-accept (4 közös) → friends_count: **10**
+- Jobb oldalsáv: 8+ HoReCa/rendezvény csoport javaslat (Rendezvény árusok, Vendéglátós HORECA-GASZTRO, Vendéglátós adok-veszek, Fesztiváli árusok, Rendezvényszervezés stb.) — logolva, nem csatlakozva (heti limit kimerült)
+- 0 lájk, 0 csoportakció, Phase 3 tartva
+
+### 2026-05-27 — Day 32, reggeli session (r/restaurantowners) — dani_horeca
+
+- r/restaurantowners, ~9 perc, lurk-only
+- Erős ICP-szignál: voice AI / missed-calls poszt — **30-45% service hours alatti kihívott hívás, 8-ra 90%+**, vendéglátós 5-25k/hó láthatatlan bevételkiesésről írt → Rezerver after-hours booking narratíva, élőben
+- Upvote: shreddit shadow DOM blokkolta (ismert issue, policy szerint skip)
+- 0 save, 0 comment, 0 anomália
+
+### 2026-05-26 — Day 30, reggeli session (r/restaurateur) — dani_horeca #20
+
+- r/restaurateur, ~9 perc, hot view, 0 upvote (Reddit shadow DOM blokkolta — shreddit-post custom element), 0 save, 0 comment
+- Releváns thread: "Do small restaurant owners actually track monthly profitability?" — $1-1.5M árbevételű tulaj bank egyenleg + Toast POS alapján navigál, havi P&L nincs → **erős ICP-szignál**: pontosan az operatív láthatóság-hiány amit Rezerver old meg
+- 0 anomália, session clean
+- session_count: 20
+
 ### 2026-05-18 — Day 23, reggeli session (r/restaurantowners) — dani_horeca #19
 
 - r/restaurantowners, lurk-only, ~8 perc, 0 upvote (heti kvóta reset holnaptól)
@@ -45,6 +81,36 @@
 - Lurk scroll ~5 perc, 0 save, 0 comment, 0 anomália
 - session_count=18 | heti upvote-kvóta kimerítve (2/2)
 - Következő session: holnap r/restaurantowners vagy r/foodservice
+
+### 2026-05-26 — "A Vendéglátós Csoport" JÓVÁHAGYVA ✅ + első olvasás (Bene Dani)
+
+- **JOINED:** "A Vendéglátós Csoport" — facebook.com/groups/650382321695092 — 20 000 tag, privát csoport
+- Jóváhagyás: 2026-05-26 15:30 UTC (email_id 141)
+- **Első benyomás (esti session):** főleg állás-hirdetés board (pizza szakács, SZIGET diákmunka) — DE étteremtulajok jelen vannak (pl. Pekáry Kastély étterem venue-promo) → ICP elérhető, csak nem a foglalási problémájukról posztolnak
+- **Alexandra Tamási Petki** friend-accept (6 közös) → friends_count: **9**
+- **Szablet Tomi** friend-request PENDING (2. kérelem — köv. session előtt 5-15p feed scroll szükséges)
+- 0 lájk, 0 csoportakció, session clean
+- **Aktív Phase 3 szabály (→ 2026-06-02):** passzív olvasás, 0 akció, 0 lájk a csoportban
+- **2026-06-02-tól (Phase 4):** max 1 lájk/hét másik tag SAFE-posztjára
+- **Sentry #138-139 — PROD BUG (2026-05-27 diagnosztizálva):**
+  - #138 (gyökér): `constructEvent()` raw body-t vár, Next.js App Router már parse-olja → minden Stripe webhook hívás hibázik
+  - #139 (következmény): Stripe retries 20× 3 napon át → **40k error 11 nap alatt**
+  - Fix: `route.ts`-ben `req.text()` helyett `req.json()` — HA már így van: `STRIPE_WEBHOOK_SECRET` Vercel env != Stripe Dashboard signing secret
+  - Státusz: Tomi akciót igényel (kód fix vagy env var csere)
+- **Sentry backlog (2026-05-27 worker-triage):**
+  - **4Y** (Stripe webhook, 40k error) — már jelezve, Tomi fix szükséges
+  - **4X** (calendar cron hiba) — új, Tomi review szükséges
+  - **4V** (OAuth upsert hiba) — új, Tomi review szükséges
+- **FB group discovery (2026-05-27):** 8 új csoport logolva → összesen **32 felfedezett csoport** (pipeline_counters frissítve). Többsége adásvétel/állás — Phase 4-ban venue-owner irányba tolódhat.
+- **Reddit ICP (2026-05-27):** "owners can't review customers" (r/restaurantowners, 39 upvote, 171 komm) — review-aszimmetria, owner-frustration szignál
+
+### 2026-05-25 — FB Phase 3 indulás (Bene Dani)
+
+- **Phase 3 aktív** (2026-05-25 → 2026-06-01): csoport-csatlakozási kérelem fázis
+- **2 friend-accept:** László Biró (2 közös) + Petki Andrea (3 közös) → friends_count: **8**
+- **Group join request PENDING → APPROVED 2026-05-26:** "A Vendéglátós Csoport" — facebook.com/groups/650382321695092 — 20k tag, privát, admin-approval szükséges
+- **Phase 3 szabály:** csoportban 0 akció, max 2 SAFE lájk/hét feedben
+- Cookie: xs dump 2026-05-17, érvényes; HU sticky proxy OK
 
 ### 2026-05-16 — Day 20, reggeli session (r/Chefit)
 
