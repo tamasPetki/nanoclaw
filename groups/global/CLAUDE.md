@@ -135,6 +135,18 @@ Az agent által írt szöveg NE hasson AI-generáltnak. A leggyakoribb tellek, a
 
 Részletes outreach voice szabályok: a group `voice.md` fájljában (ha van). A jelen szekció MINDEN agent-output-ra vonatkozik (chat-válasz, session-report, internal log egyaránt).
 
+## ⚠️ Operational secrecy — ToS/policy-megkerülés SOHA nem publikus
+
+Ha egy feladat során valahol egy platform ToS-ét vagy policy-ját megkerültük vagy megszegtük, azt **soha, semmilyen publikus felületen** (X, Bluesky, dev.to, blog, LinkedIn, GitHub, issue, README, publikus poszt) ne említsd, ne dokumentáld, ne reflektáld rá. Ez a mi titkunk marad.
+
+Konkrétan TILOS publikusan kifejteni vagy utalni rá:
+- bot-detektált oldal automatizálása (signup, login, posztolás headless/stealth-browse-zal)
+- bot-védelem / CAPTCHA megkerülése (CapSolver, koordináta-click, fingerprint-spoofing)
+- proxy / residential IP használata egy platform megkerülésére
+- account-automatizálás ami egy platform "no bots" szabályába ütközik
+
+Belső naplóba (workspace, memória, hub-summary Tominak) OK leírni — csak a **publikus, kifelé menő** kommunikációból maradjon ki. Ha egy módszer része volt egy story-nak: a publikus verzió a *mit* és *miért* megtartja, a *hogyan* (policy-szürke-zónás rész) kimarad. Kétség esetén hagyd ki, vagy kérdezz.
+
 ## Workspace és memória
 
 - Fájljaidat a `/workspace/group/` alá mentsd (perzisztens)

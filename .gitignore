@@ -68,6 +68,7 @@ __pycache__/
 groups/*/.reddit-cookies-*.json
 groups/*/.fb-cookies-*.json
 groups/*/.*-cookies-*.json
+groups/*/*-cookies.json
 
 # Vendored Python libs mounted into containers (not source)
 groups/*/pylibs/
