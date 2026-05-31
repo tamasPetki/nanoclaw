@@ -173,6 +173,43 @@ export function createChatSdkBridge(config: ChatSdkBridgeConfig): ChannelAdapter
   const transformText = (t: string): string => (config.transformOutboundText ? config.transformOutboundText(t) : t);
   const textPayload = (t: string): { raw: string } | { markdown: string } =>
     config.sendAsRaw ? { raw: t } : { markdown: t };
+
+  // Markdown delivery with a plain-text fallback. Some adapters (Telegram, via
+  // @chat-adapter/telegram) apply parse_mode=Markdown whenever the payload
+  // carries a `markdown` field, and reject the entire message when that
+  // markdown is malformed — unbalanced `*`/`_`, an unterminated inline code
+  // span, or a broken `[link](url)`. The downstream sanitizer balances most
+  // delimiters but can't cover every legacy-parser edge case, so delivery.ts
+  // then exhausts its 3 retries on the same payload and drops the message
+  // permanently ("can't parse entities … giving up"). On a parse error, resend
+  // the same body as `{ raw }`: the adapter emits no parse_mode for raw
+  // payloads, so the text always lands. Formatting is lost only on the rare
+  // malformed turn — strictly better than silent loss. Non-markdown payloads
+  // (cards, files-only) and unrelated errors fall through to the original throw.
+  const postMaybeRaw = async <T>(
+    tid: string,
+    payload: T & ({ markdown: string } | { raw: string } | Record<string, unknown>),
+  ): Promise<{ id?: string } | undefined> => {
+    try {
+      return (await adapter.postMessage(tid, payload as never)) as { id?: string } | undefined;
+    } catch (err) {
+      const reason = err instanceof Error ? err.message : String(err);
+      if (
+        payload &&
+        typeof payload === 'object' &&
+        'markdown' in payload &&
+        /parse entities|parse_mode|can't find end of/i.test(reason)
+      ) {
+        const { markdown, ...rest } = payload as { markdown: string } & Record<string, unknown>;
+        log.warn('Markdown delivery rejected by adapter, retrying as raw text', {
+          adapter: adapter.name,
+          reason,
+        });
+        return (await adapter.postMessage(tid, { ...rest, raw: markdown } as never)) as { id?: string } | undefined;
+      }
+      throw err;
+    }
+  };
   let chat: Chat;
   let state: SqliteStateAdapter;
   let setupConfig: ChannelSetup;
@@ -653,7 +690,7 @@ export function createChatSdkBridge(config: ChatSdkBridgeConfig): ChannelAdapter
         for (let i = 0; i < chunks.length; i++) {
           const chunk = chunks[i];
           const attachFiles = i === 0 && fileUploads && fileUploads.length > 0;
-          const result = await adapter.postMessage(
+          const result = await postMaybeRaw(
             tid,
             attachFiles ? { ...textPayload(chunk), files: fileUploads } : textPayload(chunk),
           );
