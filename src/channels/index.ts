@@ -7,6 +7,9 @@
 // self-registration import below.
 
 import './cli.js';
-import './discord.js';
+// Discord retired 2026-05-31 — no active wirings, only an orphan CrypTom DM
+// group remained and the adapter kept a Gateway connection open for nothing.
+// Re-enable by uncommenting + restoring DISCORD_* in .env if ever needed again.
+// import './discord.js';
 import './telegram.js';
 import './telegram-stokes.js';
