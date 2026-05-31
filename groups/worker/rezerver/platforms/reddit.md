@@ -144,7 +144,8 @@ A `state.reddit.warmup_cadence` szerint:
 > 1. **NE lépj automatikusan komment/disclosure-fázisba** — ez Tomi explicit kérése, soha nem nap-szám alapján magadtól (a `phase` változtatás eddig is Tomi-only volt, ez most hard gate).
 > 2. **A gyors curl-self-test (`/user/.../about.json`) ezen a proxyn 403-at ad — NEM megbízható** (proxy-szintű Reddit-blokk, nem account-jel). Ne erre alapozz.
 > 3. **A megbízható teszt**: az első éles komment után 24h-val stealth-browse-zal hasonlítsd össze logged-in vs logged-out incognito nézetben, látszik-e a komment. Ha logged-out NEM látszik / 0 score 24h → shadowban → **azonnali full stop** + Tomi-ping, ne posztolj tovább.
-> 4. **FIGYELEM — `.env` bug**: a `REDDIT_USERNAME` jelenleg `Mammoth-Birthday-437` (a régi, 2026-04-17-én bannolt account), NEM `dani_horeca`. Bármi ami `$REDDIT_USERNAME`-re hivatkozik a rossz/bannolt accountot célozza. A napi warmup cookie-restore-t használ (`dani_horeca`), így eddig nem tört el — de a self-test és relogin igen. Javítás Tomira vár.
+> 4. **CRED-állapot (2026-05-31)**: a `REDDIT_USERNAME` javítva `Mammoth-Birthday-437`→`dani_horeca` (.env + .secrets). **DE a `REDDIT_PASSWORD` még a régi Mammoth-é** — a generált 24-char dani_horeca jelszó sehol nincs perzisztálva. A napi warmup cookie-restore-ral megy, jelszó csak reloginnál kell → **NE relogin-álj jelszóval**; ha a cookie lejár, STOP + Tomi-ping (password-reset kell dani@rezerver.com-on, nem a meglévő `$REDDIT_PASSWORD`).
+> 5. **A `/about.json` curl-teszt 403-at ad proxyval ÉS anélkül is** = Reddit általános anti-bot blokk a végponton, nem account-jel. Shadowban ellenőrzésre KIZÁRÓLAG stealth-browse logged-in vs logged-out használható.
 
 - Bármikor jön shadow-jel (komment 0 score 24h után + nem látszik logged-out incognito browser-ben): **azonnali full stop**, Tomi-ping, ne posztolj tovább míg nem tisztáztuk.
 
