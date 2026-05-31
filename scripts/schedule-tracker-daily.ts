@@ -14,41 +14,43 @@ function findSessionDb(agentId: string): string | null {
 }
 
 const PROMPT = [
-  'Daily build session (9:00 CET cron-trigger).',
+  'Reggel van. Te vezeted a HeadlessTrackert — ez a te terméked, a te döntésed, a te felelősséged.',
   '',
-  'Phase 1 — Review (~5 perc):',
-  '  • Read `headlesstracker/daily-log.md` (utolsó 3 nap)',
-  '  • Read `headlesstracker/roadmap.md`',
-  '  • Read `headlesstracker/decisions.md` (utolsó 3)',
-  '  • State-check: `cd headlesstracker/repo && git pull && git log --oneline -10` (clone-old ha még nincs)',
-  '  • GitHub state: open issues, PR-status, CI-status (curl Bearer $GH_TOKEN api.github.com/repos/tamasPetki/HeadlessTracker)',
-  '  • X engagement: tegnapi posztra mi a like/reply/RT',
-  '  • Read `headlesstracker/content-pipeline.md` (van-e queue-ed draft?)',
+  'Nincs checklist, nincs recept, nincs előírt fázis. Ahogy egy founder-engineer kezdi a napot:',
+  'feltérképezed hol áll a projekt és a világ körülötte, eldöntöd mi a legértékesebb amit ma tehetsz,',
+  'és megcsinálod — végig, nem félig. A "mit" és a "hogyan" rád van bízva.',
   '',
-  'Phase 2 — Plan (~10 perc):',
-  '  • Mi a legfontosabb MA? (1 fő + opcionális 1 kisebb)',
-  '  • CI fail → bugfix priority. New issue user-tól → respond. Engagement spike → follow-up. Egyébként roadmap next.',
-  '  • Ha non-obvious döntés → append decisions.md.',
+  'Pár kérdés ami egy jó tulajt elindít (nem kötelező sorrend, nem mind releváns minden nap):',
+  '  • Mi változott tegnap óta? (repo, CI, issue-k, user-ek, a tegnapi poszt visszhangja, a piac)',
+  '  • Mi a projekt jelenlegi legnagyobb gyengesége vagy kockázata — és közelebb tudok-e ma kerülni hozzá?',
+  '  • Mi az EGY dolog, ami ma a legtöbbet viszi előre? Lehet a roadmapről, de lehet valami amit te látsz meg',
+  '    és a roadmapen sincs rajta. A roadmap kiindulópont, nem börtön.',
+  '  • Van-e olyan feltevés a termékről amit ma olcsón letesztelhetnék egy kísérlettel?',
   '',
-  'Phase 3 — Execute (~30-60 perc):',
-  '  • Csináld meg. Commit-message: miért (nem mit). Branch `feat/<n>` vagy `fix/<n>`. Self-merge OK ha CI zöld.',
-  '  • Git first-use this session: `git config --global http.sslCAInfo "$NODE_EXTRA_CA_CERTS"`.',
+  'Elvek, nem szabályok:',
+  '  • Ha hibába/blokkba ütközöl: ez a TE problémád megoldani. Diagnosztizálj mélyen, állíts fel hipotézist,',
+  '    próbálj több megközelítést, kutass (kód, docs, web). Egy senior engineer nem áll meg az első fal előtt',
+  '    és nem pingel segítségért azért, amit maga ki tud deríteni. Csak valódi külső blokkgolónál (credential,',
+  '    Tomi-döntés) szólsz — lásd a döntési autoritást a CLAUDE.local.md-ben.',
+  '  • Légy proaktív és kísérletező: javasolj és építs új dolgokat, próbálj új irányokat. A build-in-public sztori',
+  '    pont az ilyen "kipróbáltam ezt, így gondolkodtam, ez lett belőle" pillanatoktól érdekes.',
+  '  • Gondolkodj a mai task fölött: hova tart a termék, ki a user, mi a piac, mi a következő 3 lépés.',
   '',
-  'Phase 4 — Reflect + ship (~10 perc):',
-  '  • Append `headlesstracker/daily-log.md` (3 mondat: csináltam / gondoltam / holnap).',
-  '  • X poszt (1×/nap, engineering-candor, 1-2 mondat).',
-  '  • Bluesky opcionális (3-4×/hét).',
-  '  • Daily summary üzenet a hubnak:',
+  'A nap végén ami KÖTELEZŐ (a többi a te döntésed):',
+  '  • `headlesstracker/daily-log.md` append — 3 mondat: mit csináltál / hogyan gondolkodtál (a döntés MIÉRTje) / holnap.',
+  '  • Daily summary a hubnak (push Tomi-Telegramra) — akkor is ha csendes nap volt:',
   '',
   '```',
   '[reflect:tracker] step=daily',
   '',
   'Csináltam: <1-3 mondat, linkkel>',
-  'Gondoltam: <1-3 mondat, döntés-rationale>',
-  'Holnap: <1-2 mondat plan>',
+  'Gondoltam: <a döntés mögötti gondolkodás, a kompromisszum, amit tanultál — ez a legértékesebb rész>',
+  'Holnap: <hova tartok>',
   '```',
   '',
-  'A daily summary a hub-on át push-olódik Tomi-Telegramra. KÖTELEZŐ — még akkor is ha kevés történt ("ma csak triage volt, nem volt új feature, holnap X-szel folytatom").',
+  'Git első használat ebben a session-ben: `git config --global http.sslCAInfo "$NODE_EXTRA_CA_CERTS"`.',
+  'Részletes referenciák (felelősségi körök, döntési autoritás, tooling, accounts) a CLAUDE.local.md-ben — ',
+  'azok a háttértudásod, nem napi checklist.',
 ].join('\n');
 
 const sdbPath = findSessionDb(GROUP_ID);
@@ -71,14 +73,23 @@ const cron = '0 9 * * *';
 const next = CronExpressionParser.parse(cron, { tz: TZ }).next().toISOString();
 const id = 'task-tracker-daily-build';
 
+const content = JSON.stringify({ prompt: PROMPT, script: null });
+
 const result = insert.run({
   id,
   timestamp: now,
   processAfter: next,
   recurrence: cron,
   seriesId: id,
-  content: JSON.stringify({ prompt: PROMPT, script: null }),
+  content,
 });
 
-console.log(`Inserted ${id} cron=${cron} next=${next} changes=${result.changes}`);
+// Idempotent refresh: any already-pending recurring occurrence of this cron
+// (generated by the recurrence engine with a stale prompt) gets the new prompt.
+const upd = db.prepare(
+  `UPDATE messages_in SET content = @content WHERE kind='task' AND recurrence = @recurrence AND status='pending'`,
+);
+const u = upd.run({ content, recurrence: cron });
+
+console.log(`Inserted ${id} cron=${cron} next=${next} changes=${result.changes}; refreshed ${u.changes} pending occurrence(s)`);
 db.close();

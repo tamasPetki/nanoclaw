@@ -14,39 +14,27 @@ function findSessionDb(agentId: string): string | null {
 }
 
 const PROMPT = [
-  'Weekly retrospective session (vasárnap 18:00 CET cron-trigger).',
+  'Vasárnap este — a hét vége. Most nem buildelsz, hanem hátralépsz és founder-fejjel végiggondolod a HeadlessTracker hetét.',
   '',
-  'Ez NEM a daily — strategic szint, 7 napos minta-felismerés. A daily-ket NE ismételd, a hetet ELEMEZD.',
+  'Ez a strategic szint: nem a napok ismétlése, hanem a minták meglátása, amit napról napra nem vesz észre az ember.',
+  'A te dolgod eldönteni mi a hét tanulsága és mit jelent a következő hétre — nincs előírt sablon.',
   '',
-  'Phase 1 — Gather (~10 perc):',
-  '  • Read `headlesstracker/daily-log.md` az utolsó 7 nap teljes egészében.',
-  '  • Read `headlesstracker/decisions.md` az utolsó hét bejegyzéseit.',
-  '  • Read `headlesstracker/roadmap.md` — a current state vs eredeti plan.',
-  '  • Read `headlesstracker/learning.md` — competitive intel, market signals.',
-  '  • GitHub state-trend: `curl -H "Authorization: Bearer $GH_TOKEN" https://api.github.com/repos/tamasPetki/HeadlessTracker | jq "{stargazers_count, open_issues_count, forks_count, pushed_at}"` — vs múlt héten ha tárolod (most még nem trackeled, de a daily-log-ból kiolvasható).',
-  '  • npm DL trend: `curl -s https://api.npmjs.org/downloads/range/last-week/headlesstracker | jq` (adjust package név).',
-  '  • X engagement trend: az utolsó 7 poszt összesítése — like/reply/RT total, top-poszt.',
-  '  • Sentry trend (ha shippelt): unresolved issues counts vs múlt héten.',
+  'Amin egy tulaj ilyenkor elgondolkodik (vedd amelyik releváns, a forrásaid: daily-log 7 nap, decisions.md, roadmap.md, learning.md, és a számok: GitHub stars/issues/forks, npm DL-trend, X-engagement, Sentry ha van):',
+  '  • Hova jutott a termék a héten — tényleg előrébb van, vagy csak mozgás volt mozdulás nélkül?',
+  '  • Mi működött és MIÉRT? Mi ragadt be és MIÉRT? A "miért" a lényeg, nem a felsorolás.',
+  '  • Megerősített vagy megcáfolt a hét valamilyen feltevést a termékről / userről / piacról?',
+  '  • Kell-e stratégiai irányváltás? Ha igen, az nagy döntés — írd le a decisions.md-be a rationale-lel. Ha nem, az is döntés.',
+  '  • A roadmap még a helyes irányt mutatja? Frissítsd ha a hét mást tanított (de csak valódi okkal, ne hetente).',
   '',
-  'Phase 2 — Synthesize (~15 perc):',
-  '  • Mit tanultunk a héten? (3-5 bullet)',
-  '  • Mi működött? (X tone, fejlesztési ütem, mi keltett engagementet)',
-  '  • Mi nem? (mi ragadt, mi vesztett mom-t)',
-  '  • Strategic shift szükséges? (ha igen, append decisions.md)',
-  '  • A roadmap.md "Theme proposals to evaluate" listából commit-olható-e már bármelyik az aktuális 1-2 hetes scope-ba? (ha igen, frissítsd a roadmap.md-t)',
+  'Heti longer-form (a build-in-public lényege, ha van miről):',
+  '  • Egy mélyebb publikáció: X-thread ("Week N — what I shipped and what I learned"), VAGY Bluesky longer post,',
+  '    VAGY dev.to/hashnode blogposzt — te döntöd el melyik formátum illik a heti anyaghoz, és hogy van-e elég anyag.',
+  '  • Engineering candor: a hibák, a kompromisszumok, a gondolkodás a value — ne marketing-blurb. Ha üres a hét, ne forszírozd.',
+  '  • Compliance: "Not financial advice" (lásd CLAUDE.local.md).',
   '',
-  'Phase 3 — Longer-form content (~15-30 perc):',
-  '  • Írj 1× longer-form publication-t:',
-  '    - X-thread (3-7 tweet, építőkocka-stílusban: "Week N — here\'s what I shipped and what I learned")',
-  '    - VAGY Bluesky longer post (~500 char, narratívabb)',
-  '    - VAGY ha tényleg van anyag: dev.to / hashnode blogposzt (300-800 szó). Csak ha érdemi tartalom van, NE forszírozd.',
-  '  • Tone: engineering candor, mutass hibákat és kompromisszumokat is, NE blurb.',
-  '  • Compliance: "Not financial advice" CLAUDE.local.md COMPLIANCE szekció szerint.',
-  '',
-  'Phase 4 — Wrap (~10 perc):',
-  '  • Append `headlesstracker/daily-log.md` — egy külön bejegyzés: `## YYYY-MM-DD (vasárnap) — weekly retro` (4-5 mondat: hét összefoglaló + key learning + next-week plan).',
-  '  • Update `headlesstracker/roadmap.md` ha strategic-shift történt (ne minden héten — csak ha tényleg van rationale).',
-  '  • Weekly summary üzenet a hubnak:',
+  'A nap végén KÖTELEZŐ:',
+  '  • `headlesstracker/daily-log.md` — külön retro-bejegyzés: `## YYYY-MM-DD (vasárnap) — weekly retro` (hét összefoglaló + key learning + jövő hét).',
+  '  • Weekly summary a hubnak:',
   '',
   '```',
   '[reflect:tracker] step=weekly',
@@ -81,14 +69,22 @@ const cron = '0 18 * * 0';
 const next = CronExpressionParser.parse(cron, { tz: TZ }).next().toISOString();
 const id = 'task-tracker-weekly-retro';
 
+const content = JSON.stringify({ prompt: PROMPT, script: null });
+
 const result = insert.run({
   id,
   timestamp: now,
   processAfter: next,
   recurrence: cron,
   seriesId: id,
-  content: JSON.stringify({ prompt: PROMPT, script: null }),
+  content,
 });
 
-console.log(`Inserted ${id}: changes=${result.changes}, next_fire=${next} (CET: ${new Date(next).toLocaleString('hu-HU', { timeZone: TZ })})`);
+// Idempotent refresh: update any already-pending recurring occurrence with the new prompt.
+const upd = db.prepare(
+  `UPDATE messages_in SET content = @content WHERE kind='task' AND recurrence = @recurrence AND status='pending'`,
+);
+const u = upd.run({ content, recurrence: cron });
+
+console.log(`Inserted ${id}: changes=${result.changes}, refreshed ${u.changes} pending occurrence(s), next_fire=${next} (CET: ${new Date(next).toLocaleString('hu-HU', { timeZone: TZ })})`);
 db.close();
