@@ -138,6 +138,14 @@ A `state.reddit.warmup_cadence` szerint:
 - **Hét 1-2** (post-registráció): heti 2 karma-komment, csak a 5 primary subból, válasz egy értékes thread-re saját tapasztalat-narratívával. **Zéró link**, **zéró Rezerver**, **zéró promo-szöveg**.
 - **Hét 3-4**: heti 4-5 karma-komment, fokozatos hangulat-építés. Még mindig zéró link.
 - **Hét 5+** (ha karma 50+ a Reddit `/about.json` szerint): heti 1 disclosure-outreach. Először válasz egy konkrét kérdésre ("how do you handle private dining bookings"), ott első mondat disclosure + érdemi válasz + opcionális rezerver.com link a végén.
+
+> ⚠️ **KÖTELEZŐ SHADOWBAN-GATE az ELSŐ publikus interakció (komment/poszt) ELŐTT — Tomi 2026-05-31.**
+> dani_horeca eddig lurk+upvote-only volt → nincs publikus tartalma → shadowban se nem okoz kárt, se nem tesztelhető. Amint komment/poszt jönne (hét 5+ disclosure VAGY bármilyen karma-komment), AKKOR és csak akkor élesedik a kockázat. Ezért:
+> 1. **NE lépj automatikusan komment/disclosure-fázisba** — ez Tomi explicit kérése, soha nem nap-szám alapján magadtól (a `phase` változtatás eddig is Tomi-only volt, ez most hard gate).
+> 2. **A gyors curl-self-test (`/user/.../about.json`) ezen a proxyn 403-at ad — NEM megbízható** (proxy-szintű Reddit-blokk, nem account-jel). Ne erre alapozz.
+> 3. **A megbízható teszt**: az első éles komment után 24h-val stealth-browse-zal hasonlítsd össze logged-in vs logged-out incognito nézetben, látszik-e a komment. Ha logged-out NEM látszik / 0 score 24h → shadowban → **azonnali full stop** + Tomi-ping, ne posztolj tovább.
+> 4. **FIGYELEM — `.env` bug**: a `REDDIT_USERNAME` jelenleg `Mammoth-Birthday-437` (a régi, 2026-04-17-én bannolt account), NEM `dani_horeca`. Bármi ami `$REDDIT_USERNAME`-re hivatkozik a rossz/bannolt accountot célozza. A napi warmup cookie-restore-t használ (`dani_horeca`), így eddig nem tört el — de a self-test és relogin igen. Javítás Tomira vár.
+
 - Bármikor jön shadow-jel (komment 0 score 24h után + nem látszik logged-out incognito browser-ben): **azonnali full stop**, Tomi-ping, ne posztolj tovább míg nem tisztáztuk.
 
 ## Posztolás

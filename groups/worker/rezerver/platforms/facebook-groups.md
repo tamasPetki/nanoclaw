@@ -160,11 +160,11 @@ Ha `NO_FEED`, NE STOP-olj rögtön — előbb diagnoszticáld:
    stealth-browse wait 2500
    stealth-browse eval "document.querySelector(\"[role=feed]\") ? \"FEED_OK\" : \"STILL_NO_FEED\""
    ```
-2. **Login form (email+password input látható, profil-name NEM)** → session valóban expired, STOP, ping Tomi (cookie-refresh kell, de **NE Tomi saját böngészőjéből** — agent-direct relogin a clean path, lásd `feedback_fb_direct_login_vs_chrome_export`).
-3. **Checkpoint URL (`/checkpoint/`), captcha, 2FA modal** → HARD STOP, ping.
-4. **Egyéb "unusual"** → STOP, ping, ne kísérletezz.
+2. **Login form (email+password input látható, profil-name NEM)** → **agent-direct relogin, TE oldod meg, NEM Tomi-ping.** Töltsd ki a formot a vault-credekkel proxy mögött (clean path, lásd `feedback_fb_direct_login_vs_chrome_export`). Ha "Something went wrong" jön: NE add fel — várj 30-60s + retry; kétszeri elakadásnál válts friss proxy-sticky-session-re és úgy próbáld. Manuális Tomi-belépést SOHA ne kérj. (A puszta login-form NEM "session expired → Tomi" eset — ez a régi rossz reflex.)
+3. **Checkpoint URL (`/checkpoint/`), captcha, 2FA modal** → ez az EGYETLEN valódi fal. HARD STOP, incident-log + `[reflect:rezerver] step=abort`, de NE kérj manuális belépést (holnap újrapróba).
+4. **Egyéb "unusual"** → előbb screenshot + DOM-vizsgálat; ne ugorj STOP-ra és főleg ne "cookie lejárt"-ra. Csak ha tényleg azonosított checkpoint/captcha → akkor STOP.
 
-**KRITIKUS**: Tomi NEM lép be saját IP-ről FB-re — a residential HU proxy → home IP váltás flag-eli a fiókot. Minden cookie-frissítést az agent old meg containerből.
+**KRITIKUS**: Tomi NEM lép be saját IP-ről FB-re — a residential proxy → home IP váltás flag-eli a fiókot (veszélyesebb mint amit megold). Minden belépést/cookie-frissítést az agent old meg containerből. Lásd a HARD RULE-t a `CLAUDE.local.md` tetején.
 
 ## AZONNALI STOP szabályok
 
@@ -176,9 +176,10 @@ Ha BÁRMELYIK ezek közül: stop, session close, NE próbálj újra, Discord pin
 - 2FA prompt amit nem vártunk
 - "Account temporarily restricted" / "Account disabled"
 - Checkpoint bármilyen típusa
-- Feed nem tölt be + login form jelenik meg
 
-Utána NE próbáld helyrehozni automatikusan — Tomi dönti el a következő lépést.
+**NEM tartozik ide a puszta login-form** (feed helyett email+pass mező): az **agent-direct relogin** esete (lásd NO_FEED diagnózis 2. pont), azt MAGAD oldod meg, nem STOP. Csak ha a relogin után jön checkpoint/captcha/2FA → AKKOR stop.
+
+A valódi STOP-eseteknél (fent) NE próbáld automatikusan helyrehozni, de manuális Tomi-belépést SE kérj (home-IP flag) — incident-log + `[reflect:rezerver] step=abort`, a holnapi warmup újrapróbál. Tomi a saját eszközeivel dönt.
 
 ## Emberi session-minta — random-izálás
 
@@ -290,7 +291,7 @@ Ez biztosítja hogy ha a session később megakad (context-compact, FB-checkpoin
 
 **ABORT-narratíva** ha bukási szignál jön (checkpoint, captcha, 2FA, "Too many requests"): a hagyományos `state.json` `fb_incident` log MELLÉ küldj egy `[reflect:rezerver] step=abort | ...` üzenetet is, hogy Tomi narratívában értse mi történt. Példa:
 ```
-[reflect:rezerver] step=abort | Dani fiókon checkpoint prompt jött a 'Vendéglátósok HU' csoport megnyitásakor. Browser closed, state-be incident logolva. Tomira vár: manuális FB-belépés Dani-fiókkal a desktop-on, checkpoint feloldás.
+[reflect:rezerver] step=abort | Dani fiókon checkpoint prompt jött a 'Vendéglátósok HU' csoport megnyitásakor. Browser closed, state-be incident logolva. Ma nem erőltetem tovább, holnap a warmup újrapróbál clean session-nel. (Megj.: NE kérj manuális FB-belépést Tomitól — a home-IP login flag-eli a fiókot.)
 ```
 
 Részletek a worker `CLAUDE.local.md` "Reflektív riportok" szekciójában. **Pontosan 1 záró reflexió per session**, opcionális +1 indítás-jelzés.

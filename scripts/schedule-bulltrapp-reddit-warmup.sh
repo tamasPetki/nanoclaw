@@ -10,6 +10,17 @@ set -euo pipefail
 LOG=/root/nanoclaw-v2/data/bulltrapp-reddit-warmup-schedule.log
 SDB=/root/nanoclaw-v2/data/v2-sessions/ag-worker/sess-1778077729204-u2ry5f/inbound.db
 
+# ── HARD STOP 2026-05-31 ──────────────────────────────────────────────────
+# u/lloyd_bt is SHADOWBANNED on Reddit (Tomi confirmed). No more warmup runs —
+# every session on a shadowbanned account is wasted risk and surfaces nothing.
+# This guard short-circuits the daily scheduler even though the crontab line
+# still fires; remove it (and flip account_status in bulltrapp/state.json)
+# only if Tomi explicitly clears the account or moves to a fresh one. See also
+# groups/worker/bulltrapp/platforms/reddit.md top banner.
+echo "$(date): SKIP — u/lloyd_bt shadowbanned (hard stop 2026-05-31)" >> "$LOG"
+exit 0
+# ──────────────────────────────────────────────────────────────────────────
+
 # Random offset: 60-180 minutes after 08:00 local → fires 09:00-11:00 local.
 OFFSET_MIN=$(( 60 + RANDOM % 121 ))
 HOUR=$(( (8 * 60 + OFFSET_MIN) / 60 ))

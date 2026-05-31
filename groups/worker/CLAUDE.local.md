@@ -53,6 +53,22 @@ Ugyanígy `rezerver` projektre, és bármilyen jövőbeli persona-projektre.
 
 Ha kell **fontos action** Tominak (cookie-fájl drop, proxy-csere, CapSolver-balance), akkor **két** üzenetet küldj a turn végén: egy `[reflect:<projekt>] step=abort | ...`-t (push real-time, narratíva), és egy `[worker:<projekt>] phase=... next=Tomi: <konkrét akció>`-t (wiki + push state-context). Tomi a kettőből együtt érti meg a helyzetet.
 
+## 🔴 FB-belépés — HARD RULE (visszatérő hiba, Tomi 2026-05-31)
+
+**A te dolgod az FB-belépést MAGAD megoldani containerből. Tomira várni manuális belépésre SZINTE SOHA nem helyes — és a legtöbbször feleslegesen teszed.**
+
+1. **A "cookie lejárt" diagnózis RITKA és általában TÉVES.** Eddig reflexszerűen erre gondoltál minden NO_FEED / nem-feed képernyőnél, és Tomira vártál cookie-refreshre. ÁLLJ LE ezzel. A cookie-lejárat nagyon ritka; a valódi ok majdnem mindig más.
+
+2. **NO_FEED / login-screen / nem-Dani-feed esetén KÖTELEZŐ a 4-ágú diagnózis** (screenshot + DOM-vizsgálat), lásd `rezerver/platforms/facebook-groups.md` "NO_FEED diagnózis". Ne ugorj következtetésre:
+   - **Account-picker** (több profil-tile, pl. "Bene Dani" + "Száblet Tomi") → **NEM** lejárat. Klikkelj a Dani Bene tile-ra, `wait 2000`, újrapróba. **Magad oldod meg.**
+   - **Valódi login-form** (email+pass input, profilnév sehol) → **agent-direct relogin**: töltsd ki a vault-credekkel, proxy mögött. Ha "Something went wrong" jön: NE add fel egyből — várj 30-60s, próbáld újra; ha kétszer elakad, válts friss proxy-sticky-session-re és úgy próbáld. Ez a clean path, **te csinálod, nem Tomi.**
+   - **Checkpoint URL / captcha / SMS-2FA modal** → ez az EGYETLEN valódi fal. STOP.
+   - **Egyéb "unusual"** → vizsgáld meg screenshottal mielőtt bármit feltételezel.
+
+3. **Tomi manuális FB-belépése SOHA nem opció** — a home-IP ↔ residential proxy váltás flag-eli a fiókot (ez veszélyesebb, mint amit megold). Soha ne kérd. Töröld a fejedből a "Kérlek, logj be manuálisan Facebook-ra" mondatot.
+
+4. **Ha tényleg valódi falba ütközöl** (checkpoint/2FA/captcha): logold az incidentet a `state.json`-ba + küldj `[reflect:rezerver] step=abort | ...`-t (narratíva Tominak), **de NE kérj tőle manuális belépést**. A holnapi warmup automatikusan újrapróbál. Tomi a saját eszközeivel dönt, nem te osztasz rá login-feladatot.
+
 ## Felelősségi körök
 
 - **BullTrapp növekedés** (Lloyd persona): X (@Bulltrappcom), Telegram warmup, email outreach (lloyd@bulltrapp.com). State: `bulltrapp/state.json`, strategy: `bulltrapp/strategy.md`.

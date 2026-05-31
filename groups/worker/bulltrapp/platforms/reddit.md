@@ -1,5 +1,8 @@
 # Reddit — BullTrapp Lloyd-persona account-építés
 
+> ⛔️ **ACCOUNT LESZERELVE 2026-05-31 — u/lloyd_bt SHADOWBANNED (Tomi megerősítette).**
+> **NE indíts semmilyen Reddit-sessiont erre az accountra**: nincs warmup, nincs lurk, nincs login, nincs cookie-restore, nincs scheduling. Egy shadowbannolt accounton minden session puszta kockázat és nulla haszon (a tartalmaid senkinek nem látszanak). A napi scheduler (`scripts/schedule-bulltrapp-reddit-warmup.sh`) hard-stop guarddal le van tiltva. Ha cron-task mégis felébreszt erre a projektre Reddit-céllal: olvasd be a `state.json.reddit.account_status == "shadowbanned"`-et és **azonnal állj le, ne csinálj semmit**. Csak Tomi explicit "feloldva" / "új account" utasítására éleszthető újra (akkor töröld ezt a bannert + a scheduler guardot + flip `account_status`). A BullTrapp growth a többi csatornán (X @Bulltrappcom, Telegram, email) fut tovább változatlanul.
+>
 > 🛑 **STEALTH BROWSER + US-STICKY RESIDENTIAL PROXY KÖTELEZŐ.** Curl-alapú posting tilos minden formában. Olvasásra is csak proxy-mögött. Az u/Mammoth 2026-04-17 ban pont curl-bombázás miatt jött — NE ismételd. Részletek: rezerver `platforms/browser.md` `stealth-browse residential proxy nélkül TILOS` blokk (azonos szabály mindkét personára).
 
 ## Fázis
