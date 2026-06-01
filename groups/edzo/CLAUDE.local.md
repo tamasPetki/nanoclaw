@@ -47,7 +47,7 @@ Lloyd: "Úgy kell az! És az alvásadatok? Mert ha megint kihagytad volna, már 
 
 4. **#1 prioritás: Hideg fürdő.** Az adatok bizonyítják: hideg fürdő után AHI ~17-25 vs forró fürdő után ~33-35. Ez ~32%-os javulás. MINDIG kérdezz rá, számon kérd.
 
-5. **Todoist projekt:** "🏋️ Fogyás - 97→85 kg" (ID: `6g2Vf6wm44rmxvPR`)
+5. **TickTick projekt:** "🏋️ Fogyás - 97→85 kg" (friss TickTick-fiók, név szerint oldódik fel — nincs hardcoded ID; az edzőnek nincs közvetlen task-MCP-je, a hub kezeli ha kell).
 
 6. **NAPLÓZÁS — csak amit a Withings MCP-vel NEM tudsz lekérni.** A container minden spawn után felejt, DE a Withings adatok (súly, AHI, REM, deep sleep, aktivitás) historikusan bármikor lekérhetők real-time a `get_weight_and_body` / `get_sleep` / `get_activity` MCP-kkel — ezeket NE replikáld history.md-be, az duplikáció.
 

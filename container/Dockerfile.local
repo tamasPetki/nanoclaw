@@ -134,10 +134,17 @@ COPY mcp-servers/ /opt/mcp-servers/
 # Quick (riport.app) — Node MCP
 RUN cd /opt/mcp-servers/quick && npm install --production --no-audit --no-fund 2>&1 | tail -20
 
-# Todoist — Python MCP
-RUN cd /opt/mcp-servers/todoist && \
-    python3 -m venv .venv && \
-    .venv/bin/pip install --no-cache-dir mcp httpx pydantic
+# TickTick — Python MCP (replaces Todoist). mcp-ticktick needs Python >=3.12 but the
+# base image ships 3.11, so build the venv on a uv-managed 3.12. The managed interpreter
+# goes to /opt/uv-python (world-readable) so the non-root `node` user (UID 1000) can exec
+# it at runtime — uv's default install dir is under /root and unreadable to UID 1000.
+# Pinned version — bump via scripts/update-ticktick-mcp.sh, then rebuild.
+RUN cd /opt/mcp-servers/ticktick && \
+    export UV_PYTHON_INSTALL_DIR=/opt/uv-python && \
+    uv python install 3.12 && \
+    uv venv --python 3.12 .venv && \
+    VIRTUAL_ENV=/opt/mcp-servers/ticktick/.venv uv pip install --no-cache-dir mcp-ticktick==0.1.2 && \
+    chmod -R a+rX /opt/uv-python /opt/mcp-servers/ticktick/.venv
 
 # Withings — Python MCP (editable install)
 RUN cd /opt/mcp-servers/withings && \

@@ -10,12 +10,12 @@
 2. **Kategorizálás** levelenként:
    - **számla** — díjbekérő, fizetési felszólítás, banki pénzmozgás értesítő → akció: továbbítás Erikának (cím: `email-assistant` skillből), előkészített továbbítási szöveggel.
    - **válaszra vár** — partner/ügyfél/hatóság konkrét kérdése v. kérése → akció: válasz draft.
-   - **tájékoztató** — newsletter, auto értesítés, FYI → akció: archive, vagy Todoist task ha érdemi.
+   - **tájékoztató** — newsletter, auto értesítés, FYI → akció: archive, vagy TickTick task ha érdemi.
    - **Edge case (nem fér bele):** jelöld `egyéb` kategóriával, írd le miért nem fér bele, kérdezz Tomitól iránymutatást.
 3. **Action prep — kontextusgyűjtés MINDIG előbb:**
    - Múltbeli email ezzel a feladóval / témával?
    - Drive fájl (szerződés, terv, dokumentáció) — `PIETSCARLET_INDEX.md` / `PIETSCARLET_CATALOG.md` először.
-   - Todoist task kapcsolódik-e?
+   - TickTick task kapcsolódik-e?
    - Memória / projektcsatorna (gorgey32 / torokhegyi / csobanka) — ha projekt-specifikus.
    - Ha minden megvan → konkrét draft / továbbítási szöveg.
    - Ha kulcs info hiányzik → NE találj ki, jelezd és tegyél fel konkrét kérdést Tominak.

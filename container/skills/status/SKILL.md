@@ -57,7 +57,7 @@ title: "🛠 Rendszer-állapot"
 description: "<idő> · <agent neve> · <session-id rövid>"
 children:
   - "**Workspace:** group ✓ · extra: <N>"
-  - "**Skillek (N):** agent-browser, email-assistant, todoist, wiki, ..."
+  - "**Skillek (N):** agent-browser, email-assistant, ticktick, wiki, ..."
   - "**MCP:** withings ✓ · email-pietscarlet ✓ · gcal ✓ · ..."
   - "**Cron:** N aktív task (next: <legközelebbi cron + idő>)"
   - "**Container:** node vX.Y · claude vX.Y · agent-browser ✓"

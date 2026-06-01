@@ -108,7 +108,7 @@ children:
   - "**Költség**: hó eddig 4.2M Ft, plan 4.8M Ft"
 actions: [
   { label: "📂 Wiki oldal", value: "open_wiki_gorgey32" },
-  { label: "📝 Aktív Todoist (3)", value: "open_todoist" }
+  { label: "📝 Aktív TickTick (3)", value: "open_ticktick" }
 ]
 ```
 

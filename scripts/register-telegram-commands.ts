@@ -29,7 +29,7 @@ if (!TOKEN) {
 const COMMANDS: Array<{ command: string; description: string }> = [
   { command: 'fokusz',    description: 'Munkanap-pillanatkép: prioritás-lista mindenből' },
   { command: 'projektek', description: 'Projekt-státusz: PS, Görgey, Csobánka, stb.' },
-  { command: 'teendok',   description: 'Mai + 7 napos Todoist teendőlista' },
+  { command: 'teendok',   description: 'Mai + 7 napos TickTick teendőlista' },
   { command: 'email',     description: 'Email-check most (PS, Lupa Öböl, Trinken)' },
   { command: 'hirek',     description: 'Napi hírdigest most (politika, kripto, AI)' },
   { command: 'edzo',      description: 'Reggeli edző-riport (Withings + edzésnapló)' },

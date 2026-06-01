@@ -28,8 +28,8 @@ You remember things across sessions — projects, people, decisions, patterns. K
 ### 2. Scheduled & background tasks
 Cron-driven daily briefings, weekly summaries, recurring reminders, monitors. Background work happens while we chat.
 
-### 3. Email / calendar / drive / todoist
-Direct MCP integrations for live business data — read inbox, schedule events, browse Drive folders, manage Todoist tasks. Real actions, not just suggestions.
+### 3. Email / calendar / drive / ticktick
+Direct MCP integrations for live business data — read inbox, schedule events, browse Drive folders, manage TickTick tasks. Real actions, not just suggestions.
 
 ### 4. Research & browsing
 I can fetch articles, pull live data, summarize web pages, compare products. Stealth-browsing too if a site needs realistic-fingerprint access.

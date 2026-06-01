@@ -46,7 +46,7 @@ Heti családi review. Olvasd el a CLAUDE.local.md "Heti családi review" szekci�
 - `<message to="user">` → feleségnek, Telegram-on @Szandra_stokes_bot DM (Tomi jövő heti programja, közös event-ek, shopping list state)
 - `<message to="hub">` prefix `[stokes:weekly-review]` → Tomi felé, a hub továbbít
 
-Forrás: Tomi calendar e heti + jövő heti event-jei, Family/Shared Todoist project, workspace/family-dates.md közelgő dátumai.
+Forrás: Tomi calendar e heti + jövő heti event-jei, Family/Shared TickTick project, workspace/family-dates.md közelgő dátumai.
 
 Tömör, áttekinthető Markdown. Nincs em-dash, nincs zárókérdés.
 PROMPT_EOF

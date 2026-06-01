@@ -10,7 +10,7 @@ Telegram-on a `/` gombbal autocomplete. Argumentum a parancs után space-szel.
 
 *🔄 Riportok / pillanatkép*
 • `/projektek` — projekt-státusz
-• `/teendok` — Todoist 7 nap
+• `/teendok` — TickTick 7 nap
 • `/naptar` — ma + holnap
 
 *⚡ Cron-ok ad-hoc*

@@ -2,7 +2,7 @@
 
 ## 1. Adatgyűjtés (párhuzamosan)
 
-- `mcp__todoist__list_tasks` filter `(overdue | today)` és külön `7 days`
+- `mcp__ticktick__list_tasks` — nyitott taskok due szerint bucketálva (lejárt / ma / 7 nap); a TickTicknek nincs globális szűrője, ezért `list_projects` → projektenként `list_tasks` + kliens-oldali szűrés (vagy `list_filters` ha van mentett szűrő)
 - `mcp__google-calendar__list_events` ma + 3 nap
 - `bash source /workspace/agent/.secrets && python3 /workspace/agent/email-prefilter.py` — heading-szintű észrevétel
 - `Read wiki/projects/*/summary.md` minden aktív projekthez
@@ -67,7 +67,7 @@ A turn output **egyetlen Markdown szöveg** (a turn végi text auto-küldve Tele
 ## 3. Anti-pattern (NE)
 
 - ❌ `mcp__nanoclaw__send_card` hívás — ez nem card, ez szöveg.
-- ❌ "Itt van a teljes Todoist export" — csak a 7 napos ablak prio-szerint.
+- ❌ "Itt van a teljes TickTick export" — csak a 7 napos ablak prio-szerint.
 - ❌ Email-tartalom részletes feldolgozása — csak heading-szintű észrevétel ("3 új levél, 1 számla várja a továbbítást Erikának"). Részletes feldolgozásra van `/email`.
 - ❌ Crypto / hírek bevonása — azokra `/hirek` és `/edzo` van. A `/fokusz` business-fókuszú.
 - ❌ Generikus javaslat: "gondold át a Görgey 32 stratégiát" — helyette: "[Görgey 32] hívd fel Bérczyt 11:00-ig (vízbekötés döntés)".

@@ -23,12 +23,12 @@ Saját UID state-et tárolok itt: `/workspace/agent/trinkenessen-last-uid.txt`
 2. **Kategorizálás** levelenként:
    - `számla` → továbbítás Erikának (penzugy@pietscarlet.hu), default szöveg előkészítve
    - `válaszra vár` → válasz draft előkészítve
-   - `tájékoztató` → archive vagy Todoist task
+   - `tájékoztató` → archive vagy TickTick task
    - `egyéb` → edge case, jelzéssel + kérdéssel Tomihoz
 3. **Action prep** — kontextus forrásai (HALLUCINÁCIÓ TILOS):
    - Múltbeli email (ugyanattól a feladótól)
    - Drive (ha van mountolva)
-   - Todoist (mcp__todoist__*)
+   - TickTick (mcp__ticktick__*)
    - Saját memória (CLAUDE.local.md, jegyzetek)
    - Hiányzó kontextusnál → kérdezek, nem találok ki
 4. **Strukturált válasz** asszisztensnek, levelenként:
@@ -72,7 +72,7 @@ mcp__nanoclaw__ask_user_question({
 **Mikor használj card-ot:**
 - számla továbbítás Erikának
 - válasz draft jóváhagyás
-- archiválás vagy Todoist task döntés
+- archiválás vagy TickTick task döntés
 - bármilyen kétséges kategória
 
 **Mikor NE card:**

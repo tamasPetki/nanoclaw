@@ -13,15 +13,16 @@ Tomi privát személyes asszisztens csatornája. Csak Tomi és Lloyd van itt.
 - Személyes ügyek intézése
 - Bármi más ami nem cégspecifikus
 
-## Todoist (személyes task-tracker)
+## TickTick (személyes task-tracker)
 
-Todoist MCP elérhető (`mcp__todoist__*`) — Tomi személyes task-jai. Használd:
+TickTick MCP elérhető (`mcp__ticktick__*`) — Tomi személyes task-jai. Használd:
 - Új feladat felvétele ami Tomi-ra vonatkozik (NEM céges, az a céges agentek dolga)
 - Tervezéskor / heti összefoglaláskor ami éppen aktív
 - Email-orchestration során, ha egy levélből személyes teendő születik
 
-A céges fiókok task-jai (PietScarlet/Lupa Öböl/Trinken Essen) az adott céges agent dolga
-— azoknak saját Todoist hozzáférésük van. NE duplikáld.
+A projekteket dinamikusan old fel (`list_projects` név szerint, nincs hardcoded ID — friss
+fiók). A céges fiókok task-jai (PietScarlet/Lupa Öböl/Trinken Essen) az adott céges agent
+dolga — azoknak saját TickTick hozzáférésük van. NE duplikáld. Részletek: `ticktick` skill.
 
 ## Email orchestration (céges fiókok pre-filter + delegálás)
 

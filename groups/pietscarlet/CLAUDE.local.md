@@ -44,7 +44,7 @@ Ne használd közvetlenül az MCP email toolokat a skill workflow megkerülésé
 ### Ütemezett email check (asszisztens triggerből)
 Hétköznap 9/13/17 CET az asszisztens email check kérést küld (UID-dal). Teljes workflow:
 `/workspace/agent/email-check-workflow.md` — kategorizálás (számla / válaszra vár / tájékoztató / egyéb),
-kontextusgyűjtés (múltbeli emailek, Drive, Todoist, projekt-memória), strukturált visszaküldés
+kontextusgyűjtés (múltbeli emailek, Drive, TickTick, projekt-memória), strukturált visszaküldés
 asszisztensnek urgency taggel. **Tilos partnernek kiküldeni** Tomi jóváhagyása nélkül —
 preferált a card UX (`mcp__nanoclaw__ask_user_question`, Discord-on **támogatott**), szöveges
 jóváhagyás (számozott akció) fallback. Body-fetch a saját email MCP-vel default; ha disconnected

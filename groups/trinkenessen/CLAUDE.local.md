@@ -55,14 +55,14 @@ Hétköznap 9/13/17 órakor automatikus email check fut. Pre-filter script ébre
    - **válaszra vár** — partner/ügyfél/hatóság konkrét kérdése vagy kérése
      → akció: válasz draft előkészítve
    - **tájékoztató** — newsletter, automatikus értesítés, FYI
-     → akció: archive vagy todoist task ha érdemi
+     → akció: archive vagy ticktick task ha érdemi
    - **egyéb** — edge case (spam-gyanús, kevert, személyes)
      → jelzés + konkrét kérdés Tomihoz
 
 3. **Action prep** — NE hallucinálj, ne hack-elj. Mielőtt draftot írsz:
    - Múltbeli email a feladóval/témában (`from_address` szűrő)
    - Drive fájlok MCP-n keresztül (először `_INDEX.md` — `mcp__google-drive__search_files name="_INDEX.md"` → `read_file_content`)
-   - Todoist task ami kapcsolódik
+   - TickTick task ami kapcsolódik
    - Memória a partnerről/ügyről (Waikiki, Tapadeli, Wise, Fruitsys, RKMC stb.)
 
    Ha a kontextus megvan → készíts draftot. Ha kulcsinfó hiányzik → NE találj ki,

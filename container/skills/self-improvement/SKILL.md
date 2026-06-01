@@ -24,7 +24,7 @@ Hét napos ablak (vasárnaptól vasárnapig). Forrásjegyzék — **ELŐSZÖR a 
 Ez a fájl tartalmazza a session-realtime hookok által naplózott jeleket az elmúlt hétből:
 
 - `tomi-feedback (frustration|repeat|directive|correction-prefix)` — Tomi frusztrációs / korrekciós üzenetei
-- `tool-failure` — MCP / tool hibák (todoist disconnect, email timeout, stb.)
+- `tool-failure` — MCP / tool hibák (ticktick disconnect, email timeout, stb.)
 - `quick-learning-applied` — már alkalmazott instant fix-ek (ezek nem mennek a heti finding listába, de kontextus)
 
 Olvasd el TELJESEN. Ezek **prioritizált jelek** (mert már filterelve voltak runtime-ban). Ha 0 bejegyzés van, csendes hét — használhatod a többi forrást de likely 0-finding hét lesz.

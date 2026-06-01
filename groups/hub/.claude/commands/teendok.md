@@ -1,4 +1,8 @@
-Hívd a `mcp__todoist__list_tasks`-ot filter `(overdue | today | 7 days)`-szel és csoportosítsd a task-okat projekt szerint, majd küldj egy **Markdown szöveget** (NE card).
+Kérd le a nyitott TickTick taskokat és csoportosítsd projekt szerint, majd küldj egy **Markdown szöveget** (NE card).
+
+Lekérés: `mcp__ticktick__list_tasks`. A TickTicknek **nincs** globális `today|overdue` szűrője, ezért:
+- ha van rá mentett szűrő (`mcp__ticktick__list_filters`), használhatod;
+- különben `mcp__ticktick__list_projects` → projektenként `list_tasks`, és **due-dátum szerint bucketálj kliens-oldalon**: lejárt (due < ma), ma (due = ma), 7 napon belül (ma < due ≤ ma+7).
 
 Formátum:
 
@@ -7,22 +11,22 @@ Formátum:
 {összes task száma}, {YYYY-MM-DD}
 
 *🔴 Lejárt ({N})*
-• [Görgey 32] feladat (P3) — {napok régen lejárt}
-• [Csobánka] feladat (P2) — ...
+• [Görgey 32] feladat (P-magas) — {napok régen lejárt}
+• [Csobánka] feladat (P-közepes) — ...
 ...
 
 *🟡 Ma ({N})*
-• [Lupa] feladat (P3)
+• [Lupa] feladat (P-közepes)
 ...
 
 *🟢 7 napon belül ({N})*
-• [Trinken] feladat (P2) — {csüt}
-• [PS] feladat (P3) — {pé}
+• [Trinken] feladat — {csüt}
+• [PS] feladat (P-magas) — {pé}
 ...
 ```
 
 **Üres sor minden szekció (Lejárt / Ma / 7 napon belül) között.** Egy szekción belül egy bekezdés.
 
-A Todoist projekt-azonosítók a `/app/skills/todoist/SKILL.md`-ben. Priority P1-P4 mutasd (Todoist-fordítva: 4=urgent piros, 1=normal).
+A projekt-neveket a `list_projects`-ből old fel (a `/app/skills/ticktick/SKILL.md` szerint — friss fiók, dinamikus, nincs hardcoded ID). Prioritás a **TickTick-skálán**: 0=nincs, 1=alacsony, 3=közepes, 5=magas (csak ha van prioritás, jelezd).
 
-Ha 0 task: csak ennyi: "Üres a Todoist 7 napon belül. ✅"
+Ha 0 task: csak ennyi: "Üres a TickTick 7 napon belül. ✅"
