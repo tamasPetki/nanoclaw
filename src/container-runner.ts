@@ -452,6 +452,18 @@ async function buildContainerArgs(
   // (`sonnet`, `opus`) or full model ID. Omitted = SDK default.
   if (containerConfig.model) {
     args.push('-e', `NANOCLAW_MODEL=${containerConfig.model}`);
+    // 1M-context model variants (e.g. `claude-opus-4-8[1m]`) can hold far more
+    // before the context window fills. Raise the Claude Code auto-compact
+    // threshold for these groups so a heavy agent (the hub) rarely compacts —
+    // compaction is slow and occasionally drops the turn's output. 200k-context
+    // groups must NOT get this (they'd blow past the API ceiling before
+    // compacting), so it's gated on the model id carrying a 1M marker.
+    if (/\[1m\]|1m/i.test(containerConfig.model)) {
+      args.push(
+        '-e',
+        `CLAUDE_CODE_AUTO_COMPACT_WINDOW=${process.env.CLAUDE_CODE_AUTO_COMPACT_WINDOW || '400000'}`,
+      );
+    }
   }
   if (containerConfig.effort) {
     args.push('-e', `NANOCLAW_EFFORT=${containerConfig.effort}`);
