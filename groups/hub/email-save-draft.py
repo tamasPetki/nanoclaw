@@ -1,19 +1,23 @@
 #!/usr/bin/env python3
-"""Save a reply as an IMAP draft so Tomi sees/edits/sends it from his mail client.
+"""Save a reply/forward as an IMAP draft so Tomi sees/edits/sends it from his mail client.
 
 Usage:
-  email-save-draft.py <account> <to> <subject> <body_html_file> [in_reply_to_message_id]
+  email-save-draft.py <account> <to> <subject> <body_html_file> [in_reply_to] [--attach PATH ...]
 
 - <account>: pietscarlet | trinkenessen | lupaobol  (same env convention as email-prefilter.py)
-- <body_html_file>: path to a file containing the full HTML body (incl. signature).
+- <body_html_file>: path to a file containing the full HTML body (incl. signature for pietscarlet).
   Passed as a file (not argv) so multi-line HTML and quotes survive intact.
+- [in_reply_to]: optional Message-ID for threading (replies). Omit for new/forward mails.
+- --attach PATH: optional, repeatable. Local file(s) to attach (e.g. a downloaded invoice PDF).
+  Use the MCP `download_attachment` tool first to fetch the file to a path, then pass it here.
 
 Appends the message to the account's Drafts folder with the \\Draft flag, so it
 shows up in the Piszkozatok/Drafts folder of any mail client on that account.
 Nothing is ever sent -- Tomi is the gate.
 """
+import argparse
 import imaplib
-import sys
+import mimetypes
 import os
 import time
 from email.message import EmailMessage
@@ -49,7 +53,16 @@ def find_drafts_mailbox(m):
     return named or "INBOX.Drafts"
 
 
-def save_draft(account, to_addr, subject, body_html, in_reply_to=None):
+def attach_file(msg, path):
+    """Attach a local file, guessing the MIME type from its extension."""
+    ctype, _ = mimetypes.guess_type(path)
+    maintype, subtype = (ctype.split("/", 1) if ctype else ("application", "octet-stream"))
+    with open(path, "rb") as f:
+        data = f.read()
+    msg.add_attachment(data, maintype=maintype, subtype=subtype, filename=os.path.basename(path))
+
+
+def save_draft(account, to_addr, subject, body_html, in_reply_to=None, attachments=None):
     h_env, p_env, u_env, w_env = ACCOUNTS[account]
     host = os.environ[h_env]
     port = int(os.environ.get(p_env, "993"))
@@ -68,6 +81,9 @@ def save_draft(account, to_addr, subject, body_html, in_reply_to=None):
     # plain-text fallback (very rough strip) + HTML
     msg.set_content("A levél HTML formátumú. Nyisd meg HTML-képes klienssel.")
     msg.add_alternative(body_html, subtype="html")
+    # add_attachment restructures the message to multipart/mixed automatically
+    for path in attachments or []:
+        attach_file(msg, path)
 
     m = imaplib.IMAP4_SSL(host, port)
     m.login(user, pwd)
@@ -77,13 +93,24 @@ def save_draft(account, to_addr, subject, body_html, in_reply_to=None):
     return typ, mailbox
 
 
-if __name__ == "__main__":
-    if len(sys.argv) < 5:
-        print("usage: email-save-draft.py <account> <to> <subject> <body_html_file> [in_reply_to]")
-        sys.exit(2)
-    account, to_addr, subject, body_file = sys.argv[1:5]
-    in_reply_to = sys.argv[5] if len(sys.argv) > 5 else None
-    with open(body_file, "r", encoding="utf-8") as f:
+def main():
+    p = argparse.ArgumentParser(description="Save an IMAP draft (never sends).")
+    p.add_argument("account", choices=sorted(ACCOUNTS))
+    p.add_argument("to")
+    p.add_argument("subject")
+    p.add_argument("body_html_file")
+    p.add_argument("in_reply_to", nargs="?", default=None)
+    p.add_argument("--attach", action="append", default=[], metavar="PATH",
+                   help="local file to attach; repeatable")
+    args = p.parse_args()
+
+    with open(args.body_html_file, "r", encoding="utf-8") as f:
         body_html = f.read()
-    typ, mailbox = save_draft(account, to_addr, subject, body_html, in_reply_to)
-    print(f"draft saved: status={typ} mailbox={mailbox} to={to_addr} subject={subject!r}")
+    typ, mailbox = save_draft(args.account, args.to, args.subject, body_html,
+                              args.in_reply_to, args.attach)
+    extra = f" attachments={len(args.attach)}" if args.attach else ""
+    print(f"draft saved: status={typ} mailbox={mailbox} to={args.to} subject={args.subject!r}{extra}")
+
+
+if __name__ == "__main__":
+    main()

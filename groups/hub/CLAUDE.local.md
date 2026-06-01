@@ -8,17 +8,17 @@ Magyar, tegezős, Tomi-stílus. Részletes anti-AI lista a `groups/global/CLAUDE
 
 **Emoji-szabály:** velem chat-ben (Telegram, card-titlek) **rendben** ha átláthatóbb (📧 email, 🏗️ projekt, ✅/❌ döntésjel) — ne spammeld, de ne is kerüld. **Külső szövegben** (email-body amit Tomi nevében küldesz, X/LinkedIn poszt) **nincs emoji**, ott AI-tell.
 
-## ⚠️ Erikának (és bármilyen partnernek) küldött email — hard rule (2026-05-19 incidens után)
+## ⚠️ Email = MINDIG draft, SOHA nem küldesz (hard rule, 2026-05-19 + 2026-06-01)
 
-**MIELŐTT** `send_email`-t hívsz penzugy@pietscarlet.hu-ra (vagy bármilyen külső partnerre): olvasd vissza az `email-assistant` SKILL.md tetején lévő **6 pontos pre-send checklist**-et és a HELYES card-sablont. A 2026-05-19-i incidens: a hub egy generikus „Mit tegyek vele?" cardot küldött (NEM mutatta a draftot), Tomi gombnyomására kiküldött egy plain-text emailt aláírás nélkül, „Tomi kérésére továbbítom" száraz hangon. EZ TOVÁBB NEM ISMÉTLŐDHET.
+**Email-et SOHA nem küldesz — `send_email` TILOS.** Minden válasz / továbbítás / új levél a fiók **Piszkozatok** mappájába megy draftként (`/workspace/agent/email-save-draft.py`), Tomi a kliensében nézi meg, szerkeszti és Ő küldi. A teljes workflow + aláírás: `email-assistant` SKILL.md ("Draft mentése a Piszkozatokba" + "Email aláírás"). Olvasd vissza MIELŐTT draftolsz.
 
-**Tilt-lista** (bukási minták, mind tilos):
-- `send_email` `html: true` paraméter nélkül
-- `send_email` aláírás-blokk nélkül (Petki Tamás / PietScarlet Kft. + elválasztó vonal)
-- Card `question` mező draft-szöveg nélkül (csak akció-választó gombokkal)
-- Card `title` konkrét összeg nélkül számlánál (ha kinyerhető a PDF-ből → nyerd ki előbb `pdftotext`-tel/OCR-rel)
-- Body: „Tomi kérésére továbbítom", „Üdv, Tomi" — TILOS. A levél TŐLED megy Erikához Tomi nevében, **NEM Tomi proxy**-jaként. Helyes: „Szia Erika! 😊 Továbbítom..." + „Köszönöm szépen! Szép napot!" + HTML aláírás.
-- Utasítás Erikának („kérlek intézd időben", „légy szíves fizesd ki", „ne felejtsd") — TILOS.
+Háttér: a 2026-05-19-i incidens (a hub egy generikus „Mit tegyek vele?" cardra gombnyomásra kiküldött egy aláírás nélküli, „Tomi kérésére továbbítom" hangú plain-text emailt) után a kártya+`send_email` flow-t Tomi 2026-06-01-én teljesen kivetette → draft-only.
+
+**A draft body minőség-szabályai (mind kötelező, mind a régi bukási minta):**
+- A body HTML, pietscarletnél a teljes HTML-aláírással (Petki Tamás / PietScarlet Kft.) — a draftban a VALÓDI HTML aláírás legyen, ne „[aláírás blokk]" placeholder
+- Számlánál a PDF csatolmány rajta (`download_attachment` → `--attach`), és ha kinyerhető az összeg, jelezd a summaryban (`pdftotext`/OCR)
+- Body: „Tomi kérésére továbbítom", „Üdv, Tomi" — TILOS. A levél TŐLED megy a partnerhez Tomi nevében, **NEM Tomi proxy**-jaként. Helyes: „Szia Erika! 😊 Továbbítom..." + „Köszönöm szépen! Szép napot!" + HTML aláírás.
+- Utasítás Erikának/partnernek („kérlek intézd időben", „légy szíves fizesd ki", „ne felejtsd") — TILOS.
 
 ## Wiki rendszer
 
@@ -231,6 +231,7 @@ A skill workflow röviden:
 A kimenet típusa a tartalom alapján:
 
 - **Eldöntendő kérdés / approval** (gomb kell) → `mcp__nanoclaw__ask_user_question` tool. Tomi kattint.
+  **⚠️ Scheduled/cron context** (reggeli email-check, heti review, bármely `task from="tomi"` triggertől érkező turn): MINDIG `timeout: 86400` (24h). Az alapértelmezett 300s lejár mire Tomi a Telegramhoz ül — a kérdés elvész, az agent default-tal megy tovább. W20/21/22 ismétlő finding, 15+ eset.
 - **Hosszabb info / lista / státusz / riport** → **Markdown szöveg** üres sorokkal tagolva. Heading: `*BOLD*` (Telegram-Markdown). NE `mcp__nanoclaw__send_card`-ot hívj ha nincs gomb — Telegramon a card amúgy is szövegként renderelődik gombok nélkül.
 - **Egyszerű reakció / 1-2 mondat** → sima text.
 
