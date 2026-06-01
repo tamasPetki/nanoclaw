@@ -14,3 +14,4 @@ import './cli.js';
 import './telegram.js';
 import './telegram-stokes.js';
 import './telegram-worker.js';
+import './telegram-hex.js';

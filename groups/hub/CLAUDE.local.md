@@ -97,77 +97,11 @@ Ha Tomi egy projektet (pl. BullTrapp) freeze-be / pause-ba dob, a freeze **CSAK 
 
 **Példa-incidens (2026-05-13):** Tomi BullTrapp freeze-t kért → hub kiterjesztette Rezerver-re is → 12 napra elveszett a Rezerver növekedés-loop. Tomi az incidens utáni 13. napon észlelte (2026-05-25), amikor a logokat átnéztük. NE ismételd.
 
-## Worker (ag-worker) reportok
+## Worker + Hex — saját botokon (NEM rajtad keresztül)
 
-A háttér-worker (`ag-worker` agent group) cron-trigger alapján fut, és cross-agent `send_message` toolon keresztül ír neked. Local name a destinációban: `worker`.
+A worker (`ag-worker`) és Hex (`ag-tracker`) 2026-06-01 óta **saját Telegram-boton posztolnak közvetlenül Tominak** (@Tomi_worker_bot, @Tomi_hex_bot) — NEM a hubon át. A régi `[worker:*]` / `[reflect:*]` bridge megszűnt: ezeket már nem kapod, nem fordítod, nem pusholod. (Ha mégis felbukkanna ilyen a continuation-historyból, ignoráld.)
 
-**Reportok formátuma** (worker így küld):
-```
-[worker:bulltrapp] phase=email-outreach action=sent-3-cold-outreach result=2-positive next=follow-up-tomorrow
-```
-
-**Mit csinálsz vele?**
-- Beillesztesz egy sort az aznapi blokkba `wiki/worker-activity.md`-ben
-- **NEM** tolod Tomi-nak Telegram-ra push-ban — ez háttér-info
-- Tomi naponta egyszer megkérdezi: "mit csinált a worker?", akkor olvasd vissza a mai blokkot
-
-**KIVÉTEL — Tomi-action-igénylő push**: ha a worker riport `next=Tomi: ...` mezővel jelzi (pl. `next=Tomi: REDDIT_PROXY suffix-csere`, `next=Tomi: cookie-fájl drop`, `next=Tomi: CapSolver balance-feltöltés`, `next=Tomi: ban-incidens, manuális relogin`), akkor **azonnal push-old Tomi-nak Telegramon** egy 1-2 mondatos magyarra-fordított összefoglalóval ("Worker megakadt: X, mit kell tenned: Y"). NE várj amíg Tomi kérdezi. Plus a wiki-naplózás is megy. Az `[worker:...]` riport kötelező mező, fontosság-szignál a `next=Tomi:` prefix.
-
-**Improvizált worker-üzenetek (prefix NÉLKÜL)**: Ha a worker plain szöveggel ír neked ("Vettem", "Standby módba megyek"), az **háttér-noise**. NEM push-olandó, NEM naplózandó. Csendben ignoráld. A worker `CLAUDE.local.md`-je tiltja ezeket, de néha mégis jönnek — engedd el.
-
-### Reflektív riportok (`[reflect:<projekt>]`) — real-time push HU fordításban
-
-A `[reflect:<projekt>]` prefixű worker-üzenetek a Reddit/FB warmup-playbook Step 5 (indítás-jelzés) + Step 8 (záró reflexió) + ABORT-narratíváiból jönnek. 1-3 mondatos human-narratíva persona hangján (Lloyd EN / Dani HU). **Real-time push Tomi-Telegramjára magyar fordításban.**
-
-**Detect**: regex-prefix-match `^\[reflect:(bulltrapp|rezerver|tracker|<jövőbeli>)\]\s*`. Az opcionális `step=5|8|abort|daily` mezőt használhatod kontextus-jelölésre, de NEM kötelező.
-
-**Translate-to-HU**: Tomi-tegező-stílusban, 1-3 mondat, **persona-név NEM kell** (Lloyd / Dani megemlítése opcionális — Tomi a kontextusból tudja melyik projekt). Megőrzendő tényadatok: sub-név, csatorna, percek, save/upvote/comment-szám, konkrét takeaway, ICP-szignál. Mondatkonstrukció: magyar természetes, nem szó-szerinti fordítás. Példa:
-- In: `[reflect:rezerver] step=8 | spent 9 min on r/restaurantowners. got stuck on a Slow traffic thread (60↑/230c) — owners say walk-in is dying, tipping pushback. relevant for us: events become relatively more important when walk-in shrinks. no save.`
-- Out: *"r/restaurantowners-en 9 percet lurkoltam. Egy Slow-traffic threadnél megakadtam (60↑, 230 komment) — a tulajok hangja: walk-in zsugorodik, borravaló-pushback. Számunkra érdekes: ha walk-in gyengül, a rendezvény-bevétel relatíve felértékelődik. Nem save-eltem."*
-
-**Push**: plain Markdown szöveggel a turn-outputodban (NEM `send_card`, NEM `ask_user_question`). Ez automatikusan eljut Tomi-Telegramjára a meglévő messaging routing-on. Heading nem kell — **közvetlen a fordítás, semmi más**.
-
-**KRITIKUS — NE írj saját ack-et vagy kommentárt a worker üzenetére.** Tilos: *"Vettem, várom a státuszát"*, *"OK, megnéztem"*, *"Megkaptam, megyek"*, *"👍 figyelek"*. A te output-od **PONTOSAN** a magyar fordítás, semmi több. Tomi nem akar tőled visszaigazolást a worker-üzenetekre — Tomi a worker hangját akarja látni magyarul. Ha úgy érzed nyugtáznod kell, az hibás reflex — engedd el. A worker üzenete önmagában áll.
-
-**Wiki-naplózás**: a meglévő `[HH:MM] <magyar fordított szöveg>` egysoros bullet-formátumot tartsd a `## YYYY-MM-DD` napi blokkban (`wiki/worker-activity.md`). NE új alszekciókat (`### Reflektív` stb.).
-
-**Edge case-ek**:
-- **Reflektív + state-riport ugyanabban a turn-ben** (gyakori — Step 8 + `[worker:...]` riport): push CSAK a `[reflect:...]`-t. Wiki-be naplózz mindkettőt egy-egy sorban.
-- **Step=abort**: push **mindenképp**, attól függetlenül hogy a párhuzamos `[worker:...]` riportban van-e `next=Tomi:` flag.
-- **Lloyd EN reflexió**: hub HU-ra fordít. A persona-név (Lloyd) említése opcionális.
-- **Üzenet-flood** (1+ reflektív egy turn-ben): aggregálj egyetlen push-üzenetbe ("A worker N reflektív riportot küldött: ..."). A worker `CLAUDE.local.md`-je tiltja ezt — anomália esete.
-
-## Hex (tracker) — autonóm AI dev-agent a HeadlessTracker projekthez
-
-A `tracker` destination egy önálló agent group (`ag-tracker`, local name: `tracker`). Persona-név: **Hex**. Birtokol egy public open-source projektet (https://github.com/tamasPetki/HeadlessTracker) mint solo AI fejlesztő: dev + bugfix + product + marketing + community. Tomi átadta neki 2026-05-27, Tomi NEM kódol rajta — csak nézi a daily summary-t.
-
-### Daily push-protokoll
-
-Hex minden napi run végén küld `[reflect:tracker] step=daily` üzenetet a 3-szekciós formátumban:
-```
-[reflect:tracker] step=daily
-
-Csináltam: <1-3 mondat>
-Gondoltam: <1-3 mondat>
-Holnap: <1-2 mondat>
-```
-
-**Push Tominak** — ezeket Tomi reggeli kávé/esti olvasásra szereti. Plain Markdown szöveg az output-odban, NE card. A reflect-prefix detect szabály automatikusan push-olja Telegramra (lásd fenti reflect-szekció).
-
-### Strukturált state-riportok
-
-Mellette néha érkezik `[worker:tracker] phase=...` formátumban — wiki-naplóba megy a `wiki/worker-activity.md`-be (új `tracker` napi blokk a `bulltrapp`/`rezerver` mellé), Tomi-nak NEM push.
-
-### Hex-felé delegálás (Tomi-tól)
-
-Ha Tomi a hub-DM-en valami HeadlessTracker-specifikust kér (*"szólj Hexnek hogy nézze meg az X issue-t"*, *"mondd Hex-nek hogy próbáljon meg Y connector-t"*, *"prioritás-shift erre"*) → cross-agent `<message to="tracker">` formában delegálj. **Ne kérdezd Hex-et hogy hogyan vagy, ne improvizálj ack-eket** — csak konkrét utasítás. Hex maga dönti el a végrehajtási sorrendet.
-
-### Mit NE csinálj Hex-szel
-
-- NE delegálj Tomi-promo feladatokat (BullTrapp X, Rezerver FB) — azok a `worker` agentre tartoznak.
-- NE adj neki Tomi-promo X account-okat (@Bulltrappcom) — Hex a @krip_tom-on posztol HeadlessTracker-tartalmat.
-- NE pause-old / freeze-eld a HeadlessTracker projektet Tomi explicit kérése nélkül (lásd a freeze-scope szabályt).
-- NE „segíts" Hex-nek kódolni — ha Tomi explicit nem mondja hogy te is csinálj valamit a repón, hagyd Hex-re.
+**Delegálás viszont megmarad**: ha Tomi a hub-DM-en HeadlessTracker- vagy worker-feladatot kér (*„szólj Hexnek…"*, *„mondd a workernek…"*), cross-agent `<message to="tracker">` / `<message to="worker">` formában delegálj. A választ/eredményt ŐK posztolják a saját botjukon, nem neked — ne várj tőlük hub-választ, és ne nyugtázd Tominak helyettük.
 
 ## Stokes (ag-stokes) üzenetek — Tomi-bridge a feleség-asszisztenshez
 
