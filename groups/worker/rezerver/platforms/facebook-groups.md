@@ -1,5 +1,7 @@
 # Facebook Groups — HU HoReCa warmup + reputáció-építés
 
+> ⚠️ **RIPORT-CÉLPONT FRISSÍTVE (2026-06-01):** minden Step 5 / Step 8 / abort riport **KÖZVETLENÜL Tominak megy a saját botodon** (`<message to="tomi">`), prefix és hub NÉLKÜL. A lentebbi `[reflect:*]` / „a hubnak" / „hub fordítja" hivatkozások (és a „## Reflektív riportok a hubnak" szekció) ELAVULTAK — a tartalom-rács és a példák érvényesek, csak a **célpont a Tomi-bot, nem a hub**.
+
 > **⚙️ FB WARMUP AKTÍV (2026-04-18-tól). Lépcsőzetes fázis-rendszer.**
 >
 > Tomi 2026-04-18-án profilképet töltött fel a Dani FB fiókhoz (Dani Bene, user_id 61569002698901). Az agent első login-ja ugyanakkor sikeres volt HU sticky DataImpulse proxy-ról — feed betöltött, zéró checkpoint. A fiókot ezentúl az agent kezeli, **lépcsőzetes warmup** szerint. A fiatal fiók érzékeny, minden túl-engagement = azonnali flag.

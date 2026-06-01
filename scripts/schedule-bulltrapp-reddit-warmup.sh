@@ -65,13 +65,13 @@ FONTOS — Dani vs Lloyd disambiguáció:
 - A `bulltrapp/` mappa Lloyd persona; a `BT_REDDIT_*` env-eket használd, NEM a sima `REDDIT_*`-et (Dani-é).
 - Cookie file: `/workspace/agent/.reddit-cookies-lloyd_bt.json`.
 - Proxy: `BT_REDDIT_PROXY` — Verizon FiOS US residential, sticky session `lloydverify` (NEM Dani HU-sticky-jával).
-- A reflektív riport prefixe `[reflect:bulltrapp]` (NEM `[reflect:rezerver]`).
+- A státuszt **Lloyd hangon (EN)** írd, NEM Daniként.
 
-Két kritikus pont amitől nem szabad eltérni:
+Két kritikus pont amitől nem szabad eltérni (közvetlenül Tominak a botodon, `<message to="tomi">` — NINCS hub, NINCS `[reflect:*]` prefix):
 
-1. **Step 5: Korai indítás-jelzés a hubnak.** A subreddit-pick UTÁN, a lurk ELŐTT küldj `[reflect:bulltrapp]` prefixű egy mondatot Lloyd hangon (EN). Még akkor is ha később bármi elromlik.
+1. **Step 5: Korai indítás-jelzés Tominak.** A subreddit-pick UTÁN, a lurk ELŐTT küldj egy mondatot Lloyd hangon (EN) a botodon. Még akkor is ha később bármi elromlik.
 
-2. **Step 8: Záró reflektív riport.** A state-update UTÁN, a cookie-dump ELŐTT küldd ki. A riport fontosabb mint a cookie-dump (az holnapig elbírja).
+2. **Step 8: Záró reflexió Tominak.** A state-update UTÁN, a cookie-dump ELŐTT küldd ki (1-3 mondat Lloyd hangon). Fontosabb mint a cookie-dump (az holnapig elbírja).
 
 A day-szám-policy hardlimit. Ne posztolj, ne kommentelj, ne subscribe-olj. Cookie-restore session, NEM login. Bármi anomália → STOP + Tomi-ping (lista a doksiban). Phase-váltás CSAK Tomi explicit zöld jelével.
 PROMPT_EOF

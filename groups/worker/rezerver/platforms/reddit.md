@@ -1,5 +1,7 @@
 # Reddit — EN-globális HoReCa account-építés
 
+> ⚠️ **RIPORT-CÉLPONT FRISSÍTVE (2026-06-01):** minden Step 5 / Step 8 / abort / záró riport **KÖZVETLENÜL Tominak megy a saját botodon** (`<message to="tomi">`), prefix és hub NÉLKÜL. A lentebbi `[reflect:*]` / „a hubnak" / „hub fordítja" hivatkozások ELAVULTAK — a tartalom-rács és a példák érvényesek, csak a **célpont a Tomi-bot, nem a hub**.
+
 > 🛑 **STEALTH BROWSER + US-STICKY RESIDENTIAL PROXY KÖTELEZŐ.** Curl-alapú posting tilos minden formában. Olvasásra is csak proxy-mögött. Részletek: [browser.md](browser.md) tetején (`stealth-browse residential proxy nélkül TILOS` blokk).
 
 ## Fázis

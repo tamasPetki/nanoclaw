@@ -1,5 +1,7 @@
 # Reddit — BullTrapp Lloyd-persona account-építés
 
+> ⚠️ **RIPORT-CÉLPONT FRISSÍTVE (2026-06-01):** minden Step 5 / Step 8 / abort / záró riport **KÖZVETLENÜL Tominak megy a saját botodon** (`<message to="tomi">`), prefix és hub NÉLKÜL. A lentebbi `[reflect:*]` / `[worker:*]` / „a hubnak" / „hub fordítja" hivatkozások ELAVULTAK — a tartalom-rács és a példák érvényesek, csak a **célpont a Tomi-bot, nem a hub**.
+
 > ⛔️ **ACCOUNT LESZERELVE 2026-05-31 — u/lloyd_bt SHADOWBANNED (Tomi megerősítette).**
 > **NE indíts semmilyen Reddit-sessiont erre az accountra**: nincs warmup, nincs lurk, nincs login, nincs cookie-restore, nincs scheduling. Egy shadowbannolt accounton minden session puszta kockázat és nulla haszon (a tartalmaid senkinek nem látszanak). A napi scheduler (`scripts/schedule-bulltrapp-reddit-warmup.sh`) hard-stop guarddal le van tiltva. Ha cron-task mégis felébreszt erre a projektre Reddit-céllal: olvasd be a `state.json.reddit.account_status == "shadowbanned"`-et és **azonnal állj le, ne csinálj semmit**. Csak Tomi explicit "feloldva" / "új account" utasítására éleszthető újra (akkor töröld ezt a bannert + a scheduler guardot + flip `account_status`). A BullTrapp growth a többi csatornán (X @Bulltrappcom, Telegram, email) fut tovább változatlanul.
 >
