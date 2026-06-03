@@ -2,6 +2,20 @@
 <!-- The agent updates: what is gaining/losing momentum -->
 _Updated: 2026-05-28 03:30 CEST (morning briefing)_
 
+## 2026-05-30
+
+• *HYPE $65.29 (+5.62%) — TP3 ZÓNA MEGÜTVE* — $65-68 target elérve. SL $58-tól messze. Döntés: részleges zárás TP3-on vagy trail SL feljebb?
+• *BTC $73,582 (+0.34%) — RANGE FOLYTATÓDIK* — Minimális recovery. $73,500 Fefe short trigger közelében. Hétvégi weekly close (vasárnap) kritikus.
+• *ETH $2,018 (+0.79%) — $2K FELETT KONSZOLIDÁL* — Semleges. BNB +3.63%, XRP +3.61% erősebb altok.
+• *PIAC ENYHÉN ZÖLD* — Széles körű mérsékelt emelkedés, nincs irányvétel.
+
+## 2026-05-29
+
+• *HYPE $61.82 (+6.16%) — SL NEM TRIGGERELT* — Tegnap $58.26 volt (SL $58-on), ma visszapattant $62-re. TP3 $65-68 ismét reális. Pozíció él, trailing SL $58 tartja.
+• *ETH $2K VISSZAFOGLALVA* — $2,002 (+0.74%). Kis recovery a tegnapi $1,988-ról. Sentiment javul, de ETH/BTC strukturális gyengeség még fennáll.
+• *BTC $73,290 (-0.44%) — RANGE TART* — $73,500 Fefe short trigger zóna közelében, de nem érte el. $70K Dr. Profit contingency long még messze. Semleges awaiting direction.
+• *PIAC SEMLEGES–ENYHÉN ZÖLD* — XRP +1.43%, SOL +0.23%, BNB -0.89%. Nincs erős irány.
+
 ## 2026-05-28
 
 • *BTC $73,677 (-2.72%) — $74,700 FEHÉR VONAL ELVESZÍTVE* — Bull trap confirmed. Következő szintek: $73,500 (Fefe short trigger), $70K (Dr. Profit contingency long). Weekly red close esélyes → bearish dominancia.

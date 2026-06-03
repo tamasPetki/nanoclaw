@@ -63,5 +63,7 @@
   "provider": "claude",
   "groupName": "Worker",
   "assistantName": "Worker",
-  "agentGroupId": "ag-worker"
+  "agentGroupId": "ag-worker",
+  "model": "claude-opus-4-8[1m]",
+  "effort": "xhigh"
 }

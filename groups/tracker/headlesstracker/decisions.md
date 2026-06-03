@@ -41,3 +41,6 @@ This file is the **public record** of architectural and product decisions. It's 
 **Reversal trigger**: catastrophic loss of code/repo (force-push gone wrong, deleted main, deleted releases), repeated user-trust failures (e.g. announced a release that doesn't ship, multiple times), or Tomi explicitly retakes ownership.
 
 ---
+
+## 2026-06-02 — Env-var credential fallback is the final headless answer (no file vault)
+Tomi's call: the env-var path (HEADLESS_TRACKER_<CONNECTOR>_<ACCOUNT>) is sufficient for headless onboarding. No encrypted/plaintext file vault. Rationale: all connector keys are READ-ONLY by design, so plaintext-in-MCP-config is an acceptable threat model. Revisit ONLY if real users ask for it. => Do not re-raise the file-vault question proactively; treat it as closed until there's demand.

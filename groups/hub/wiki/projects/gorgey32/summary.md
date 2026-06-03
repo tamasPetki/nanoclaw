@@ -11,6 +11,12 @@ sources: [sources/gorgey32/persona.md, sources/gorgey32/alvallalkozok.md, source
 
 PietScarlet Kft. társasházat épít Vác, Görgey Arthur u. 32. szám alatt. **7 lakás + 1 iroda, 3 szint, ~780 m².** A projekt 2025 augusztusában indult, 2026 májusára aktív kivitelezésben.
 
+## Update (2026-06-02/03 — email-ből)
+
+- **Áramellátás-árajánlat (N-ergy MérnökIroda Kft. / Fazekas Arnold)**: a társasház *teljes áramellátása* (ELMŰ ügyintézés, szerződéskötő/munkairányító/projektirányító kapcsolattartás, műszaki átvétel, fogyasztásmérő-helyek felülvizsgálata + mérők felszerelésének lebonyolítása). **Munkadíj: 2.200.000 Ft + ÁFA.** Hrsz 4076/4. Az ügyintézés a nyilatkozatok / terv-hozzájárulások megküldése után indulhat. Döntés Tomié (PDF: árajánlat_PietScarlet Kft.pdf, email uid 2545). (forrás: chat)
+- **TLK Invest (Bérczy Gergely) — aláírt szerződés megérkezett** (Szerződés.pdf, Google Drive link, email uid 2549). (forrás: chat)
+- **Nyomáspróba jegyzőkönyv megérkezett** — Bérczy/TLK megküldte az *emeleti lakások nyomáspróba jegyzőkönyveit* (Emeleti lakások nyomáspróba.pdf, email uid 2551). → a régóta várt QC + nyomáspróba milestone teljesült az emeleti szinten. (forrás: chat)
+
 ## Aktuális fázis (2026-05-11 status — Tomi helyszíni szemle)
 
 **Garázs mennyezet — soron:**
@@ -90,9 +96,21 @@ Eredetileg 3 lakás (C, E, F) szerepelt, később 5-re bővült (B, G hozzáadva
 
 **TLK INVEST számla (uid 2482)** — Erikának továbbítandó
 
+## 2026-05-31 — Espár: rétegrend + 41 m² önkormányzati plusz költségvetés (email, uid 2535)
+
+Espár Zsolt megküldte a **rétegrendet** és a hozzá tartozó **anyag-költségvetést** az önkormányzati plusz kérésének megfelelő **41 m²-es területre**. A részletes tervet még készíti, **~2 nap és küldi** (tehát kb. 2026-06-02 körül várható).
+
+**Rétegrend (41 m² plusz):** 6 cm kiselemes burkolat / 3 cm 2/4 ágyazóréteg / 10 cm Ckt / 10 cm homokos kavics.
+
+**Anyagmennyiség (önkormányzati plusz):** 15 m³ termőföld letermelés+elszállítás, 52 m kerti szegély (10 cm C20/25 betongerendába, alatta 10 cm homokos kavics), 4,1 m³ homokos kavics, 4,1 m³ Ckt, 1,23 m³ 2/4 ágyazó, 40,4 m² kiselemes burkolat, 0,6 m² taktilis burkolat, 3,5 m meglévő kiemelt szegély átrakás+süllyesztés 2 cm-re, 1 db reklámtábla áthelyezés 2 beton pontalappal.
+
+**Előzmény (lánc):** Riez Gyula (Vác Műszaki Osztály) 05-26 elfogadta a tervlapot → Tomi 05-28 telefonon + emailben OK-t adott, jelezte hogy a **végleges rétegrend alapján küldi az ajánlatot, a legolcsóbbra törekedve**. Most megérkezett a rétegrend a 41 m²-re.
+
+**Teendő (Tomi):** a 41 m²-es plusz költségvetés alapján **ajánlat összeállítása**, majd a részletes terv bevárása (~06-02). Espár felé rövid nyugtázó válasz opcionális.
+
 ## Következő teendők (pri sorrendben)
 
-1. **Espárnak OK üzenet** (járda kivitelezés engedélyezése) — TOMI
+1. **Járda 41 m² plusz — ajánlat összeállítása** (Espár 05-31 rétegrendje alapján) — TOMI. Részletes terv bevárása ~06-02. (Az "OK üzenet" 05-28-án telefonon+emailben megvolt.)
 2. TLK INVEST számla (uid 2482) → Erika
 3. Cserepezés folytatás (1–2 hét) → átállványozás
 4. EPS ragasztás 2. fele

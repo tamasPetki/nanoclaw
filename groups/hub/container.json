@@ -105,15 +105,6 @@
         "http_proxy": ""
       }
     },
-    "todoist": {
-      "command": "/bin/bash",
-      "args": [
-        "/opt/mcp-servers/todoist/run.sh"
-      ],
-      "env": {
-        "TODOIST_API_TOKEN": "${TODOIST_API_TOKEN}"
-      }
-    },
     "quick": {
       "command": "node",
       "args": [
@@ -123,12 +114,20 @@
         "QUICK_API_TOKEN": "placeholder-onecli-overrides"
       }
     },
-    "youtube-transcript": {
-      "command": "npx",
+    "ticktick": {
+      "command": "/bin/bash",
       "args": [
-        "-y",
-        "@kimtaeyoon83/mcp-server-youtube-transcript"
-      ]
+        "/opt/mcp-servers/ticktick/run.sh"
+      ],
+      "env": {
+        "TICKTICK_ACCESS_TOKEN": "${TICKTICK_ACCESS_TOKEN}",
+        "TICKTICK_CLIENT_ID": "${TICKTICK_CLIENT_ID}",
+        "TICKTICK_CLIENT_SECRET": "${TICKTICK_CLIENT_SECRET}",
+        "TICKTICK_V2_SESSION_TOKEN": "${TICKTICK_V2_SESSION_TOKEN}",
+        "NO_PROXY": "api.ticktick.com,ticktick.com,.ticktick.com",
+        "HTTPS_PROXY": "",
+        "HTTP_PROXY": ""
+      }
     }
   },
   "packages": {
@@ -167,9 +166,32 @@
       "readonly": true
     }
   ],
-  "skills": "all",
+  "skills": [
+    "agent-browser",
+    "document-fill",
+    "email-assistant",
+    "google-drive-write",
+    "humanizer",
+    "inline-ui",
+    "mnemon",
+    "ocr-and-documents",
+    "onecli-gateway",
+    "pdf-filler",
+    "pdf-reader",
+    "quick-integration",
+    "self-customize",
+    "self-improvement",
+    "skill-authoring",
+    "status",
+    "ticktick",
+    "welcome",
+    "whatsapp-formatting",
+    "wiki"
+  ],
   "provider": "claude",
   "groupName": "Hub",
   "assistantName": "Hub",
-  "agentGroupId": "ag-hub"
+  "agentGroupId": "ag-hub",
+  "model": "claude-opus-4-8[1m]",
+  "effort": "xhigh"
 }

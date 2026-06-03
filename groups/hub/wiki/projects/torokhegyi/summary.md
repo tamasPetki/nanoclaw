@@ -82,3 +82,7 @@ Koncepciós terv elfogadása után a maradék terület felosztása ~1 000 m²-es
 ## 2026-05-14 — tervtanácsi gyűlés
 
 Tomi 05-13 11:32 chat (recovered 05-14): **MA (2026-05-14) tervtanácsi gyűlés Felső Törökhegyen**. Tomi részvétel után beszámol — beszámoló után wiki/log.md frissítendő.
+
+## 2026-06-02/03 — Quadrat megküldte a végleges rajzot
+
+Tomi 06-02-én baráti emlékeztetőt küldött Tóth Róbertnek (Quadrat Consulting) a Felső Törökhegyhez kért **végleges rajzra**, amit a földmérőnek küldhet. Robi még aznap megküldte: **VácTörökhegy_K04.dwg** (email uid 2544). Robi: "a geodéta beadandóját majd még nézzük meg, ha kérdés van, hívható". → Tomi átnézi és viszi a földmérőnek (Benke György). Válasz-draft (köszi/megvan) a pietscarlet Piszkozatokban. (forrás: chat)

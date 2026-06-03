@@ -459,10 +459,7 @@ async function buildContainerArgs(
     // groups must NOT get this (they'd blow past the API ceiling before
     // compacting), so it's gated on the model id carrying a 1M marker.
     if (/\[1m\]|1m/i.test(containerConfig.model)) {
-      args.push(
-        '-e',
-        `CLAUDE_CODE_AUTO_COMPACT_WINDOW=${process.env.CLAUDE_CODE_AUTO_COMPACT_WINDOW || '400000'}`,
-      );
+      args.push('-e', `CLAUDE_CODE_AUTO_COMPACT_WINDOW=${process.env.CLAUDE_CODE_AUTO_COMPACT_WINDOW || '400000'}`);
     }
   }
   if (containerConfig.effort) {

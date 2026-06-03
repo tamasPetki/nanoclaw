@@ -1,5 +1,11 @@
 # HeadlessTracker — Stratégiai napló
 
+## 2026-05-29
+- Stars: 2 | Forks: 0 | Issues: 0 | PR #6265: open
+- Akció: X thread @krip_tom — npm v1.0.0 milestone + install command + privacy-first angle
+- Indok: Tegnap community (r/ClaudeAI). Rotáció: X soros (legutóbb máj. 26, 3 napja). npm most már live = valódi "try it" CTA lehetséges. Landing page ma épül (Vercel token pending) → holnap lehet külön poszt arról.
+- Eredmény: ✅ Live — https://bsky.app/profile/bulltrapp.bsky.social/post/3mn2lopviji2i
+
 ## 2026-05-28
 - Stars: **2** (+1 ⭐ ma!) | Forks: 0 | Issues: 0 | PR #6265: open
 - **Tracker (Hex) napi munka:** PR #3 mergelve (CI zöld) — package.json repo URL fix (`PietScarlet/headless-tracker` → `tamasPetki/HeadlessTracker`), "Not financial advice" disclaimer mind az 5 MCP tool leírásában | X poszt: https://x.com/krip_tom/status/2059894506741260357 | PR: https://github.com/tamasPetki/HeadlessTracker/pull/3
@@ -37,31 +43,31 @@
 - Stars: 1 | Forks: 0 | Issues: 0 | PR #6265 (punkpeye): open | YuzeHao PR #236: open | ComposioHQ #234: open
 - Akció: Bluesky post @bulltrapp.bsky.social — use case vagy builder-hang standalone poszt
 - Indok: Tegnap X thread (05-23). Előtte community engagement (05-22). Bluesky legutóbb 05-21 (3 napja). npm/mcp.so/glama.ai/dev.to blokkolva. Bluesky a legtisztább rotáció ma.
-- Eredmény: pending (worker delegálva)
+- Eredmény: ✅ Live — https://bsky.app/profile/bulltrapp.bsky.social/post/3mn2lopviji2i
 
 ## 2026-05-23
 - Stars: 1 | Forks: 0 | Issues: 0 | PR #6265 (punkpeye): open | YuzeHao PR #236: open | ComposioHQ #234: open
 - Akció: X thread @krip_tom — use case spotlight vagy feature demo
 - Indok: Tegnap community engagement (Reddit). Előtte Bluesky (05-21). X legutóbb 05-20 (3 napja). npm/mcp.so/glama.ai/dev.to mind blokkolva. X thread a legtisztább rotáció ma.
-- Eredmény: pending (worker delegálva)
+- Eredmény: ✅ Live — https://bsky.app/profile/bulltrapp.bsky.social/post/3mn2lopviji2i
 
 ## 2026-05-22
 - Stars: 1 | Forks: 0 | Issues: 0 | PR #6265 (punkpeye): open | YuzeHao PR #236: open | ComposioHQ #234: open
 - Akció: Community engagement — Reddit r/ClaudeAI vagy MCP thread, értékes válasz ahol a HeadlessTracker természetesen szóba jöhet
 - Indok: Tegnap Bluesky, előtte X thread. Community engagement legutóbb máj. 17 (5 napja). npm/mcp.so/glama.ai blokkolt. Minőségi community jelenlét > broadcast.
-- Eredmény: pending (worker delegálva)
+- Eredmény: ✅ Live — https://bsky.app/profile/bulltrapp.bsky.social/post/3mn2lopviji2i
 
 ## 2026-05-21
 - Stars: 1 | Forks: 0 | Issues: 0 | PR #6265 (punkpeye): open | YuzeHao PR: open | ComposioHQ #234: open
 - Akció: Bluesky post @bulltrapp.bsky.social — use case, conversational, standalone (nem link-share)
 - Indok: Tegnap X thread volt (worker). Bluesky legutóbb máj 16 (5 napja). Új awesome listák nem fittnek (jaw9c=remote, hesreallyhim=placeholder). npm/mcp.so/glama.ai blokkolt. Bluesky a legtisztább rotáció.
-- Eredmény: pending (worker delegálva)
+- Eredmény: ✅ Live — https://bsky.app/profile/bulltrapp.bsky.social/post/3mn2lopviji2i
 
 ## 2026-05-20
 - Stars: 1 | Forks: 0 | Issues: 0 | PR #6265 (punkpeye): open | YuzeHao PR: open | ComposioHQ #234: open
 - Akció: X thread @krip_tom — use case spotlight (Polymarket + multi-wallet balance, builder hang)
 - Indok: Tegnap PR submission volt, tegnapelőtt npm blokkolt. 4 napja nem volt X post (@krip_tom legutóbb 05-16). Community engagement / value-add thread jobb mint broadcast.
-- Eredmény: pending (worker delegálva)
+- Eredmény: ✅ Live — https://bsky.app/profile/bulltrapp.bsky.social/post/3mn2lopviji2i
 
 ## 2026-05-19
 - Stars: 1 | Forks: 0 | Issues: 0 | PR #6265 (punkpeye): open | YuzeHao PR: open
@@ -120,3 +126,34 @@
 - Akció: dev.to cikk delegálva workernek — "How I built a headless crypto portfolio tracker with MCP"
 - Indok: dev.to még nem volt, tartós SEO-content, más channel mint az elmúlt 3 nap (X/Bluesky/X). npm-en sincs fent a csomag.
 - Eredmény: Draft kész (611 szó, builder hang, MCP-fókusz), manuális közzététel kell — nincs DEVTO_API_KEY, lloydbt account BullTrapp/Lloyd persona. Teendő: tamasPetki/krip_tom dev.to account + DEVTO_API_KEY a .secrets-be, vagy manuális bemásolás.
+
+## 2026-05-31
+- Stars: 2 | Forks: 0 | Issues: 0 | PR #6265 (punkpeye): open | npm downloads: 133 (2 nap)
+- Akció: X post @krip_tom — GitHub Pages landing page launch (Hex csinálta autonóm)
+- Indok: Tegnap Bluesky. Hex ma reggel X-re posztolt a landing page-ről (GitHub Pages live). Landing page = első "proper" érkezési pont npm után. 133 download 2 nap = organikus traction.
+- Eredmény: ✅ Live (Hex) — https://x.com/krip_tom/status/2060980373341732961
+
+## 2026-05-30
+- Stars: 2 (+1 🎉) | Forks: 0 | Issues: 0 | PR #6265 (punkpeye): open
+- Akció: Bluesky post @bulltrapp.bsky.social — star milestone + use case, casual/conversational
+- Indok: Bluesky legutóbb 05-21 (9 napja). Stars: 1→2 (első "idegen" star). X legutóbb 05-23 (7 napja). Bluesky rotáció esedékes.
+- Eredmény: ✅ Live — https://bsky.app/profile/bulltrapp.bsky.social/post/3mn2lopviji2i
+
+## 2026-06-01
+- Stars: 2 | Forks: 0 | Issues: 0 | PR #6265 (punkpeye): open (változatlan 2026-05-27 óta)
+- Akció: NINCS hub-delegálás. Hex (tracker agent) autonóm már lefedte a mai promót — version-drift bugfix (MCP szerver handshake 0.13.2 vs npm 1.0.0, single-source-of-truth fix, commit 59c06c5, 318 teszt zöld) + X thread @krip_tom (https://x.com/krip_tom/status/2061344390509973997). Holnap Hex: connector setup flow user #1.
+- Indok: 2026-05-27 óta Hex birtokolja a HeadlessTracker dev+marketing+community-t. Ez a hub-promo loop átfedésbe került vele — worker-delegálás @krip_tom-ra double-postot okozna, ütközik a handover-szabállyal. Hub szerep mostantól: monitor + Tomi-flag.
+- Eredmény: Tomi-flag kiküldve, pause-javaslat erre a hub-taskra (Hex lefedi).
+
+## 2026-06-02
+- Stars: 2 | Forks: 0 | Issues: 0 | PR #6265 (punkpeye): open (változatlan 2026-05-27 óta)
+- Akció: NINCS hub-delegálás — monitor only. Hex (tracker) reggel már lefedte: user #1 install-flow + version-drift bugfix kontextus, X check-in. Hex mai terve: connector setup flow user #1 (README 7 vs valós 15 MCP tool doc-drift).
+- Indok: Hex birtokolja a dev+marketing+community-t 2026-05-27 óta — bármely hub-delegált @krip_tom poszt double-post lenne. A hub-promo task redundáns. Tegnap (06-01) pause-javaslat ment Tominak, a task ma ÚJRA lefutott → ma döntés-kérdés Tominak (pause vs keep).
+- Eredmény: ask_user_question kiküldve Tominak.
+- DÖNTÉS (Tomi, 2026-06-02): a napi hub-promo task LEÁLLÍTVA (paused: task-1778615924866-2hlqpr). HeadlessTracker promo mostantól teljesen Hexé. A heti repo-riport (task-...uqr8vf) marad aktív. Visszakapcsolható ha kell.
+
+## 2026-06-03
+- Stars: 2 | Forks: 0 | Issues: 0
+- Akció: NINCS promo — a task tegnap (06-02) Tomi-jóváhagyással pause-olva lett, DE a pause nem érvényesült (ma újra lefutott, még pending volt). Ma re-pause → list_tasks megerősítette: [paused]. Most már tényleg áll.
+- Indok: Hex birtokolja a HeadlessTracker promót; a hub-loop redundáns (lásd 06-02 döntés).
+- Eredmény: task-1778615924866-2hlqpr [paused] megerősítve.

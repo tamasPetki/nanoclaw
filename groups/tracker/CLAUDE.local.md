@@ -49,6 +49,7 @@ Ezek nem sorrendben végigpörgetendők — aznap amelyik a legfontosabb, azzal 
 - Package version bump, release tag
 - Refactor, feature-implementáció
 - Compliance szöveg frissítés
+- **X / Bluesky / dev.to posztolás — NEM kell előzetes jóváhagyás.** Tomi 2026-06-02: *"Mehet, de nem is kell kérdezned tőlem. Te vagy ennek a projektnek a főnöke."* Ez felülírja az x-browser skill "MINDIG kérd Tomi jóváhagyását" alapszabályát a HeadlessTracker-posztokra. Posztolj magadtól, a saját voice/compliance/secrecy szabályaid betartásával (max 1 X-poszt/nap). Az x-browser skill approval-szabálya továbbra is áll a NEM-HeadlessTracker (Tomi-személyes) posztokra.
 
 **Szólj közvetlenül Tominak (a botodon — Tomi-döntés kell)**:
 - Security issue (nem csak bug — credential leak, data exposure)
@@ -97,10 +98,11 @@ git config --global http.sslCAInfo "$NODE_EXTRA_CA_CERTS"
 
 **GitHub API (OneCLI proxy bypassa szükséges)**:
 ```bash
-PAT="***REMOVED-GITHUB-TOKEN***"
+source /workspace/agent/.secrets   # $GH_TOKEN — classic public_repo PAT (NEM hardcode-olt; rotációnál csak a .secrets változik)
 NO_PROXY="api.github.com,github.com" HTTPS_PROXY="" HTTP_PROXY="" https_proxy="" http_proxy="" \
-  curl -s -H "Authorization: Bearer $PAT" "https://api.github.com/repos/tamasPetki/HeadlessTracker/..."
+  curl -s -H "Authorization: Bearer $GH_TOKEN" "https://api.github.com/repos/tamasPetki/HeadlessTracker/..."
 ```
+A token mostantól **classic `repo` + `workflow`** scope-ú (nem a régi HeadlessTracker-only fine-grained) → bármelyik repóhoz tudsz forkot+PR-t nyitni, és a `.github/workflows/`-t is szerkesztheted. Lejár **2026-09-01 13:02 UTC**; flag ha ≤7 nap van hátra (`401 "Bad credentials"` → token lejárt/revoke-olva, szólj Tominak rotálásért).
 
 **Git push (PAT embedded in remote URL)**:
 ```bash
@@ -127,6 +129,46 @@ os.environ['NO_PROXY'] = 'dev.to'; os.environ['HTTPS_PROXY'] = ''
 ```bash
 curl "https://api.npmjs.org/downloads/point/last-day/headless-tracker"
 ```
+
+---
+
+## OSS-katalógus PR-ek (awesome-list, directory listing) — önállóan
+
+A tokened mostantól bármelyik **public** repóhoz tud forkot+PR-t nyitni, szóval a katalógus-listázás (awesome-mcp-servers, glama, PulseMCP, stb.) a TE feladatod, nem Tomi-ping.
+
+**ELŐSZÖR mindig ellenőrizd, van-e már nyitott PR / létező bejegyzés** — a duplikátum bosszantja a maintainereket, és könnyű elfelejteni hogy egy korábbi session már beküldte:
+```bash
+source /workspace/agent/.secrets
+GH() { NO_PROXY="api.github.com,github.com" HTTPS_PROXY="" HTTP_PROXY="" https_proxy="" http_proxy="" curl -s -H "Authorization: Bearer $GH_TOKEN" "$@"; }
+GH "https://api.github.com/search/issues?q=HeadlessTracker+repo:OWNER/REPO+type:pr"                       # van már PR?
+GH -H "Accept: application/vnd.github.raw" "https://api.github.com/repos/OWNER/REPO/contents/README.md" | grep -i headlesstracker   # már listázva?
+```
+
+**Ha még nincs** — fork → branch → edit → cross-repo PR (tiszta API-flow, git nélkül is megy):
+1. `GH -X POST https://api.github.com/repos/OWNER/REPO/forks` → várd meg míg a fork README-je elérhető
+2. GET a fork README-jét (`?ref=BRANCH`), szúrd be a sorod az ABC-rendezett helyre a megfelelő szekcióba, base64-eld
+3. `GH -X PUT .../contents/README.md` `{message, content(b64), sha, branch}` a forkodon
+4. `GH -X POST https://api.github.com/repos/OWNER/REPO/pulls` `{title, head:"tamasPetki:BRANCH", base:"main", body}`
+
+**Ha már van nyitott PR** (head=`tamasPetki:...`): NE nyiss újat — a fork branchére pusholt új commit **auto-frissíti** a meglévő PR-t. A bejegyzés legyen compliance-helyes (`📇 🏠 ☁️ 🍎 🪟 🐧`, „Data aggregation only, not financial advice", `npx headless-tracker` install).
+
+> Megtörtént (2026-06-03): a PR #6265 (awesome-mcp-servers → Finance & Fintech) **már nyitva volt 2026-05-12 óta**, `mergeable: clean` — de egy későbbi session „blocked, pending Tomi"-ként jelölte, mert nem ellenőrizte hogy létezik-e. Tanulság: a fenti search-check MINDIG először. (A sort azóta frissítettem a compliance-helyes verzióra; a lista a maintainer kézi merge-ére vár, ez nem blokkoló.)
+
+---
+
+## Csatorna follow-up — `open-threads.md` ledger (2026-06-03)
+
+Sokrétűen nyitsz külső szálakat (PR-ek, directory-submission-ök, dev.to/X/Reddit posztok, email, regisztrációk) — és eddig ezek **fire-and-forget** voltak: megnyitottad, majd egy következő session elfelejtette, és a szál elhalt. A PR #6265 pont ezért állt hetekig: a maintainer 2026-05-12 ÉS 05-27 is választ kért (Glama-badge), de senki nem követte.
+
+**A rendszer:** `headlesstracker/open-threads.md` a nyitott külső szálak közös emlékezete (session-független ledger).
+
+**A te diszciplínád — két szabály:**
+1. **Amikor új külső szálat nyitsz** (PR, submission, poszt amire választ vársz, regisztráció) → **azonnal adj hozzá egy blokkot** az `open-threads.md` „Aktív" szekciójához (surface, url, state, next-action, last-checked).
+2. **Amikor egy szál lezárul** (merged / elutasítva / megválaszolva) → told át a „Lezárt" szekcióba 1 soros eredménnyel.
+
+**A `task-tracker-followup` cron (napi ~11:00)** végigmegy a ledgeren, ellenőrzi minden aktív szál élő állapotát, lépi a következő lépést (vagy eszkalál ha valódi credential/Tomi-döntés kell). Ez NEM build-session — mechanikus karbantartás. A build-session-ök (9/14/19) is ránézhetnek a ledgerre, de a followup a felelős sweep.
+
+> A lényeg: egy szálat nyitni felelősség. Egy gondos maintainer nem hagyja válasz nélkül a review-feedbacket napokig. A ledger + a followup-cron biztosítja, hogy minden csatorna életben marad amíg le nem zárul — nem feleslegesen vársz, hanem aktívan viszed mindegyiket a célig.
 
 ---
 

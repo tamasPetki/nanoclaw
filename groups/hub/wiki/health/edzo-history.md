@@ -28,6 +28,25 @@ Append-only napló. Heti check-ineknél új adatokkal frissül (lásd persona 6.
 
 ## Heti összefoglalók
 
+### 17. hét (máj. 31 - jún. 6) — Alicante-visszaérkezés, súly 30-napos csúcson
+
+*(hét eleje — adatok feltöltés alatt)*
+
+- **Súly (jún 1):** 98.0 kg — 30 napos csúcs, +0.6 kg a péntek (97.4) óta, hétvégi/Alicante-bump. fat 28.3%, izom 66.8 kg. 3,5 hónap nulla nettó javulás (induló 97.2).
+- **AHI (jún 1):** 9.9 ✅ — ELSŐ sub-10 hetek óta, MAD működik. Trend javul (06-01: 9.9, 05-29: 24.9🔴 MAD-kihagyás, 05-28: 11.8, 05-27: 12.0).
+- **Alvás (jún 1):** score 85/100, total 7h55m, REM 2h42m, deep 3h08m (kiemelkedő), efficiency 94%, HR 66. Rendes regeneráló éjszaka.
+- **17. hét fókusz:** súly visszaszorítás (Alicante-bump leadása), MAD minden este, Foodvisor 1800 kcal limit, min. 4 edzés. Hétfő = Upper A nyomó + 09:00 heti check-in.
+
+### 16. hét (máj. 24-30) — stagnálás, MAD következetlen, Alicante-utazás
+
+- **Súly:** 97.1–97.8 kg, heti átlag **97.5 kg** (előző hét ~97.3 → +0.2 kg). 30 napos trend: +0.3 kg. 3,5 hónap alatt nulla javulás az induló 97.2 kg-hoz képest.
+- **AHI:** MAD-dal — máj. 27: 12.0 ✅, máj. 28: 11.8 ✅. MAD nélkül — máj. 24-26: 16.0–17.0 (közepes). Máj. 29 Alicante (MAD kihagyva): 24.9 🔴. Máj. 30 Alicantéban: AHI 0.0 (mérési hiány).
+- **Alvás:** heti átlag ~78/100. Legjobb: 87/100 (máj. 24). Legrosszabb: 67/100 (máj. 28, csak 6h01m, 2h16m ébren).
+- **Edzés:** máj. 26 Freeletics ✅. Többi nap adat hiányzik. Withings activity = 0 (szinkronizálási hiba).
+- **Esemény:** máj. 29 péntek 14:35 BUD→ALC repülés — hétvégén Alicantéban.
+- **Konklúzió:** Súly stagnál/romlik, MAD-konzisztencia életbe vágó (12 vs 25 AHI), edzés-tracking szinte nulla.
+- **Fókusz Alicantéban:** MAD minden éjjel, 1-2 séta/úszás, visszaérkezés után mérleg másnap reggel.
+
 ### 15. hét (máj. 17-23) — reset, hideg fürdő kötelező minden este
 
 *(hét eleje — adatok feltöltés alatt)*
@@ -89,8 +108,11 @@ Append-only napló. Heti check-ineknél új adatokkal frissül (lásd persona 6.
 - 2026-05-24 reggel — súly 97.1 kg, AHI 16.0, REM 1h45m, deep 2h16m, sleep score 87/100, fókusz: V pihenő | este — edzés: ?, hideg fürdő: ?, kcal: ? (check-in pending)
 - 2026-05-25 reggel — súly 97.5 kg, AHI 16.4, REM 1h36m, deep 2h16m, sleep score 77/100, fókusz: Upper A (nyomó) — munkaszüneti nap | este — edzés: ?, hideg fürdő: ?, kcal: ? (check-in pending)
 - 2026-05-26 reggel — súly 97.6 kg, fat 28.8%, AHI 17.9, REM 1h50m, deep 1h35m, sleep score 77/100, fókusz: Lower A (guggolás) | este — edzés: Freeletics ✅, hideg fürdő: ?, kcal: ? (check-in pending)
+- 2026-05-30 reggel — súly n/a (Alicantéban), AHI 0.0 (külföldi ágy, mérési hiány), REM 2h01m, deep 2h40m, sleep score 75/100, fókusz: V pihenőnap | este — edzés: ?, kcal: ? (check-in pending), hideg fürdő: n/a (hotel)
+- 2026-05-29 reggel — súly 97.4 kg, fat 28.9%, AHI 24.9 🔴 (MAD valószínűleg kimaradt), REM 1h48m, deep 1h23m ⚠️, sleep score 85/100, snoring 3h54m (22 ep), fókusz: Upper B (húzó) — de 14:35 repülő BUD→ALC, timing szoros | este — edzés: ?, kcal: ? (check-in pending, Alicante)
 - 2026-05-28 reggel — súly: n/a (mérj le!), AHI 11.8 ✅ (MAD), REM 1h02m ⚠️ (kevés), deep 2h29m, sleep score 67/100 🔴, alvás 6h01m (2h16m ébrenlét!), fókusz: kardió 30-40p (130 BPM) | este — edzés: ?, hideg fürdő: ?, kcal: ? (check-in pending)
 - 2026-05-27 reggel — súly 97.8 kg, fat 27.6%, AHI 12.4 ✅ (MAD készülék — NEM hideg fürdő), REM 2h22m, deep 2h42m, sleep score 85/100, edzés tegnap: Freeletics ✅, fókusz: kardió 30-40p (130 BPM) | este — edzés: ?, hideg fürdő: ?, kcal: ? (check-in pending)
+- 2026-06-01 reggel — súly 98.0 kg ⚠️ (30-napos csúcs, hétvégi/Alicante-bump), fat 28.3%, izom 66.8 kg, AHI 9.9 ✅ (MAD — sub-10, hetek óta legjobb!), REM 2h42m, deep 3h08m (kiemelkedő), sleep score 85/100, fókusz: Upper A (nyomó) + H 09:00 heti check-in | este — edzés: ?, hideg fürdő: ?, kcal: ? (check-in pending)
 
 ## Fontos megfigyelések
 

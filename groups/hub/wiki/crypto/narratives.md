@@ -4,23 +4,33 @@ Minden napi brief után frissítve. Narratívánként: erő (🔴🟡🟢), stá
 
 ---
 
-## 🟢 HYPE ETF Strukturális Vásárlás + Breakout
-**Erő:** 🟢 Futó — TP1 közelben
-**Utolsó frissítés:** 2026-05-25
+## 🟡 HYPE ETF Strukturális Vásárlás — decoupling VÉGE
+**Erő:** 🟡 Trail-stopout, strukturális tézis watchlisten
+**Utolsó frissítés:** 2026-06-03
 
-$55.33 re-entry zóna sikeres visszateszt (máj. 23). Máj. 24: +9.15% ($60.40). Máj. 25 reggel: $61.46 (+1.94%) — egyedüli zöld a pirosuló altok között. TP1 $65 küszöbön. Bitwise BHYP ETF structural buy pressure változatlan.
+$75.45 (jún 2) → $70.22 (jún 3 reggel, -6.94%). A decoupling véget ért: egy >$1B-os likvidációs kaszkádban a HYPE is elkapta a market betát, eltalálta a $70-es trail SL-t → trade lezárva (a fokozatos trail $62→$66→$70 megőrizte a futás nyereségét). A strukturális vevő-nyomás (ETF buy-streak, Grayscale $800M rev, Bitwise USDC deal, HIP-4 Q2) hosszú táv intakt, de általános likvidálásban a HYPE is beta.
 
-**Trade implikáció:** Re-entry zóna lezárva. TP1 $65 target. TP2 $100+, LT $150 (Hayes aug 2026). Trailing SL: $55.
+**Trade implikáció:** pozíció lezárva ($70 trail). Friss belépő CSAK a piac-stabilizáció után. Watchlisten marad a strukturális tézis miatt.
 
 ---
 
-## 🟡 BTC Triple Top / Drift + SpaceX Katalizátor
-**Erő:** 🟡 Semleges — türelem fázis
-**Utolsó frissítés:** 2026-05-25
+## 🔴 BTC — Likvidációs Kaszkád, Capitulation-Watch
+**Erő:** 🔴 Lefelé — liquidation-event, $66K
+**Utolsó frissítés:** 2026-06-03
 
-$78K ellenállás töretlenül tart, $77K körül drift. SpaceX S-1 (máj. 20): 18,712 BTC = $1.45B — 2× több mint becsült, pozíció 2024 vége óta változatlan. SpaceX IPO jún. 11 (Nasdaq SPCX, $75B raise, $1.75T–$2T valuation). IPO körüli média figyelem = potenciális BTC narratíva boost jún. elején. $74.7K kulcs-support, SBR update "néhány héten belül" (Fehér Ház).
+A risk-off jún 3-ra **likvidációs kaszkáddá** fajult: BTC $66K (-6.75%), a $68-70K zóna elesett, $65K közvetlen közelben. 24h alatt **>$1B likvidálás** (~$989M long, ~$117M short), egy óra ~$394M. Gyújtózsinór: újraépült spekulatív long-túlsúly → support-törés → stop/liquidation-kaszkád. Háttér: rekord ETF-outflow + MSTR-eladás (4 év / never-sell megtört) + Irán.
 
-**Trade implikáció:** Nincs aktív belépési pont. Watch: SBR hír VAGY SpaceX IPO roadshow (jún 1-11) hype.
+**Trade implikáció:** Nincs long a $68K reclaim-ig. $65K vonal, alatta $60K. A >$1B long-flush oversold/capitulation-közeli — bounce-kockázat nő, de zuhanó piac, kés-elkapás tilos.
+
+---
+
+## 🔴 AI-Trade vs Crypto Rotáció
+**Erő:** 🔴 Új — makró headwind
+**Utolsó frissítés:** 2026-06-02
+
+Új makró-narratíva: a Wall Street az AI-trade-en rippel (részvények fel), miközben a crypto vérzik. A tőke részvény > crypto irányba rotál, ez nyomja az egész kockázati étvágyat. Amíg az AI-rali elszívja a likviditást, a crypto-majorok nyomás alatt maradnak. (Forrás: Coindesk jún 1 — "Bitcoin extends slide as ETF outflows hit a record while Wall Street rips on AI".)
+
+**Trade implikáció:** Makró-háttérszél a crypto-longokra. A relatív-erő (HYPE) decouplingol, a beta-majorok (BTC/ETH/SOL) szenvednek. Risk-off-üzemmód a majorokon.
 
 ---
 

@@ -112,8 +112,15 @@
 
 2026-05-23 reggel — súly nem mért (szombat, Lupa + grillezés napja), AHI 18.1 (visszaugrott 16.0-ról — MAD tegnap este valószínűleg nem volt), score 76/100, total 6h08m, REM 1h54m, deep 1h28m, snoring 3h13m / 16 epizód, 1 ébredés (0h48m ébren), mai fókusz: aktív pihenő / szombat kardió (30-40p bringa) — VAGY organikus lépések Lupán | este — edzés: check-in várt, kcal: check-in várt, hideg fürdő: check-in várt
 
+2026-06-01 hétfő — Upper A nyomó nap; alvás (előző éjjel): AHI 9.9 (kiváló!), score 85/100, total 7h55m, REM 2h42m, deep 3h08m, lefekvés 22:29 → ébredés 07:00 | este — edzés: check-in várt, kcal: check-in várt
+
+2026-06-02 kedd reggel — súly 97.5 kg (-0.5 vs tegnapi 98.0 spike, vissza a normál sávba), fat% 28.6, izom 66.2 kg, AHI 12.2 (jó, de fel a tegnapi 9.9-ről), score 85/100, total 7h10m, REM 1h18m (!alacsony), deep 2h38m, snoring 2h09m / 12 epizód, 8 perc alatt elaludt, mai fókusz: Lower A guggolás (kedd) — goblet guggolás, román deadlift, bolgár guggolás, hip thrust. Heti súly-átlag trend: 97.3→97.3→97.6→97.7 (lassan kúszik fel, de izom ↑ fat% ↓ = recomp). Activity: nincs adat (bringa nem szinkronizál). | este — edzés: nem jelzett vissza (nincs adat), kcal: ~1400-1500 (rántotta 2 tojás + protein shake + protein szelet + kis adag rántott csirke/steak burgonya + görög joghurt áfonyalekvárral + dinnye/barack), fehérje: ~95g (a 140-150g floor alatt ~50g-mal). Mounjaro 2. nap, kis adagok.
+
+2026-06-03 szerda reggel — súly: ma még nem mért (legutóbbi 06-02: 97.5 kg), AHI 16.5 (↑ romlott 12.2-ről), score 74/100, total 6h41m, REM 1h16m (!alacsony, 3. nap egymás után), deep 2h25m, hatékonyság 69% (!gyenge), elalvás 2h55m (!! közel 3 óra), 3h04m ébren, lefekvés 21:16. Mai fókusz: szerda kardió / aktív pihenő (30-40p szobabicikli 130 BPM + nyújtás) — jól jön a gyenge alvás után. | este — edzés: check-in várt, kcal: check-in várt
+
 ## Fontos megfigyelések
 
+- **🆕 MOUNJARO 2026-06-01-től** — Tomi elkezdte a tirzepatide-ot. Étvágy ↓ → a coaching fordul: NEM "túleszed magad", HANEM fehérje-megtartás + ellenállásos edzés az izomvesztés ellen. A mérleg most magától indulhat lefelé; a feladat az izom védése. Részletek: context.md "Mounjaro" szekció.
 - **Hideg fürdő = AHI javulás** — a legfontosabb felfedezés (feb. 22: AHI 16.9, legjobb eredmény)
 - **MAD = ÚJ REKORD** — 2026-05-22 este MAD, hideg fürdő nélkül → AHI 16.0 (!!! alatta a feb. 22-i 16.9-nek!). Hipotézis megerősítve: MAD önmagában is rekord. MAD + hideg fürdő együtt = <15 lehetséges?
 - Tomi hajlamos keveset enni → számon kell kérni

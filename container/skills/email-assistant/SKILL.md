@@ -399,48 +399,26 @@ A teljes block (másold be EXAKTUL, ne improvizálj):
 ```html
 <p>&nbsp;</p>
 <div data-spark-custom-html="true" style="margin-top: 24px;">
-    <table cellpadding="0" cellspacing="0" border="0" role="presentation" style="width: 100%; max-width: 480px; border-collapse: separate; font-family: Arial, Helvetica, sans-serif;">
+    <table cellpadding="0" cellspacing="0" border="0" role="presentation" style="border-collapse: separate; font-family: Arial, Helvetica, sans-serif;">
         <tbody>
             <tr>
-                <td style="padding: 0;">
-                    <table cellpadding="0" cellspacing="0" border="0" role="presentation" style="width: 100%; border-collapse: separate; background-color: #fbf7f3; border: 1px solid #e6ddd6; border-radius: 10px;">
-                        <tbody>
-                            <tr>
-                                <td style="width: 110px; padding: 14px 12px; vertical-align: top; border-right: 1px solid #e6ddd6; background-color: #f7f1eb; border-left: 4px solid #f7982b; border-top-left-radius: 10px; border-bottom-left-radius: 10px;">
-                                    <img src="https://pietscarlet.hu/brand/logo.svg" width="82" alt="PietScarlet" style="display: block; width: 82px; max-width: 82px; height: auto; border: 0;">
-                                    <div style="margin-top: 10px; font-size: 9px; line-height: 13px; color: #9a8e86; letter-spacing: 0.12em; text-transform: uppercase;">
-                                        Fejlesztés<br>
-                                        Kivitelezés
-                                    </div>
-                                </td>
-                                <td style="padding: 14px 16px; vertical-align: top;">
-                                    <div style="font-size: 19px; line-height: 22px; font-weight: 700; color: #2f2925;">
-                                        Petki Tamás
-                                    </div>
-                                    <div style="margin-top: 4px; font-size: 10px; line-height: 13px; font-weight: 700; color: #f7982b; text-transform: uppercase; letter-spacing: 0.12em;">
-                                        ügyvezető
-                                    </div>
-                                    <div style="margin-top: 7px; font-size: 13px; line-height: 18px; color: #625851; font-weight: 700;">
-                                        PietScarlet Kft.
-                                    </div>
-                                    <div style="margin-top: 8px; font-size: 12px; line-height: 18px; color: #625851;">
-                                        <a href="tel:+36708844929" style="color: #2f2925; text-decoration: none; font-weight: 700;">
-                                            +36 70 88 44 929
-                                        </a>
-                                        <span style="color: #c4b8b0;">&nbsp;&nbsp;|&nbsp;&nbsp;</span>
-                                        <a href="mailto:hello@pietscarlet.hu" style="color: #2f2925; text-decoration: none;">
-                                            hello@pietscarlet.hu
-                                        </a>
-                                    </div>
-                                    <div style="margin-top: 2px; font-size: 12px; line-height: 18px; color: #625851;">
-                                        <a href="https://pietscarlet.hu" style="color: #2f2925; text-decoration: none;">
-                                            pietscarlet.hu
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <td style="padding: 0 16px 0 0; vertical-align: middle; border-right: 3px solid #f7982b;">
+                    <img src="https://pietscarlet.hu/brand/logo.svg" width="90" alt="PietScarlet" style="display: block; width: 90px; max-width: 90px; height: auto; border: 0;">
+                </td>
+                <td style="padding: 0 0 0 16px; vertical-align: middle;">
+                    <div style="font-size: 18px; line-height: 22px; font-weight: 700; color: #2f2925;">
+                        Petki Tam&aacute;s
+                    </div>
+                    <div style="margin-top: 2px; font-size: 12px; line-height: 16px; color: #625851;">
+                        &uuml;gyvezet&#337; &nbsp;&middot;&nbsp; <span style="font-weight: 700;">PietScarlet Kft.</span>
+                    </div>
+                    <div style="margin-top: 8px; font-size: 12px; line-height: 18px; color: #625851;">
+                        <a href="tel:+36708844929" style="color: #2f2925; text-decoration: none; font-weight: 700;">+36 70 88 44 929</a>
+                        <span style="color: #c4b8b0;">&nbsp;&middot;&nbsp;</span>
+                        <a href="mailto:hello@pietscarlet.hu" style="color: #2f2925; text-decoration: none;">hello@pietscarlet.hu</a>
+                        <span style="color: #c4b8b0;">&nbsp;&middot;&nbsp;</span>
+                        <a href="https://pietscarlet.hu" style="color: #f7982b; text-decoration: none; font-weight: 700;">pietscarlet.hu</a>
+                    </div>
                 </td>
             </tr>
         </tbody>

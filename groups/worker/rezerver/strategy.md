@@ -278,7 +278,7 @@ Jelenleg NINCS egyetlen magyar platform sem, ami real-time árazással és azonn
 
 ### Fő piaci tanulságok
 
-1. **A HU rendezvényhelyszín-piacon NINCS SaaS megoldás.** Csak aggregátor/directory platformok léteznek, amelyek ajánlatkérést közvetítenek. Senki nem kínál real-time árazást + online foglalást + online fizetést. Ez TELJES piaci rés a Rezerver számára.
+1. **A HU rendezvényhelyszín-piacon NINCS SaaS megoldás.** Csak aggregátor/directory platformok léteznek, amelyek ajánlatkérést közvetítenek. Senki nem kínál real-time árazást + online foglalást + online fizetést. Ez TELJES piaci rés a Rezerver számára. *(⚠️ 2026-06-03 frissítés: ez RÉSZBEN elavult — a Dynex.hu hozott online foglalást + Stripe-fizetést + előleg-kezelést a HU vendéglátásba, DE event-oldalon még mindig ajánlatkérés-modell. Lásd Learnings 2026-06-03.)*
 
 2. **Az asztalfoglalási SaaS piac viszonylag fejlett** (ReservOurs, FoglaljOnline, DISH, DinnerBooking, BookioPro), de ezek mind éttermi asztalfoglalásra specializáltak. Rendezvényre (terem + csomag + catering + deposit) egyikük sem alkalmas.
 
@@ -294,7 +294,9 @@ Jelenleg NINCS egyetlen magyar platform sem, ami real-time árazással és azonn
 
 ## Learnings
 
-*Még nincs learning, első session-ből lesz első entry.*
+- **2026-06-02 — venue_pipeline.json részleges rebuild + context-compaction adatvesztés mintázat.** Az eredeti 109-venue fájl (+ vendor_pipeline.json + prep/ mappa) elveszett a 2026-05-28 context-compaction során. A NÉVVEL dokumentált 67 venue visszaállítható volt a state.history + observations alapján; a csak SZÁM szerint logolt ~42 vidéki target nem. Tanulság: a kritikus, hosszú életű pipeline-adatot (venue/vendor/prep) végig perzisztens JSON-ban kell tartani ÉS minden session elején ellenőrizni hogy a fájl létezik-e — a history nem elég granuláris a teljes visszaállításhoz (a batch-eket sokszor csak darabszámmal logoltuk, nem névvel). A per-venue tier-besorolás (46/43/13) és a 102 personalization hook elveszett, csak a G&M2026/Michelin-HU2025 Tier1 hook-ok jöttek vissza — ezek újra-építése Tomi-OK után.
+
+- **2026-06-03 — ÚJ KONKURENS: Dynex.hu (competitive refresh).** A 6 hetes mapping óta felbukkant a Dynex.hu, az eddigi legközelebbi versenytárs. HU vendéglátóipari SaaS (kávézó/étterem/rendezvényhelyszín), ami a régi mapping szerint "senkinek nincs" stacket HOZZA: 24/7 online foglalás, **Stripe online kártyás fizetés + előleg-kezelés + visszatérítés**, AI asztalfoglaló asszisztens, rendezvényjegy-értékesítés, ajándékutalvány. Ár: használat-alapú vagy korlátlan 39.990 Ft/hó. **DE event-oldalon (rendezvényhelyszín) a Dynex NEM csinál automatizált real-time event-árkalkulációt** — ott "ajánlatkérés + utánkövetés + vendégkommunikáció egy rendszerben" (lead/inquiry-CRM), vagyis ugyanaz az ajánlatkérés-modell, csak jobb follow-up tooling. **Következmény a pozicionálásra:** a "senki nem csinál online foglalást+fizetést a HU HoReCa-ban" üzenet ELAVULT (Dynex asztalra igen). A védhető Rezerver-USP SZŰKÜL erre: **automatizált real-time EVENT-árazás (terem+csomag+catering konfigurátor) + azonnali foglalás komplex rendezvényekre**, szemben az univerzális ajánlatkérés-modellel. Outreach-aktiváláskor erre kell élezni az üzenetet, nem a tág "nincs SaaS"-ra. (Forrás: dynex.hu + funkciók/árlista, 2026-06-03 web-scan.)
 
 ## Tomi intervenciót igénylő dolgok (Discord ping-szenek!)
 

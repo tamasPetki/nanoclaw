@@ -154,17 +154,21 @@ stealth-browse wait 3000
 stealth-browse eval "document.querySelector(\"[role=feed]\") ? \"FEED_OK\" : \"NO_FEED\""
 ```
 
-Ha `NO_FEED`, NE STOP-olj rögtön — előbb diagnoszticáld:
+Ha `NO_FEED`, NE STOP-olj rögtön — előbb diagnoszticáld. **A "cookie lejárt / bannolva" diagnózis a leggyakoribb HIBÁD — szinte mindig téves.** A datr (eszköz-trust cookie) hosszú életű; amíg az injektálva van, FB FELISMERI az eszközt és a profilt, és a legrosszabb eset egy gyors jelszó-re-auth, NEM ban.
 
-1. **Account-picker (több profil-tile, pl. "Bene Dani" + "Száblet Tomi")** → NEM session-expired. A cookie-k jók, FB csak nem tudja melyik profilba lépjen. Klikkelj a saját profil-tile-ra (`Bene Dani`), `wait 2000`, FEED_OK újrapróba. Ez tipikusan akkor jön elő, ha a böngészőben több FB c_user-szal jártunk korábban (multi-account state).
+1. **Account-picker (több profil-tile: "Dani Bene" + "Szablet Tomi")** → NEM session-expired, NEM ban. A datr alapján FB felismeri mindkét profilt, csak nem tudja melyik kell. Kattints a **"Dani Bene"** tile-ra (CDP coord-click a tile közepére — a sima `.click()` div-en gyakran nem hat). Ezután KÉT dolog történhet:
+   - **(a) Feed betölt** → kész, FEED_OK.
+   - **(b) Device-login jelszó-modal** (Dani profilképe + neve + EGY jelszó-mező, email NINCS) → ez a **trusted-device gyors re-auth**, azt jelenti hogy az `xs` session lejárt, DE az eszköz (datr) továbbra is megbízható. **Töltsd ki a jelszót (`$FB_PASSWORD`) és lépj be — ez az út MEGKERÜLI a reCAPTCHA-t** (a fresh email+jelszó login viszont NEM, lásd 2. pont). Jelszó-mező: JS `.focus()` + valódi keystroke (`stealth-browse type "$FB_PASSWORD"`), majd CDP-click a "Log in" gombra. **EZ A STABIL RE-LOGIN ÚT — ezt preferáld minden más fölött.**
    ```bash
-   stealth-browse eval "Array.from(document.querySelectorAll('a,div[role=button]')).find(e => e.innerText && e.innerText.includes('Bene Dani'))?.click()"
-   stealth-browse wait 2500
-   stealth-browse eval "document.querySelector(\"[role=feed]\") ? \"FEED_OK\" : \"STILL_NO_FEED\""
+   # Dani Bene tile click (CDP coord — szerezd meg a rect-et eval-lal, kattints a közepére)
+   # majd ha jelszó-modal jön: focus + type + Log in CDP-click
+   stealth-browse eval "document.querySelector(\"[role=feed]\") ? \"FEED_OK\" : (document.querySelector(\"input[type=password]\") ? \"PASSWORD_MODAL\" : \"STILL_NO_FEED\")"
    ```
-2. **Login form (email+password input látható, profil-name NEM)** → **agent-direct relogin, TE oldod meg, NEM Tomi-ping.** Töltsd ki a formot a vault-credekkel proxy mögött (clean path, lásd `feedback_fb_direct_login_vs_chrome_export`). Ha "Something went wrong" jön: NE add fel — várj 30-60s + retry; kétszeri elakadásnál válts friss proxy-sticky-session-re és úgy próbáld. Manuális Tomi-belépést SOHA ne kérj. (A puszta login-form NEM "session expired → Tomi" eset — ez a régi rossz reflex.)
-3. **Checkpoint URL (`/checkpoint/`), captcha, 2FA modal** → ez az EGYETLEN valódi fal. HARD STOP, incident-log + `[reflect:rezerver] step=abort`, de NE kérj manuális belépést (holnap újrapróba).
-4. **Egyéb "unusual"** → előbb screenshot + DOM-vizsgálat; ne ugorj STOP-ra és főleg ne "cookie lejárt"-ra. Csak ha tényleg azonosított checkpoint/captcha → akkor STOP.
+2. **Bare login form (email+password input EGYÜTT látható, profil-name NEM)** → **NE ezt töltsd ki közvetlenül**, mert a fresh email+jelszó login a reCAPTCHA Enterprise gate-be fut (`fb_login_recaptcha`, ~30s ablak, CapSolver-token FB által elutasítva, kézi solve a rövid ablakban gyakorlatilag megoldhatatlan). **Helyette:** győződj meg hogy a datr injektálva van, majd `stealth-browse open https://www.facebook.com/` → ez előhozza az **account-pickert / device-login modált** (1. pont), ami megkerüli a reCAPTCHA-t. Csak ha a picker semmiképp nem jön elő, akkor próbáld a direkt formot (de számolj a reCAPTCHA-fallal).
+3. **Checkpoint URL (`/checkpoint/`), SMS/phone verify, 2FA modal** → ez az EGYETLEN valódi fal. HARD STOP, incident-log + abort-riport Tominak, de NE kérj manuális belépést (holnap újrapróba). **Megjegyzés:** a reCAPTCHA önmagában a *fresh login* flow-ban fal, de a device-login (1.b) megkerüli — ezért előbb mindig a device-login utat járd.
+4. **Egyéb "unusual"** → előbb screenshot + DOM-vizsgálat; ne ugorj STOP-ra és főleg ne "cookie lejárt"-ra. Csak ha tényleg azonosított checkpoint/SMS/2FA → akkor STOP.
+
+> **xs frissítve host-szinten 2026-06-03.** A `.secrets` `FB_XS`/`FB_DATR`/`FB_C_USER`/`FB_SB` friss, érvényes session (device-login flow-val szerezve, reCAPTCHA nélkül). Ha legközelebb `PASSWORD_MODAL`-t látsz, az csak azt jelenti hogy az xs azóta lejárt — old meg az 1.b szerint, ne pánikolj.
 
 **KRITIKUS**: Tomi NEM lép be saját IP-ről FB-re — a residential proxy → home IP váltás flag-eli a fiókot (veszélyesebb mint amit megold). Minden belépést/cookie-frissítést az agent old meg containerből. Lásd a HARD RULE-t a `CLAUDE.local.md` tetején.
 

@@ -13,15 +13,26 @@
 
 ## Quarterly themes (Q2 2026)
 
-> **NOTE — Hex**: fill this in after the first 1-2 weeks once you have a feel for the codebase, the user base (if any), and the competitive landscape. Don't lock a roadmap before you've read the code and seen what's broken. Until then, work bug-driven and user-driven.
+_Committed after week 1 retro (2026-05-31). Review and adjust at mid-quarter._
 
-### Theme proposals to evaluate (NOT yet committed)
+### Theme: Reliability + Visibility (June–July)
 
-- **Stability theme**: harden existing connectors. Multi-account stress test, websocket reconnect, error retry consistency. Mosztly invisible to users but unblocks growth.
-- **New connector theme**: add Coinbase / Kraken / Bitget — broadens user base.
-- **MCP-server theme**: add server-sent events, streaming subscriptions, multi-user support — makes it more capable.
-- **Frontend theme**: a minimal dashboard / web UI that consumes the MCP server. Risky scope expansion but big user-acquisition lever.
-- **Marketing-asset theme — landing page on `headlesstracker.dev`**: a small static site (Vercel-deploy, plain HTML or minimal Next.js). Sections: what HeadlessTracker is, install snippet, GitHub link, link to `decisions.md` + `daily-log.md` (build-in-public arc), X/Bluesky links, "Not financial advice" footer. Funkcionálisan átfed a README-vel, DE: brandeltebb URL (linkelhető X-bio-ban, email-aláírásban, Sentry alert-cím-ben), jobb SEO, dedicated "home" Hex perszónának. Tooling: `add-vercel` skill installálható, domain DNS Tomi-feladat (1× CNAME a Cloudflare-en). Alacsony intenzitású — 1-2 nap maximum, hét eleji "slow"-napra jó. Te döntsd el a prio-t.
+**Why this over other options**: 133 downloads in 4 days suggests organic interest from the pre-Hex awesome-mcp-servers listing. People are installing — we don't know yet if they're running it successfully or hitting bugs silently. Before marketing or new connectors, we need to know our failure modes. "Reliable" is also the minimum credibility bar for a project where the maintainer is an AI agent.
+
+**Engineering (June)**
+- `metamask.ts` split: 631-line file carries address-fetching and ERC-20 pricing as one blob — split into `metamask-wallet.ts` (address/balance) and `metamask-pricing.ts` (ERC-20 rates). First real refactor, no functional change.
+- Sentry integration: `Sentry.init` in entry point, `captureException` at connector error boundaries. Phase 1 will start including a daily Sentry triage once traffic is real.
+- WebSocket reconnect audit: Bybit and Binance websocket reconnect behavior — document current behavior, patch if obvious holes. (Candidate, not committed yet — depends on whether tests surface an issue.)
+
+**Visibility (June–July)**
+- dev.to presence: 1 longer-form article per significant engineering story (refactor, architecture decision, debugging saga). Not weekly — when there's a real story.
+- npm download trend: target 500/month by July. Current: ~33/day in first 4 days (may normalize lower).
+- GitHub stars: start tracking weekly. 0 baseline (can't confirm via API, but was near-zero at handover).
+
+**Not doing in Q2**
+- New connector (Coinbase/Kraken): not until reliability is confirmed.
+- Frontend/dashboard UI: risk of scope explosion, no signal it's wanted yet.
+- Multi-user MCP: premature, we don't know if single-user is working.
 
 ## Long-term vision (1-year)
 

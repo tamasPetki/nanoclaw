@@ -17,6 +17,19 @@
 - Összesen 29 csoport logolva (kumulált)
 - Session clean, 0 anomália
 
+### 2026-05-29 esti — Phase 3 deadline: jún. 1 (3 nap maradt!)
+
+- FB warmup 2. napja STOP — xs nem frissült (mtime: 2026-05-27 08:20), cookie-restore sem indult (tovább rontaná)
+- **Phase 3 ablak jún. 1-ig tart** — ha xs ma/holnap megérkezik, még belefér 1-2 session
+- Szükséges: desktop Chrome → facebook.com → Dani Bene manuális login → EditThisCookie export → xs+c_user+datr+sb → /workspace/agent/.fb-cookies-dani.json
+
+### 2026-05-29 — FB security lockout azonosítva + Sentry 80% alert
+
+- **FB lockout oka pontosítva:** a "Something went wrong" NEM csak xs-expiry — security lockout: FB regisztrálta a Hajdúböszörmény IP-s login kísérletet (2026-05-28 18:22 biztonsági riasztás). Azonnali desktop relogin kell Tomi által (Dani Bene account, friss xs cookie export).
+- **Sentry 80% budget alert** (2026-05-25): havi hibakvóta 80%-on. 3 nyitott issue tolja: 4Y Stripe, 4X calendar cron, 4V Google OAuth. Ha nem javul → hamarosan rate-limit.
+- Inbox: 0 venue/media reply (05-28 óta)
+- **Blockerek:** FB relogin + venue_pipeline.json rebuild (Tomi OK vár)
+
 ### 2026-05-28 — esti trigger event check + pipeline audit
 
 **Gault&Millau 2026 HU** — Gála 2025-09-26 volt (már lezajlott). Top csillagos Tier 1 célpontok:
@@ -126,3 +139,30 @@
 - **Új csoport discovery:** "A Vendéglátós Csoport" (score: 4) — általános szakmai csoport, eddig hiányzott a listáról
 - **Összesen 4 új csoport** logban rögzítve
 - Cookie dump OK, fiók egészséges
+
+### Cookie refresh playbook — korai figyelmeztetés (2026-05-31, W22 finding)
+
+FB xs cookie lejárata: jellemzően 60-90 nap. **Korai figyelmeztető logika** — a pre-task bash scriptbe (`task-rezerver-fb-warmup`) hozzáadandó:
+
+```bash
+# xs cookie mtime check — ha >45 napja nem frissült → early warning
+FB_COOKIE_FILE="/workspace/agent/.fb-cookies-dani.json"
+if [ -f "$FB_COOKIE_FILE" ]; then
+  MTIME=$(stat -c %Y "$FB_COOKIE_FILE")
+  NOW=$(date +%s)
+  AGE_DAYS=$(( (NOW - MTIME) / 86400 ))
+  if [ "$AGE_DAYS" -gt 55 ]; then
+    echo '{"wakeAgent": true, "data": {"warning": "FB cookie csere küszöbön", "age_days": '"$AGE_DAYS"'}}'
+    exit 0
+  fi
+fi
+```
+
+Ha `age_days > 55` → hub push Tominak: "FB cookie csere közeleg (X nap múlva ~60 nap)". Ha cookie már lejárt (login fail) → azonnali ABORT + push.
+
+**Szükséges Tomi-akció cookie csere esetén:**
+1. Desktop Chrome → facebook.com → Dani Bene fiókba belépés
+2. EditThisCookie extension → xs + c_user + datr + sb mezők export
+3. Fájl mentése: `/workspace/agent/.fb-cookies-dani.json`
+
+**Incidens referencia:** 2026-05-28-29 warmup ABORT ×3, Phase 3 ablakból 3 nap elveszett.

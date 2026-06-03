@@ -10,6 +10,14 @@
 
 ## Reddit warmup napló
 
+### 2026-05-29 — Day 17 (lloyd_bt, r/algotrading, Session #11) ✅
+
+- Proxy: US OK (New York City, 82.40.93.70)
+- Lurk ~10p, hot feed — LLM backtest bias, breadth algo, NQ VWAP, SPY Bollinger+MACD
+- **1 save CONFIRMED** (első!) — "Letting an LLM write your backtest?" (t3_1tpren4), shadow DOM overflow menu megerősítve
+- Cumulative saves: 1 | 0 comment, 0 upvote — policy tartva
+- Holnap (Day 18): r/IndieHackers vagy r/Bitcoin
+
 ### 2026-05-19 — Day 6 (lloyd_bt, r/SaaS, lurk-only) — **Week 1 KÉSZ**
 
 - r/SaaS, ~8 perc, 0 save, 0 vote, 0 anomália

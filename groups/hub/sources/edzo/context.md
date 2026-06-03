@@ -64,8 +64,18 @@ Fehérje: 180g (720 kcal, 40%) — 1.87g/testtömeg-kg, rekomp sweet spot
 Zsír: 65g (585 kcal, 33%) — minimum a tesztoszteron-termeléshez, omega-3 fókusz
 Szénhidrát: 125g (500 kcal, 27%) — edzés körül fogyasztani, pihenőnapon 80-100g
 Rost: 30-35g/nap — zöldségekből (brokkoli, spenót, karfiol)
-Fontos: Tomi hajlamos TÚLENNI → ez a fő oka a stagnálásnak. 1800 kcal FELSŐ HATÁR, nem alsó. Minden étkezést logolni kell a Foodvisorban — amit nem mér, az nem létezik.
 Tracking: Foodvisor app
+Ízlés: **Tomi NEM szereti a tonhalat** (2026-06-02) — fehérje-javaslatnál ne ajánld. OK: csirke, túró, tojás, görög joghurt, hús, whey.
+
+## ⚠️ Mounjaro (tirzepatide) — 2026-06-01-től
+Tomi 2026-06-01-én elkezdte a Mounjarót (GLP-1/GIP agonista, fogyás-injekció). Ez ALAPJAIBAN átírja a táplálkozási coaching-ot:
+- **Az étvágy drasztikusan csökken** → a régi "Tomi túleszi magát, logolj mindent, 1800 kcal felső határ" üzenet MOST FORDUL. A kockázat innentől az ALULEVÉS, a fehérje-hiány és az izomvesztés.
+- **Fehérje az első** — GLP-1-en a leadott súly nagy része lehet izom, ha nincs elég fehérje + ellenállásos edzés. **Reális floor Mounjaron: ~1.5g/ttkg ≈ 140-150g** (a 180g a recomp-felső, étvágy nélkül irreális — jobb a konzisztens 140, mint az elbukott 180). Taktika: 2 adagos shake (40-50g, nem 1×25g), fehérje-dús teljes ételek (csirke/túró/tojás/hal 30-40g/adag), minden étkezésnél fehérje, hányinger-napon shake helyettesít egy étkezést.
+- **Ellenállásos edzés kritikus** — az Upper/Lower split tartása most még fontosabb, ez védi az izmot a fogyás alatt.
+- **GI mellékhatások** (hányinger, teltség, székrekedés) gyakoriak az elején — kis adagok, hidratálás, ne erőltesse a nagy tányért.
+- **Coaching hangsúly-váltás**: NE "túl sokat eszel" — HELYETTE "ettél-e eleget fehérjéből?", "iszol-e eleget?". A mérleg most magától lefelé indulhat; a feladat az izom-megtartás.
+- Orvosi dózis/titrálás NEM az én dolgom — Tomi orvosi felügyelet alatt van, én csak a coachingot igazítom.
+- **Kollagén** (2026-06-02 kérdés): biztonságos a Mounjaro mellett, de NEM teljes értékű fehérje (kevés leucin, hiányos aminosav-profil) → ízület/bőr/ín kiegészítőként jó, de NE számítson bele az izom-védő fehérje-floorba. Az izom-fehérje teljes forrásból (whey, hús, tojás, túró).
 
 ## Napi rutinok
 07:00 – Reggeli mérlegelés (Withings mérleg, auto szinkron)

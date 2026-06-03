@@ -17,13 +17,19 @@
         "http_proxy": ""
       }
     },
-    "todoist": {
+    "ticktick": {
       "command": "/bin/bash",
       "args": [
-        "/opt/mcp-servers/todoist/run.sh"
+        "/opt/mcp-servers/ticktick/run.sh"
       ],
       "env": {
-        "TODOIST_API_TOKEN": "${TODOIST_API_TOKEN}"
+        "TICKTICK_ACCESS_TOKEN": "${TICKTICK_ACCESS_TOKEN}",
+        "TICKTICK_CLIENT_ID": "${TICKTICK_CLIENT_ID}",
+        "TICKTICK_CLIENT_SECRET": "${TICKTICK_CLIENT_SECRET}",
+        "TICKTICK_V2_SESSION_TOKEN": "${TICKTICK_V2_SESSION_TOKEN}",
+        "NO_PROXY": "api.ticktick.com,ticktick.com,.ticktick.com",
+        "HTTPS_PROXY": "",
+        "HTTP_PROXY": ""
       }
     }
   },

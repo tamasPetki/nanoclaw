@@ -1,43 +1,44 @@
 # Crypto Trades — Aktív és Watchlist
 
-Frissítve: 2026-05-20 reggel
+Frissítve: 2026-06-03 reggel
 
 ---
 
 ## 🟢 AKTÍV FIGYELÉS
 
-### HYPE (Hyperliquid)
-- **Ár:** $60.40 | **SL:** $48 | **TP1:** $65 | **TP2:** $100 | **LT:** $150 (Hayes)
-- **Setup:** $50 resistance TÖRVE (máj. 22). Re-entry zóna ($55-57) munkált — máj. 23 visszateszt $55.33, máj. 24 visszament +9.15%-kal $60.40-re. TP1 $65 közeledik. ETF structural buy pressure változatlan.
-- **Belépés:** $65 felett continuation long. Re-entry lezárt (sikeres volt).
-- **Státusz:** 🟢 Momentum — TP1 $65 közeledik
-- **Frissítve:** 2026-05-24
-
-### XRP
-- **Ár:** $1.37 | **SL:** $1.35 | **TP:** $1.80-2.00
-- **Setup:** CLARITY Act bináris trigger. Committee 15-9. Senate floor vote pending.
-- **Belépés:** Tartás. Floor vote = exit döntési pont.
-- **Státusz:** 🟡 Tartás, watch Senate
-- **Frissítve:** 2026-05-20
+*Nincs nyitott pozíció — CASH/türelem.* 2026-06-03: likvidációs kaszkád (>$1B, döntően longok), a HYPE trail SL ($70) is elesett. Friss belépő csak a piac-stabilizáció után (BTC $68K reclaim).
 
 ---
 
 ## ⏳ WATCHLIST
 
 ### BTC
-- **Ár:** $76,818
-- **Setup:** $74.7K support tartotta, Trump Irán-deal bounce +1.67%. $78K felett = range kitörés, long trigger. Mark Connors: "longest underperformance streak over."
-- **Státusz:** ⏳ $76-78K range — $78K felett long, $74.7K alá short
-- **Frissítve:** 2026-05-24
+- **Ár:** $66,088 (-6.75% / 24h)
+- **Setup:** likvidációs kaszkád (>$1B, döntően long-flush), a $68-70K zóna elesett, $65K közvetlen közelben. Rekord ETF-outflow + MSTR-eladás + Irán. Oversold → bounce-kockázat nő, de zuhanó piac.
+- **Státusz:** ⏳ Lefelé bias — nincs long a $68K reclaim-ig; $65K vonal, alatta $60K. Kés-elkapás tilos.
+- **Frissítve:** 2026-06-03
 
 ### SOL
-- **Ár:** $84.8
-- **Range:** $81-98 (május)
-- **Státusz:** ⏳ Skip — nincs irány
-- **Frissítve:** 2026-05-20
+- **Ár:** $73.86 (-8.45%)
+- **Range:** mélyül, a majorok legnagyobb vesztese ma
+- **Státusz:** ⏳ Skip — high-beta zuhanás, irány nélkül
+- **Frissítve:** 2026-06-03
+
+### HYPE (Hyperliquid) — watchlistre vissza
+- **Ár:** $70.22 (-6.94%)
+- **Setup:** a decoupling véget ért, a $70 trail SL elesett (lásd archív). Strukturális tézis (ETF buy-streak) hosszú táv intakt, de likvidálásban beta.
+- **Státusz:** ⏳ Friss belépő CSAK piac-stabilizáció után
+- **Frissítve:** 2026-06-03
 
 ---
 
 ## 📋 LEZÁRT / ARCHÍV
 
-*(ide kerülnek a lezárt trade-ek)*
+### HYPE — TRAIL STOPOUT (2026-06-03)
+- **Kimenet:** a $70 trail SL elesett (-6.94% napon belül, decoupling vége egy >$1B likvidációs kaszkádban). A trade lezárva. A trail-stopot fokozatosan húztuk fel ($62→$66→$70), így a futás nagy részének nyeresége bent maradt.
+- **Tanulság:** a relatív-erő (decoupling) sztori addig tart, amíg egy általános likvidálás be nem szippantja a betát — a trail-stop fegyelem mentette meg a profitot. Strukturális tézis (ETF buy-streak) watchlisten marad.
+
+### XRP — STOPOUT (2026-06-02)
+- **Belépő-tézis:** CLARITY Act bináris trigger, TP $1.80-2.00, SL $1.35.
+- **Kimenet:** SL $1.35 véglegesen törve, ár $1.28 (-3.6%). A technikai long kiütve, lezárva.
+- **Megjegyzés:** a Senate-vote fundamentum később újra-triggerelhet, akkor friss setup kell — de ez az ötlet stopout.

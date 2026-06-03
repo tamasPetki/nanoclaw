@@ -14,6 +14,7 @@ logs/
 # Groups — track content (CLAUDE.local.md, container.json, strategy.md, etc.)
 # but exclude secrets, tokens, sessions, runtime state.
 groups/*/.secrets
+groups/*/.secrets.*
 groups/*/.withings/
 groups/*/.mcp-auth/
 groups/*/.claude-auth/
