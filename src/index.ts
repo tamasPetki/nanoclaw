@@ -8,6 +8,9 @@ import path from 'path';
 
 import { backfillContainerConfigs } from './backfill-container-configs.js';
 import { DATA_DIR } from './config.js';
+import { readEnvFile } from './env.js';
+import { startCrmIngest } from './crm/ingest.js';
+import { startCrmServer } from './crm/server.js';
 import { enforceStartupBackoff, resetCircuitBreaker } from './circuit-breaker.js';
 import { migrateGroupsToClaudeLocal } from './claude-md-compose.js';
 import { initDb } from './db/connection.js';
@@ -176,6 +179,17 @@ async function main(): Promise<void> {
 
   // 7. Start the `ncl` CLI socket server (data/ncl.sock).
   await startCliServer();
+
+  // 8. Rezerver CRM — durable ingest of the worker's biz-dev data + the
+  //    internal dashboard. The HTTP server only starts if CRM_SECRET is set.
+  startCrmIngest();
+  const crmEnv = readEnvFile(['CRM_SECRET', 'CRM_PORT']);
+  const crmSecret = process.env.CRM_SECRET || crmEnv.CRM_SECRET;
+  if (crmSecret) {
+    startCrmServer({ port: parseInt(process.env.CRM_PORT || crmEnv.CRM_PORT || '3200', 10), secret: crmSecret });
+  } else {
+    log.info('CRM HTTP server disabled (no CRM_SECRET in .env)');
+  }
 
   log.info('NanoClaw running');
 }

@@ -82,3 +82,6 @@ groups/pietscarlet/*.docx
 # Session-i state-backup fájlok (DB pre-edit copies, .secrets pre-edit copies)
 *.bak-*
 *.bak-pre-*
+
+# Rezerver CRM host-generated export snapshot (runtime data)
+.crm-export/

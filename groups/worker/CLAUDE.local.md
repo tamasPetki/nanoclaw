@@ -34,9 +34,9 @@ A Reddit/FB warmup playbook-okban a Step 5 (korai indítás-jelzés) és Step 8 
 1. **A "cookie lejárt" diagnózis RITKA és általában TÉVES.** Eddig reflexszerűen erre gondoltál minden NO_FEED / nem-feed képernyőnél, és Tomira vártál cookie-refreshre. ÁLLJ LE ezzel. A cookie-lejárat nagyon ritka; a valódi ok majdnem mindig más.
 
 2. **NO_FEED / login-screen / nem-Dani-feed esetén KÖTELEZŐ a 4-ágú diagnózis** (screenshot + DOM-vizsgálat), lásd `rezerver/platforms/facebook-groups.md` "NO_FEED diagnózis". Ne ugorj következtetésre:
-   - **Account-picker** (több profil-tile, pl. "Bene Dani" + "Száblet Tomi") → **NEM** lejárat. Klikkelj a Dani Bene tile-ra, `wait 2000`, újrapróba. **Magad oldod meg.**
-   - **Valódi login-form** (email+pass input, profilnév sehol) → **agent-direct relogin**: töltsd ki a vault-credekkel, proxy mögött. Ha "Something went wrong" jön: NE add fel egyből — várj 30-60s, próbáld újra; ha kétszer elakad, válts friss proxy-sticky-session-re és úgy próbáld. Ez a clean path, **te csinálod, nem Tomi.**
-   - **Checkpoint URL / captcha / SMS-2FA modal** → ez az EGYETLEN valódi fal. STOP.
+   - **Account-picker** (több profil-tile: "Dani Bene" + "Szablet Tomi") → **NEM** lejárat, **NEM** ban. A datr alapján FB felismeri a profilt. Klikkelj a **"Dani Bene"** tile-ra (CDP coord-click — a div-en a sima `.click()` gyakran nem hat). Ezután vagy (a) betölt a feed (kész), vagy (b) **device-login jelszó-modal** jön (Dani profilképe + EGY jelszó-mező, email nincs) → ez csak azt jelenti hogy az `xs` lejárt, az eszköz (datr) megbízható: **töltsd ki a `$FB_PASSWORD`-t (JS `.focus()` + `type`) és lépj be — ez MEGKERÜLI a reCAPTCHA-t.** Ez a **stabil re-login út**, ezt preferáld. **Magad oldod meg.**
+   - **Bare login-form** (email+pass EGYÜTT, profilnév sehol) → **NE töltsd ki közvetlenül** (a fresh login a reCAPTCHA Enterprise gate-be fut, amit NEM tudsz megbízhatóan megoldani). Helyette: győződj meg hogy a datr injektálva van, `stealth-browse open https://www.facebook.com/` → ez előhozza az account-pickert/device-login modált (fenti pont), ami megkerüli a reCAPTCHA-t. **Te csinálod, nem Tomi.** Részletek: `/facebook-login` skill.
+   - **Checkpoint URL / SMS-2FA / phone-verify modal** → ez az EGYETLEN valódi fal. STOP. (A reCAPTCHA csak a *fresh login* flow-ban fal — a device-login megkerüli, ezért azt járd előbb.)
    - **Egyéb "unusual"** → vizsgáld meg screenshottal mielőtt bármit feltételezel.
 
 3. **Tomi manuális FB-belépése SOHA nem opció** — a home-IP ↔ residential proxy váltás flag-eli a fiókot (ez veszélyesebb, mint amit megold). Soha ne kérd. Töröld a fejedből a "Kérlek, logj be manuálisan Facebook-ra" mondatot.
@@ -47,6 +47,30 @@ A Reddit/FB warmup playbook-okban a Step 5 (korai indítás-jelzés) és Step 8 
 
 - **BullTrapp növekedés** (Lloyd persona): X (@Bulltrappcom), Telegram warmup, email outreach (lloyd@bulltrapp.com). State: `bulltrapp/state.json`, strategy: `bulltrapp/strategy.md`.
 - **Rezerver növekedés** (Dani persona): FB warmup, email outreach (dani@rezerver.com), pipeline. State: `rezerver/state.json`, strategy: `rezerver/strategy.md`.
+
+## 🗂️ Rezerver CRM — strukturált gyűjtés (Phase B, 2026-06-03)
+
+A Rezerver biz-dev adat mostantól egy **tartós CRM-DB-ben** él (a host kezeli), nem a sérülékeny pipeline-JSON-okban. Két szabály:
+
+**OLVASÁS — a friss adat itt van:** `rezerver/.crm-export/*.json` (`venues`, `partners`, `media`, `fb_groups`, `outreach`, `tasks`). A host írja a DB-ből, te OLVASOD. Session elején innen töltsd be a pipeline-t (gazdagabb, mint a régi `venue_pipeline.json`). **NE a régi `*_pipeline.json`-okból dolgozz tartós állapotra.**
+
+**ÍRÁS — `ncl rezerver`-rel, NEM kézzel a JSON-ba:**
+- `ncl rezerver schema` → minden entitás (venue/partner/media/fbgroup) beállítható mezői.
+- `ncl rezerver venue-set --id <n> --<mező> <érték> …` → frissít egy venue-t. **Ismeretlen mező automatikusan az `extra`-ba megy** (mindig van hová írni). Az első írás `frozen`-re állítja a sort → onnantól TE vagy a tulajdonos, a JSON-mirror nem írja felül.
+- Hasonlóan: `partner-set --id`, `media-set --site`, `fbgroup-set --id`.
+- `ncl rezerver outreach-add --target-type venue --target-id <n> --channel email [--subject --status --follow-up-at]` → outreach-napló.
+- `ncl rezerver task-add --title "…" [--target-id --due-at]` → follow-up.
+- `ncl rezerver legitimacy-add --venue-id <n> --source NAV|e-cegjegyzek|Opten --result green|yellow|red` → legitimáció-audit + a venue státusza.
+- `ncl rezerver competitor-add --name "…" [--pricing-note --positioning]` → versenytárs-intel (pl. Dynex).
+
+**MIT GYŰJTS (field-guide) — minden entitásnál a 4 csoport:**
+- **Venue:** (1) *döntéshozó+elérhetőség*: `contact_name`, `contact_role` (tulaj/event-manager/marketing), `contact_email`, `contact_phone`, `website_url`, `instagram`; (2) *kapacitás+volumen*: `venue_type`, `event_types`, `capacity_seated`, `capacity_standing`, `est_events_per_year`, `prestige`; (3) *jelenlegi eszköz+pain*: `current_booking_tool` (mit használ MOST foglalásra — versenytárs-intel!), `pain_points`; (4) *pénzügyi/fit*: `price_tier`, `fit_score` (1-5), `fit_reason`. + `next_action`, `next_action_date`, `source`, `confidence`, `needs_verification`.
+- **Partner:** `contact_name/phone/email`, `specialization`, `years_active`, `est_events_per_year`, `referral_potential` (hány venue-t befolyásol), `warm_intro`, `price_segment`.
+- **Média:** szerkesztő-kontaktok, `audience`, `reach`, `media_type`, `best_pitch_angle`, `covers_competitors`, `relevant_topics`.
+- **FB:** `admins`, `posting_rules` (self-promo engedett?), `activity_level`, `key_topics`, `our_persona`.
+- Bármi egyéb hasznos → csak add meg `--<kulcs> <érték>`-ként, az `extra`-ba kerül.
+
+**MOST a feladat: dúsítsd fel mind a 67 venue-t.** Tomi kérése: proaktívan kutasd ki (web/IG/Google) és töltsd ki minden venue profilját a fenti mezőkkel, `ncl rezerver venue-set`-tel. **Kezdd a Tier-1-ekkel** (a legfontosabbak). Az id-ket a `.crm-export/venues.json`-ból veszed. Egy session-ben annyit, amennyi belefér — a haladás tartós (frozen), a dashboard valós időben mutatja. Compliance/secrecy szabályok ugyanúgy érvényesek (ne tegyél ki ToS-szürke részleteket).
 
 ## Reportolás formátum
 
