@@ -46,3 +46,33 @@ cp: cannot stat '/workspace/inbox/1243781160:1086:ag-hub/V'$'\303\241''c, Fels'$
 <context timezone="Europe/Budapest" />
 <message id="2182" from="worker" sender="Unknown" time="Jun 1, 2026, 6:55 PM">[reflect:rezerver] step=abort | A Dani fióknál ma elakadt a belépés: fiókválasztó jött be, a Dani-tile jelszót kért, kitöltöttem a vault-credekkel (aymh + tiszta email/jelszó űrlap + friss HU IP + Enter-submit), de minden próbánál csendben visszadobott az üres login-formra. Nincs checkpoint, captcha, 2FA, és sima &quot;rossz jelszó&quot; hibaüzenet sincs, szóval vagy a tárolt jelszó avult el, vagy az FB némán blokkolja az automata belépést. Feedet nem értem el, holnap a warmup magától újrapróbál, manuális belépést nem kérek (a home-IP flag-elné a fiókot).</message>
 <message id="2184" from="worker" sender="Unknown" time="Jun 1, 2026, 6:55 PM">[worker:rezerver] phase=fb-warmup
+
+## [2026-06-04T16:51:05.357Z] tool-failure
+tool=mcp__google-drive__search
+error=MCP error -32603: Error loading OAuth keys: OAuth credentials not found. Please provide credentials using one of these methods:
+
+1. Config directory (recommended):
+   Place your gcp-oauth.keys.json file in: /home/node/.config/google-drive-mcp/
+
+2. Environment variable:
+   Set GOOGLE_DRIVE_OAUTH_CREDENTIALS to the path of your credentials file:
+   export GOOGLE_DRIVE_OAUTH_CREDENTIALS="/path/to/gcp
+
+## [2026-06-04T16:51:22.291Z] tool-failure
+tool=mcp__google-drive__search
+error=MCP error -32603: Error loading OAuth keys: OAuth credentials not found. Please provide credentials using one of these methods:
+
+1. Config directory (recommended):
+   Place your gcp-oauth.keys.json file in: /home/node/.config/google-drive-mcp/
+
+2. Environment variable:
+   Set GOOGLE_DRIVE_OAUTH_CREDENTIALS to the path of your credentials file:
+   export GOOGLE_DRIVE_OAUTH_CREDENTIALS="/path/to/gcp
+
+## [2026-06-04T16:52:59.176Z] tool-failure
+tool=mcp__google-drive__uploadFile
+error=Error: The specified parent is not a folder.
+
+## [2026-06-04T16:54:36.802Z] tool-failure
+tool=mcp__google-drive__uploadFile
+error=Error: Insufficient permissions for the specified parent.

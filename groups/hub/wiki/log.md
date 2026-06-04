@@ -2,6 +2,12 @@
 
 Append-only kronológia. Minden ingest, query-szintézis, lint-pass ide naplózódik.
 
+## [2026-06-04 18:55] gorgey32 | Nyomáspróba jegyzőkönyv (email uid 2551, TLK/Bérczy) Tomi kérésére Drive-ra iktatva: 04 - Kivitelezés/Emeleti lakások nyomáspróba.pdf (file_id 1lwqeYV1d406F-e-jZ90R6-DLB6NHY1js). Drive MCP OAuth-kulcs fix is kellett (lásd troubleshooting). | forrás: chat
+
+## [2026-06-04 08:00] email-check | pietscarlet: 11 új — Görgey32: Espár Zsolt járda terv beadva az Önkormányzatnak + e-közmű hozzájárulás (PietScarlet meghatalmazás kell, uid 2552/2554); NAV illeték értesítő a Cégkapu-tárhelyen (uid 2557); Somlai/Dóri tulajdonjog-bejegyzés thread (Kocsis ügyvéd, Dóri-nak van DÁP → elektronikus intézés, Tomi fizeti, uid 2559/2560). lupaobol: FB Business Manager partner-kérés (Tomi-döntés) + Meta badge (ignore). trinkenessen: Spark login. | 0 draft (mind Tomi-döntés/dokumentum-függő) | forrás: chat
+
+## [2026-06-04 05:30] crypto-brief | esés lassul: BTC -3.34% $63.9K (február-low 3. teszt, ETF-outflow >$3.2B + Mt.Gox transfer), ETH/SOL lassabban vérzik; HYPE +3.76% $72.93 visszapattant a stopout után; CASH-stance, relief-bounce-watch $64-65K | forrás: wiki/crypto/2026-06-04.md
+
 ## [2026-06-03 08:00] email-check | pietscarlet: 9 új — Görgey32: N-ergy/Fazekas áramellátás-ajánlat 2.2M+ÁFA, TLK/Bérczy aláírt szerződés (Drive), nyomáspróba jegyzőkönyv (QC milestone✓); Törökhegy: Quadrat/Robi végleges rajz (K04.dwg) → Robi-ack draft; + reklámok (bányameddő/Telekom), Csobánka-alert. lupaobol: Raiker (változatlan), trinkenessen: MOHU 2FA + Spark login. | 1 draft (Robi) | forrás: chat
 
 ## [2026-06-03 05:30] crypto-brief | likvidációs kaszkád (>$1B, döntően long): BTC -6.75% $66K, ETH -7.82%, SOL -8.45%; HYPE -6.94% → $70 trail SL elesett, decoupling vége, trade lezárva nyereséggel; CASH-stance | forrás: wiki/crypto/2026-06-03.md

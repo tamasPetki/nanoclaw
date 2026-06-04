@@ -16,6 +16,7 @@ PietScarlet Kft. társasházat épít Vác, Görgey Arthur u. 32. szám alatt. *
 - **Áramellátás-árajánlat (N-ergy MérnökIroda Kft. / Fazekas Arnold)**: a társasház *teljes áramellátása* (ELMŰ ügyintézés, szerződéskötő/munkairányító/projektirányító kapcsolattartás, műszaki átvétel, fogyasztásmérő-helyek felülvizsgálata + mérők felszerelésének lebonyolítása). **Munkadíj: 2.200.000 Ft + ÁFA.** Hrsz 4076/4. Az ügyintézés a nyilatkozatok / terv-hozzájárulások megküldése után indulhat. Döntés Tomié (PDF: árajánlat_PietScarlet Kft.pdf, email uid 2545). (forrás: chat)
 - **TLK Invest (Bérczy Gergely) — aláírt szerződés megérkezett** (Szerződés.pdf, Google Drive link, email uid 2549). (forrás: chat)
 - **Nyomáspróba jegyzőkönyv megérkezett** — Bérczy/TLK megküldte az *emeleti lakások nyomáspróba jegyzőkönyveit* (Emeleti lakások nyomáspróba.pdf, email uid 2551). → a régóta várt QC + nyomáspróba milestone teljesült az emeleti szinten. (forrás: chat)
+  - **2026-06-04 — Drive-ra iktatva** Tomi kérésére: `04 - Ingatlanok/Vác - Görgey utca 32/04 - Kivitelezés/Emeleti lakások nyomáspróba.pdf` (file_id: `1lwqeYV1d406F-e-jZ90R6-DLB6NHY1js`). NB: a Kivitelezés/03 épületgépészet almappa shortcut egy külső tervezői (megosztott, read-only) mappára, ezért a fájl a Kivitelezés gyökerébe került.
 
 ## Aktuális fázis (2026-05-11 status — Tomi helyszíni szemle)
 

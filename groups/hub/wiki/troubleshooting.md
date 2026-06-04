@@ -55,3 +55,20 @@ echo "{\"wakeAgent\": true}"
 - Symptom: 15 task `add_task --desc`-kel létrehozva, de a TickTick UI egyiknél sem mutatta a leírást; get_task-nál `content:"" desc:""` (a desc el is tűnt sync után).
 - Root cause: TEXT-kind tasknál a TickTick a `content` (markdown notes) mezőt jeleníti meg; a `desc` csak CHECKLIST-kind taskoknál él, TEXT-nél nem perzisztál.
 - Fix: a leírást MINDIG a `content` mezőbe tedd (add_task `content=...` vagy edit_task `content=...`), NE `desc`-be. A `desc` csak akkor, ha checklist-item (`items`) van.
+
+---
+
+## [2026-06-04] Google Drive MCP — OAuth-kulcs rossz helyen (AUTO-FIX, nem kell Tomi)
+
+- Symptom: `MCP error -32603: Error loading OAuth keys: OAuth credentials not found` — minden google-drive MCP hívás fail (search/listFolder/uploadFile). A 2026-05-17-i note szerint "Tomi manuális connect kell" — DE ez már nem igaz, a token létezik.
+- Root cause: a `drive_tokens.json` (user token) MEGVAN és érvényes (`/workspace/extra/google-oauth/`), és a `gcp-oauth.keys.json` (kliens-kulcs) is ott van — DE a MCP szerver a `/home/node/.config/google-drive-mcp/gcp-oauth.keys.json` (és az npx cache) alatt keresi, ahol nincs. Tehát nem connect-hiány, hanem a kulcsfájl rossz helyen van.
+- Fix (agent maga megoldja, NINCS Tomi-beavatkozás): `mkdir -p /home/node/.config/google-drive-mcp/ && cp /workspace/extra/google-oauth/gcp-oauth.keys.json /home/node/.config/google-drive-mcp/gcp-oauth.keys.json` — utána a következő MCP-hívás (reconnect után) működik.
+- Bónusz: shortcut-mappába (`application/vnd.google-apps.shortcut`) nem lehet feltölteni ("specified parent is not a folder" / "Insufficient permissions"). A valódi cél: `curl .../drive/v3/files/<id>?fields=shortcutDetails` (Bearer = drive_tokens.json access_token, `--noproxy www.googleapis.com`) → `shortcutDetails.targetId`. Ha a target külső megosztott (read-only), tölts a saját szülő-mappába.
+
+---
+
+## [2026-06-04] wiki/log.md — bejegyzések eltűntek (revert-gyanú)
+
+- Symptom: a session elején beírt 06-04 bejegyzések (crypto-brief 05:30, email-check 08:00) később hiányoztak — a fájl teteje 06-03 végi állapotra állt vissza, miközben a gorgey32/summary.md editjeim megmaradtak.
+- Root cause: nem tisztázott — vélhetően concurrent felülírás (cron/process) vagy stale file-state a context-compact körül. CSAK a log.md érintett.
+- Fix/workaround: a hiányzó bejegyzéseket kézzel visszapótoltam (tartalom megvolt a session-kontextusból + wiki/crypto + wiki/news fájlokból). Figyelni: log.md-írásnál Read-del ellenőrizni a tényleges tartalmat append előtt, ne csak az in-memory állapotra hagyatkozni.
