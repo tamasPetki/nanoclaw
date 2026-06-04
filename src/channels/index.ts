@@ -16,3 +16,4 @@ import './telegram-stokes.js';
 import './telegram-worker.js';
 import './telegram-hex.js';
 import './telegram-radar.js';
+import './whatsapp.js';
