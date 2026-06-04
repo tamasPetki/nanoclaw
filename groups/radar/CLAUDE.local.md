@@ -124,7 +124,7 @@ above / below / near market? · transparent vs hidden? · anchoring / value-befo
 
 - **Napi nap végi összefoglaló → CSAK a `radioos` WhatsApp-csoport** (a 19:00-s riport). Telegramra napi digest
   MÁR NEM megy — Tomi kérése (2026-06-04). Ne küldj napi összefoglalót a `tomi` destinationre.
-- **Heti retro → `tomi` Telegram** (a vasárnapi futás), rövid stratégiai összefoglaló. (Ha ez is változik, itt frissítjük.)
+- **Heti retro → CSAK a `radioos` WhatsApp-csoport** (vasárnapi futás), stratégiai összefoglaló a csapatnak. Telegramra NEM.
 - **Sürgős riasztás (bármikor) → `tomi` Telegram** azonnal: új direct versenytárs, nagy felvásárlás/összeolvadás,
   a Radio OS-t közvetlenül fenyegető lépés. Ez független a digesttől.
 
