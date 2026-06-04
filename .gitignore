@@ -92,3 +92,9 @@ groups/pietscarlet/*.docx
 **/conversations/
 **/*state.json
 **/.secrets
+
+# Radar service runtime — host-written snapshots + agent inbox (not versioned)
+groups/radar/.radar-export/
+groups/radar/inbox/
+# Cookie backups (.prev / .bak of the already-ignored cookie jars)
+groups/*/.*-cookies-*.json.*
