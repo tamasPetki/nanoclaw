@@ -86,3 +86,9 @@ groups/pietscarlet/*.docx
 
 # Rezerver CRM host-generated export snapshot (runtime data)
 .crm-export/
+
+# Agent runtime data — logs + state, frequently secret-laden; never version these.
+# (Removed from history 2026-06-04; the files stay on disk, agents keep using them.)
+**/conversations/
+**/*state.json
+**/.secrets
