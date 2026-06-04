@@ -21,6 +21,7 @@ import { exportCrmSnapshot } from './export-snapshot.js';
 import { parseFbLog } from './parse-fb-log.js';
 import { accountHealthSnapshots } from './ops-sanitize.js';
 import { REZERVER_DIR, SOURCE_FILES } from './paths.js';
+import { mirrorWarmupState, restoreStateFileIfMissing } from './warmup-state.js';
 
 const VENUE_STATUS = new Set(['NOT_CONTACTED', 'CONTACTED', 'INTERESTED', 'ONBOARDED']);
 const LEGIT = new Set(['pending', 'green', 'yellow', 'red']);
@@ -278,11 +279,20 @@ function ingestState(db: import('better-sqlite3').Database, raw: string, now: st
       });
     }
   })();
+
+  // Durable warmup-state mirror: state.json is the worker's only copy of its
+  // cumulative warmup state and has gone missing on rebuild. Mirror it into the
+  // host DB so restoreStateFileIfMissing() can bring it back if the file is lost.
+  mirrorWarmupState(db, state, now);
 }
 
 /** Run a full ingest pass. Returns number of source files that changed. */
 export function runCrmIngest(): number {
   const db = getCrmDb();
+
+  // Rebuild-proofing: if the worker's state.json vanished (the 06-02/06-04 loss
+  // signature), re-materialize it from the durable DB before ingesting.
+  restoreStateFileIfMissing(db);
   const now = new Date().toISOString();
   let changedCount = 0;
 

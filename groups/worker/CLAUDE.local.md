@@ -63,6 +63,13 @@ A Rezerver biz-dev adat mostantól egy **tartós CRM-DB-ben** él (a host kezeli
 - `ncl rezerver legitimacy-add --venue-id <n> --source NAV|e-cegjegyzek|Opten --result green|yellow|red` → legitimáció-audit + a venue státusza.
 - `ncl rezerver competitor-add --name "…" [--pricing-note --positioning]` → versenytárs-intel (pl. Dynex).
 
+**WARMUP-STATE most már TARTÓS (rebuild-proof, 2026-06-04):** a `rezerver/state.json`-t (reddit lurk-kadencia +
+kumulatív számlálók, fb warmup-fázis) a host minden ingestnél tükrözi a CRM-DB-be, és **ha a fájl rebuildnél/respawnnál
+eltűnik, a host automatikusan visszaállítja a DB-ből** (a 06-02/06-04 veszteség többé nem visz el adatot). Írd a
+`state.json`-t ugyanúgy, mint eddig — a tartósságról a host gondoskodik. Ha valaha gyanús/üres/reset-elt a state.json,
+az AUTORITATÍV tartós másolatot így nézed meg: **`ncl rezerver warmup-get [--key reddit|fb|meta]`** (a host-DB-ből jön,
+nem függ a workspace-fájltól). A számlálók sosem indulnak nulláról egy fájlvesztés miatt.
+
 **MIT GYŰJTS (field-guide) — minden entitásnál a 4 csoport:**
 - **Venue:** (1) *döntéshozó+elérhetőség*: `contact_name`, `contact_role` (tulaj/event-manager/marketing), `contact_email`, `contact_phone`, `website_url`, `instagram`; (2) *kapacitás+volumen*: `venue_type`, `event_types`, `capacity_seated`, `capacity_standing`, `est_events_per_year`, `prestige`; (3) *jelenlegi eszköz+pain*: `current_booking_tool` (mit használ MOST foglalásra — versenytárs-intel!), `pain_points`; (4) *pénzügyi/fit*: `price_tier`, `fit_score` (1-5), `fit_reason`. + `next_action`, `next_action_date`, `source`, `confidence`, `needs_verification`.
 - **Partner:** `contact_name/phone/email`, `specialization`, `years_active`, `est_events_per_year`, `referral_potential` (hány venue-t befolyásol), `warm_intro`, `price_segment`.

@@ -48,6 +48,31 @@ export function exportCrmSnapshot(): void {
     for (const [name, rows] of Object.entries(dump)) {
       writeOwned(`${CRM_EXPORT_DIR}/${name}.json`, JSON.stringify(rows, null, 2));
     }
+
+    // Durable warmup-state (reddit/fb) — parsed so the export is human-readable.
+    // This is the host-owned copy of the worker's state.json; if state.json is
+    // ever lost the host restores it from this same data (see warmup-state.ts).
+    const warmup = (
+      db
+        .prepare('SELECT key, platform, account, state, updated_at, updated_by FROM crm_warmup_state ORDER BY key')
+        .all() as {
+        key: string;
+        platform: string;
+        account: string;
+        state: string;
+        updated_at: string;
+        updated_by: string;
+      }[]
+    ).map((r) => {
+      let parsed: unknown = r.state;
+      try {
+        parsed = JSON.parse(r.state);
+      } catch {
+        /* keep raw */
+      }
+      return { ...r, state: parsed };
+    });
+    writeOwned(`${CRM_EXPORT_DIR}/warmup-state.json`, JSON.stringify(warmup, null, 2));
     writeOwned(
       `${CRM_EXPORT_DIR}/README.md`,
       [

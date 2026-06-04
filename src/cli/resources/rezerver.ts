@@ -15,6 +15,7 @@ import {
   addCompetitor,
   addLegitimacy,
 } from '../../crm/write.js';
+import { getWarmupState } from '../../crm/warmup-state.js';
 import { registerResource } from '../crud.js';
 
 const WORKER_GROUP = 'ag-worker';
@@ -77,6 +78,16 @@ registerResource({
         const row = getCrmDb().prepare('SELECT * FROM crm_venues WHERE id = ?').get(args.id);
         if (!row) throw new Error(`venue not found: ${args.id}`);
         return row;
+      },
+    },
+    'warmup-get': {
+      access: 'open',
+      description:
+        'Durable account-warmup state from the host DB (reddit/fb). Optional --key reddit|fb|meta. ' +
+        'Authoritative even if the workspace state.json was lost — use this to recover/verify cumulative warmup state.',
+      handler: async (args, ctx) => {
+        guard(ctx);
+        return getWarmupState(getCrmDb(), args.key ? String(args.key) : undefined);
       },
     },
     'venue-set': {
