@@ -10,7 +10,26 @@ function findSessionDb(agentId: string): string | null {
   const dir = `/root/nanoclaw-v2/data/v2-sessions/${agentId}`;
   if (!fs.existsSync(dir)) return null;
   const ses = fs.readdirSync(dir).filter((s) => s.startsWith('sess-'));
-  return ses.length ? path.join(dir, ses[0], 'inbound.db') : null;
+  if (!ses.length) return null;
+  // Most-recently-active session (max mtime), not arbitrary readdir order, so the
+  // task never lands in a stale/dead session whose container won't wake.
+  let best = ses[0];
+  let bestM = -1;
+  for (const s of ses) {
+    let m = 0;
+    for (const probe of ['.heartbeat', 'inbound.db', '']) {
+      try {
+        m = Math.max(m, fs.statSync(path.join(dir, s, probe)).mtimeMs);
+      } catch {
+        /* missing probe — ignore */
+      }
+    }
+    if (m > bestM) {
+      bestM = m;
+      best = s;
+    }
+  }
+  return path.join(dir, best, 'inbound.db');
 }
 
 const PROMPT = [
@@ -58,12 +77,13 @@ if (!sdbPath) {
 }
 
 const db = new Database(sdbPath);
+db.pragma('busy_timeout = 5000'); // inbound.db is host-owned; wait out the host's write lock
 
 const insert = db.prepare(`
   INSERT OR IGNORE INTO messages_in
     (id, seq, kind, timestamp, status, process_after, recurrence, series_id, tries, trigger, platform_id, channel_type, thread_id, content)
   VALUES
-    (@id, (SELECT COALESCE(MAX(seq),0)+2 FROM messages_in), 'task', @timestamp, 'pending', @processAfter, @recurrence, @seriesId, 0, 1, NULL, NULL, NULL, @content)
+    (@id, (SELECT CASE WHEN COALESCE(MAX(seq),0) < 2 THEN 2 ELSE COALESCE(MAX(seq),0) + 2 - (COALESCE(MAX(seq),0) % 2) END FROM messages_in), 'task', @timestamp, 'pending', @processAfter, @recurrence, @seriesId, 0, 1, NULL, NULL, NULL, @content)
 `);
 
 const now = new Date().toISOString();
