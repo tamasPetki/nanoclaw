@@ -20,6 +20,12 @@ export type EntityCfg = {
   enums: Record<string, string[]>;
   statusCol?: string;
   targetType?: string;
+  /** Columns whose (case-insensitive) combination must be unique on add (dedupe guard). */
+  dedupeCols?: string[];
+  /** Integer primary key auto-assigned on add (venue/partner). Natural-key tables (media/fbgroup) set this false. */
+  autoId?: boolean;
+  /** For natural-key adds: if the key column isn't given, derive a slug from this column (e.g. fbgroup id from name). */
+  slugFrom?: string;
 };
 
 export const ENTITIES: Record<string, EntityCfg> = {
@@ -64,6 +70,7 @@ export const ENTITIES: Record<string, EntityCfg> = {
       'owner',
       'needs_verification',
       'confidence',
+      'country',
     ]),
     ints: new Set([
       'tier',
@@ -76,6 +83,8 @@ export const ENTITIES: Record<string, EntityCfg> = {
     enums: { status: VENUE_STATUS, legitimacy_check: LEGIT },
     statusCol: 'status',
     targetType: 'venue',
+    dedupeCols: ['name', 'city'],
+    autoId: true,
   },
   partner: {
     table: 'crm_referral_partners',
@@ -108,11 +117,14 @@ export const ENTITIES: Record<string, EntityCfg> = {
       'stage',
       'next_action',
       'next_action_date',
+      'country',
     ]),
     ints: new Set(['tier', 'contact_known', 'years_active', 'est_events_per_year']),
     enums: {},
     statusCol: 'status',
     targetType: 'referral',
+    dedupeCols: ['name'],
+    autoId: true,
   },
   media: {
     table: 'crm_media_outlets',
@@ -148,6 +160,7 @@ export const ENTITIES: Record<string, EntityCfg> = {
     enums: { status: ['NOT_CONTACTED', 'SENT', 'REPLIED'] },
     statusCol: 'status',
     targetType: 'media',
+    autoId: false,
   },
   fbgroup: {
     table: 'crm_fb_groups',
@@ -176,6 +189,8 @@ export const ENTITIES: Record<string, EntityCfg> = {
     ]),
     ints: new Set(['relevance_score']),
     enums: { join_status: ['NOT_YET_REQUESTED', 'PENDING', 'APPROVED', 'DENIED', 'JOINED'] },
+    autoId: false,
+    slugFrom: 'name',
   },
 };
 
@@ -265,6 +280,126 @@ export function setEntity(cfg: EntityCfg, args: Record<string, unknown>, actor =
   const updated = db.prepare(`SELECT * FROM ${cfg.table} WHERE ${cfg.idCol} = ?`).get(id);
   exportCrmSnapshot();
   return updated;
+}
+
+function slugify(s: unknown): string {
+  return String(s)
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '') // strip combining diacritics (á → a)
+    .replace(/[^a-z0-9]+/g, '');
+}
+
+/**
+ * Insert a brand-new entity row. Mirrors setEntity's column handling — known
+ * fields → real columns, unknown → `extra` JSON, ints coerced, enums validated —
+ * but creates the row and starts it in 'frozen' ownership so the legacy JSON
+ * mirror never clobbers it.
+ *
+ * Two key strategies, driven by `cfg.autoId`:
+ *  - auto-id (venue/partner): integer pk assigned by SQLite (max(id)+1 via rowid).
+ *    A case-insensitive dedupe guard (cfg.dedupeCols) keeps reruns idempotent;
+ *    pass `--allow-dup` to override.
+ *  - natural-key (media `site` / fbgroup `id`): the caller supplies the key. If a
+ *    fbgroup `--id` is omitted, it's slugified from `--name` (cfg.slugFrom). Since
+ *    the primary key is the dedupe, an existing key errors out (use the *-set verb).
+ */
+export function addEntity(cfg: EntityCfg, args: Record<string, unknown>, actor = 'worker'): unknown {
+  const db = getCrmDb();
+  const autoId = cfg.autoId === true;
+  let naturalKey: string | null = null;
+
+  if (autoId) {
+    const name = args.name;
+    if (name == null || String(name).trim() === '' || name === true) throw new Error('--name is required');
+
+    const allowDup = args.allow_dup === true || String(args.allow_dup) === 'true';
+    const dedupeCols = cfg.dedupeCols ?? ['name'];
+    if (!allowDup) {
+      const conds = dedupeCols.map((c) => `lower(COALESCE(${c}, '')) = lower(@${c})`).join(' AND ');
+      const params: Record<string, unknown> = {};
+      for (const c of dedupeCols) params[c] = args[c] != null && args[c] !== true ? String(args[c]) : '';
+      const dup = db
+        .prepare(`SELECT id FROM ${cfg.table} WHERE ${conds} AND COALESCE(status, '') != 'archived'`)
+        .get(params) as { id: number } | undefined;
+      if (dup) {
+        const keyDesc = dedupeCols.map((c) => `${c}=${args[c] ?? ''}`).join(', ');
+        throw new Error(
+          `duplicate ${cfg.targetType || cfg.table} (${keyDesc}) already exists as id ${dup.id}. Pass --allow-dup to insert anyway.`,
+        );
+      }
+    }
+  } else {
+    // Natural-key table: caller supplies the key (or it's slugified from another field).
+    let k = args[cfg.idCol] ?? args.id;
+    if ((k == null || k === true || String(k).trim() === '') && cfg.slugFrom) k = slugify(args[cfg.slugFrom]);
+    if (k == null || k === true || String(k).trim() === '') {
+      throw new Error(`--${cfg.idCol.replace(/_/g, '-')} is required`);
+    }
+    naturalKey = String(k);
+    const exists = db.prepare(`SELECT ${cfg.idCol} FROM ${cfg.table} WHERE ${cfg.idCol} = ?`).get(naturalKey);
+    if (exists) {
+      throw new Error(
+        `${cfg.targetType || cfg.table} already exists: ${naturalKey}. Use the matching *-set verb to update it.`,
+      );
+    }
+  }
+
+  const setCols: Record<string, unknown> = {};
+  if (naturalKey != null) setCols[cfg.idCol] = naturalKey;
+  const extra: Record<string, unknown> = {};
+  let hasExtra = false;
+  for (const [k, v] of Object.entries(args)) {
+    if (CONTROL.has(k) || k === 'allow_dup') continue;
+    if (cfg.cols.has(k)) {
+      if (cfg.enums[k] && !cfg.enums[k].includes(String(v))) {
+        throw new Error(`${k} must be one of: ${cfg.enums[k].join(', ')}`);
+      }
+      setCols[k] = cfg.ints.has(k) ? (v === '' || v == null ? null : parseInt(String(v), 10)) : v;
+    } else {
+      extra[k] = v;
+      hasExtra = true;
+    }
+  }
+
+  const now = nowIso();
+  setCols.ingest_mode = 'frozen';
+  setCols.created_at = now;
+  setCols.updated_at = now;
+  if (hasExtra) setCols.extra = JSON.stringify(extra);
+
+  const colNames = Object.keys(setCols);
+  const placeholders = colNames.map((c) => `@${c}`);
+
+  let finalId: string | number | bigint = naturalKey ?? 0;
+  db.transaction(() => {
+    const info = db
+      .prepare(`INSERT INTO ${cfg.table} (${colNames.join(', ')}) VALUES (${placeholders.join(', ')})`)
+      .run(setCols);
+    if (autoId) finalId = info.lastInsertRowid;
+    if (cfg.statusCol && cfg.targetType) {
+      const created = db
+        .prepare(`SELECT ${cfg.statusCol} AS s FROM ${cfg.table} WHERE ${cfg.idCol} = ?`)
+        .get(finalId) as { s: string | null } | undefined;
+      if (created?.s != null) {
+        db.prepare(
+          `INSERT INTO crm_stage_events (id, target_type, target_id, from_stage, to_stage, reason, actor, occurred_at, created_at)
+           VALUES (lower(hex(randomblob(16))), @tt, @ti, NULL, @to, @reason, @actor, @now, @now)`,
+        ).run({
+          tt: cfg.targetType,
+          ti: String(finalId),
+          to: created.s,
+          reason: args.reason ?? 'created',
+          actor,
+          now,
+        });
+      }
+    }
+  })();
+
+  const inserted = db.prepare(`SELECT * FROM ${cfg.table} WHERE ${cfg.idCol} = ?`).get(finalId);
+  exportCrmSnapshot();
+  return inserted;
 }
 
 export function addOutreach(args: Record<string, unknown>): unknown {
