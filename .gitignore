@@ -93,6 +93,18 @@ groups/pietscarlet/*.docx
 **/*state.json
 **/.secrets
 
+# Per-install agent-group workspaces — pure runtime state (wiki, logs, memory,
+# screenshots, inbox docs). Backed up nightly by scripts/backup-groups.sh, NOT
+# versioned in the code repo. Durable fix for the fork-hygiene problem (see
+# feedback_fork_hygiene_runtime_state_in_code): runtime state in the code fork
+# caused secrets-in-history → filter-repo → broken merge-base. groups/global
+# stays tracked (upstream scaffold). New runtime groups → add the dir here.
+groups/hub/
+groups/radar/
+groups/stokes/
+groups/tracker/
+groups/worker/
+
 # Radar service runtime — host-written snapshots + agent inbox (not versioned)
 groups/radar/.radar-export/
 groups/radar/inbox/
