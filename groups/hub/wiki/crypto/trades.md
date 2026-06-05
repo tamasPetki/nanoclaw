@@ -1,34 +1,34 @@
 # Crypto Trades — Aktív és Watchlist
 
-Frissítve: 2026-06-03 reggel
+Frissítve: 2026-06-05 reggel
 
 ---
 
 ## 🟢 AKTÍV FIGYELÉS
 
-*Nincs nyitott pozíció — CASH/türelem.* 2026-06-03: likvidációs kaszkád (>$1B, döntően longok), a HYPE trail SL ($70) is elesett. Friss belépő csak a piac-stabilizáció után (BTC $68K reclaim).
+*Nincs nyitott pozíció — CASH/türelem.* 2026-06-05: a $65K support elesett, BTC $62.5K, a $60K-magnet felé tart. A jún 4-i HYPE-bounce dead-cat volt (-13.64% jún 5) — jól tettük, hogy nem chase-eltük. Friss belépő csak strukturális fordulás után (BTC $64-66K visszavétel volumennel, vagy $60K capitulation-bounce setup).
 
 ---
 
 ## ⏳ WATCHLIST
 
 ### BTC
-- **Ár:** $66,088 (-6.75% / 24h)
-- **Setup:** likvidációs kaszkád (>$1B, döntően long-flush), a $68-70K zóna elesett, $65K közvetlen közelben. Rekord ETF-outflow + MSTR-eladás + Irán. Oversold → bounce-kockázat nő, de zuhanó piac.
-- **Státusz:** ⏳ Lefelé bias — nincs long a $68K reclaim-ig; $65K vonal, alatta $60K. Kés-elkapás tilos.
-- **Frissítve:** 2026-06-03
+- **Ár:** $62,525 (-2.14% / 24h)
+- **Setup:** a $65K kritikus support elesett, az ár tovább grind-el lefelé. ETF-outflow 10-11 napos streak (~$2.8-3.5B), MSTR-eladás, geopolitika. Következő nagy magnet: $60K kerek szám.
+- **Státusz:** ⏳ Lefelé bias — nincs long. $60K-teszt él; ott lehet capitulation-bounce setup. Long-trigger csak $64-66K visszavétel volumennel. Kés-elkapás tilos.
+- **Frissítve:** 2026-06-05
 
 ### SOL
-- **Ár:** $73.86 (-8.45%)
-- **Range:** mélyül, a majorok legnagyobb vesztese ma
+- **Ár:** $67.24 (-5.30%)
+- **Range:** tovább mélyül, a BTC-t követi nagyobb amplitúdóval
 - **Státusz:** ⏳ Skip — high-beta zuhanás, irány nélkül
-- **Frissítve:** 2026-06-03
+- **Frissítve:** 2026-06-05
 
-### HYPE (Hyperliquid) — watchlistre vissza
-- **Ár:** $70.22 (-6.94%)
-- **Setup:** a decoupling véget ért, a $70 trail SL elesett (lásd archív). Strukturális tézis (ETF buy-streak) hosszú táv intakt, de likvidálásban beta.
-- **Státusz:** ⏳ Friss belépő CSAK piac-stabilizáció után
-- **Frissítve:** 2026-06-03
+### HYPE (Hyperliquid) — bounce elhalt
+- **Ár:** $63.07 (-13.64%)
+- **Setup:** a jún 4-i +3.76% bounce dead-cat volt, jún 5-re -13.64% vissza $63-ra (jóval a $70 stopout alá). Strukturális tézis (ETF buy-streak) hosszú táv intakt, de a legtisztább beta likvidálásban.
+- **Státusz:** ⏳ Friss belépő CSAK strukturális stabilizáció + napos zárások visszafelé. NEM chase.
+- **Frissítve:** 2026-06-05
 
 ---
 

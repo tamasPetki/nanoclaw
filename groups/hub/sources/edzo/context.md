@@ -1,4 +1,9 @@
 # Edzésterv & Protokollok
+
+> ⚠️ **2026-06-05 — AKTÍV STÁTUSZ: Tomi Freeletics-et nyom, NEM ezt a split-et.**
+> A riportokban (reggeli + esti) **NE javasolj konkrét edzést / split-fókuszt / „mai fókusz"-t**. Tomi explicit kérése (2026-06-05): „Edzést ne javasolj mostantól, mert Freeleticsel nyomom."
+> Amit ADJ: Withings-adat (súly/alvás/regeneráció), a Freeletics elismerése, regeneráció/readiness-coaching, Mounjaro-fehérje fókusz. Az alábbi Upper/Lower split **csak referencia/archív**, nem napi terv.
+
 ## Edzésterv (Upper/Lower split — Rekompozíció)
 Speciálisan összerakott edzésterv rekompozícióra 45-60 perces edzésekkel.
 Minden izomcsoport hetente 2x kap terhelést, RPE-alapú progresszióval.

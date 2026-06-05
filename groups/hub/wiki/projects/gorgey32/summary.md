@@ -16,7 +16,10 @@ PietScarlet Kft. társasházat épít Vác, Görgey Arthur u. 32. szám alatt. *
 - **Áramellátás-árajánlat (N-ergy MérnökIroda Kft. / Fazekas Arnold)**: a társasház *teljes áramellátása* (ELMŰ ügyintézés, szerződéskötő/munkairányító/projektirányító kapcsolattartás, műszaki átvétel, fogyasztásmérő-helyek felülvizsgálata + mérők felszerelésének lebonyolítása). **Munkadíj: 2.200.000 Ft + ÁFA.** Hrsz 4076/4. Az ügyintézés a nyilatkozatok / terv-hozzájárulások megküldése után indulhat. Döntés Tomié (PDF: árajánlat_PietScarlet Kft.pdf, email uid 2545). (forrás: chat)
 - **TLK Invest (Bérczy Gergely) — aláírt szerződés megérkezett** (Szerződés.pdf, Google Drive link, email uid 2549). (forrás: chat)
 - **Nyomáspróba jegyzőkönyv megérkezett** — Bérczy/TLK megküldte az *emeleti lakások nyomáspróba jegyzőkönyveit* (Emeleti lakások nyomáspróba.pdf, email uid 2551). → a régóta várt QC + nyomáspróba milestone teljesült az emeleti szinten. (forrás: chat)
-  - **2026-06-04 — Drive-ra iktatva** Tomi kérésére: `04 - Ingatlanok/Vác - Görgey utca 32/04 - Kivitelezés/Emeleti lakások nyomáspróba.pdf` (file_id: `1lwqeYV1d406F-e-jZ90R6-DLB6NHY1js`). NB: a Kivitelezés/03 épületgépészet almappa shortcut egy külső tervezői (megosztott, read-only) mappára, ezért a fájl a Kivitelezés gyökerébe került.
+  - **2026-06-05 — Drive-iktatás SAJÁT mappába.** Tomi jelezte: a `04 - Kivitelezés` mappa megosztott (nincs benne írásjoga), ezért létrehoztam a PietScarlet saját fájljainak: **`Vác - Görgey utca 32/13 - Saját dokumentumok`** (folder_id `1HOv0jp58_oNXr1aJtJIk-hwtsnw5bOyg`). Ide került:
+    - `Emeleti lakások nyomáspróba.pdf` (file_id `1lwqeYV1d406F-e-jZ90R6-DLB6NHY1js`) — áthelyezve a Kivitelezésből.
+    - `Görgey32 - e-közmű nyilatkozat.pdf` (file_id `1lfgCEewjPcVL7RlRtenf9A7d-O_tspCf`) — Espár Zsolt e-közmű hozzájárulása; forrás: email INBOX.Archive, csatolmány `e-kozmu_nyilatkozat_269840144.pdf`.
+    - **Konvenció: a Görgey 32 saját (PietScarlet által generált/kapott) dokumentumai ide mennek — NEM a megosztott `04 - Kivitelezés`-be (annak almappái shortcut-ok külső read-only tervezői mappákra).**
 
 ## Aktuális fázis (2026-05-11 status — Tomi helyszíni szemle)
 

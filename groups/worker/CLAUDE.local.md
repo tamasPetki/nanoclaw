@@ -79,6 +79,24 @@ nem függ a workspace-fájltól). A számlálók sosem indulnak nulláról egy f
 
 **MOST a feladat: dúsítsd fel mind a 67 venue-t.** Tomi kérése: proaktívan kutasd ki (web/IG/Google) és töltsd ki minden venue profilját a fenti mezőkkel, `ncl rezerver venue-set`-tel. **Kezdd a Tier-1-ekkel** (a legfontosabbak). Az id-ket a `.crm-export/venues.json`-ból veszed. Egy session-ben annyit, amennyi belefér — a haladás tartós (frozen), a dashboard valós időben mutatja. Compliance/secrecy szabályok ugyanúgy érvényesek (ne tegyél ki ToS-szürke részleteket).
 
+### CLI add-verb-ek ÉLNEK + migráció kész (2026-06-05, Tomi)
+
+A `ncl rezerver` CLI most már tud ÚJ sort létrehozni, és van `country` mező:
+- **`venue-add --name "<n>" --city "<c>" --country <HU|UK> [+ bármely mező]`** — auto id, frozen, dedupe (name, city), `--allow-dup` override, ismeretlen mező → extra. `venue-list --country <X>` szűr.
+- **`partner-add --name "<n>" --type subcontractor --specialization "<kat>" [+ mezők]`** — auto id, frozen, dedupe name-re, `--allow-dup`.
+- **`media-add --site`, `fbgroup-add --name`** is van (ugyanaz a minta).
+- **A workspace-JSON-ok bemigrálva (2026-06-05):** `uk_venues.json` → venue ids 68-77 (country=UK); `subcontractors.json` → partner ids 19-25 (type=subcontractor). A két JSON `.migrated`-re archiválva — NE dolgozz belőlük, a DB az autoritatív. Migráló szkript: `rezerver/migrate.mjs` (újrahasználható, dedupe-safe).
+
+⚠️ **boolean mező quirk:** a `needs_verification` (és más bool) oszlop CSAK `1`/`0`-t fogad — `true`/`false`/`yes` → NULL-ra konvertál → `NOT NULL constraint failed` hiba. MINDIG `--needs-verification 1` (vagy 0). A részletes „mit ellenőrizz" szöveg → külön kulcs (pl. `--verify-notes "..."`, az extra-ba megy).
+
+### Gyűjtő-cronok — KÖZVETLEN DB-írás (2026-06-05 óta)
+
+- **UK venue-kutatás** (09:00, `task-1780640812323-zzd83g`) → `venue-add --country UK` közvetlenül a DB-be (NEM uk_venues.json).
+- **Alvállalkozó-gyűjtés** (13:00, `task-1780640821314-yc9yqm`) → `partner-add --type subcontractor --specialization <kat>` közvetlenül a DB-be (NEM subcontractors.json). Már bent: sminkes_fodrasz, ceremoniamester_vofely, dj, catering, fotos, viragos_dekor, sator_butor_kolcsonzo — vegyíts még le-nem-fedett kategóriát is.
+- **HU venue-kutatás** (11:00+15:00, `task-1780597483639-ufeh4m`) → meglévő üres venue dúsítása `venue-set --id`, ÚJ HU venue `venue-add --country HU`.
+- **Insight (Tomi-finding, célzáshoz):** kávézók/kisebb helyek is bérbe adnák a HOLTIDŐT → a venue-kutatásnál (HU és UK) célozz kisebb helyekre/kávézókra, bármire ami holtidőben kiadható. Minél több adat róluk, annál jobb.
+- **Visszatérő minta (2/2 kastélyszálló):** a kastély/kúria-szállók a SZOBÁT online foglalják (engine/OTA), de az EVENTET kézzel (email/telefon/ajánlat, nincs online deposit) — erős fit + pitch-belépő.
+
 ## Reportolás formátum
 
 A run-végi report = a **Step 8 záró reflexió, közvetlenül Tominak posztolva** (lásd "Mit posztolj Tominak"). Emberi nyelven, persona-hangon, max pár sor — NEM `phase=...` gépi formátumban, mert Tomi olvassa. Nincs külön hub-report.

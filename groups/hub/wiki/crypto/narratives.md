@@ -4,23 +4,23 @@ Minden napi brief után frissítve. Narratívánként: erő (🔴🟡🟢), stá
 
 ---
 
-## 🟡 HYPE ETF Strukturális Vásárlás — decoupling VÉGE
-**Erő:** 🟡 Trail-stopout, strukturális tézis watchlisten
-**Utolsó frissítés:** 2026-06-03
+## 🟡 HYPE ETF Strukturális Vásárlás — decoupling VÉGE, bounce dead-cat
+**Erő:** 🟡 Trail-stopout, bounce elhalt, strukturális tézis watchlisten
+**Utolsó frissítés:** 2026-06-05
 
-$75.45 (jún 2) → $70.22 (jún 3 reggel, -6.94%). A decoupling véget ért: egy >$1B-os likvidációs kaszkádban a HYPE is elkapta a market betát, eltalálta a $70-es trail SL-t → trade lezárva (a fokozatos trail $62→$66→$70 megőrizte a futás nyereségét). A strukturális vevő-nyomás (ETF buy-streak, Grayscale $800M rev, Bitwise USDC deal, HIP-4 Q2) hosszú táv intakt, de általános likvidálásban a HYPE is beta.
+$75.45 (jún 2) → $70.22 (jún 3, trail SL elesett) → $72.93 (jún 4, +3.76% bounce) → **$63.07 (jún 5, -13.64%)**. A jún 4-i visszapattanás **dead-cat** volt: follow-through nélkül, és amint a BTC törte a $65K-t, a HYPE visszaadta a bounce-ot és többet, jóval a $70-es stopout alá. A „megerősítés kell" fegyelem (zárás $75+ kell) igazolva. A strukturális vevő-nyomás (ETF buy-streak, Grayscale rev, HIP-4 Q2) hosszú táv intakt, de likvidálásban a HYPE a legtisztább beta.
 
-**Trade implikáció:** pozíció lezárva ($70 trail). Friss belépő CSAK a piac-stabilizáció után. Watchlisten marad a strukturális tézis miatt.
+**Trade implikáció:** pozíció rég lezárva ($70 trail), a bounce-ot NEM chase-eltük → -13.64% elkerülve. Friss belépő CSAK strukturális stabilizáció + napos zárások visszafelé. Watchlisten marad.
 
 ---
 
-## 🔴 BTC — Likvidációs Kaszkád, Capitulation-Watch
-**Erő:** 🔴 Lefelé — liquidation-event, $66K
-**Utolsó frissítés:** 2026-06-03
+## 🔴 BTC — $65K elesett, $60K-teszt
+**Erő:** 🔴 Lefelé — support-törés, $62.5K
+**Utolsó frissítés:** 2026-06-05
 
-A risk-off jún 3-ra **likvidációs kaszkáddá** fajult: BTC $66K (-6.75%), a $68-70K zóna elesett, $65K közvetlen közelben. 24h alatt **>$1B likvidálás** (~$989M long, ~$117M short), egy óra ~$394M. Gyújtózsinór: újraépült spekulatív long-túlsúly → support-törés → stop/liquidation-kaszkád. Háttér: rekord ETF-outflow + MSTR-eladás (4 év / never-sell megtört) + Irán.
+A jún 3-i >$1B likvidációs kaszkád után a piac NEM fordult: a jún 4-i „kifáradó eladás" (deceleration) NEM hozott reclaim-et, az ár tovább grind-elt és jún 5-re **átesett a kritikus $65K supporton → $62.5K (-2.14%)**. Következő nagy magnet a **$60K** kerek szám. Háttér változatlan medve: spot BTC ETF-outflow **10-11 napos streak, ~$2.8-3.5B** (leghosszabb 2024 óta), MSTR/Strategy első BTC-eladása ~4 év után, geopolitika.
 
-**Trade implikáció:** Nincs long a $68K reclaim-ig. $65K vonal, alatta $60K. A >$1B long-flush oversold/capitulation-közeli — bounce-kockázat nő, de zuhanó piac, kés-elkapás tilos.
+**Trade implikáció:** Nincs long. A $65K elesett, a $60K a következő support-magnet — ott lehet érdemi capitulation-bounce setup. Long-trigger csak a $64-66K visszavétele volumennel + megálló kés. Kés-elkapás tilos.
 
 ---
 

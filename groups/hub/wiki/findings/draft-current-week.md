@@ -76,3 +76,32 @@ error=Error: The specified parent is not a folder.
 ## [2026-06-04T16:54:36.802Z] tool-failure
 tool=mcp__google-drive__uploadFile
 error=Error: Insufficient permissions for the specified parent.
+
+
+## [2026-06-05 07:35] quick-learning-applied | sources/edzo/context.md + task-edzo-reggeli + task-edzo-esti | Tomi: 'Edzést ne javasolj mostantól, mert Freeleticsel nyomom' → a reggeli+esti edző-riportok már NEM ajánlanak konkrét edzést/split-fókuszt, csak Withings-adat + Freeletics-elismerés + regeneráció. Upper/Lower split = archív.
+
+## [2026-06-05T06:01:57.247Z] tool-failure
+tool=Bash
+error=Exit code 1
+Traceback (most recent call last):
+  File "/workspace/agent/email-save-draft.py", line 116, in <module>
+    main()
+  File "/workspace/agent/email-save-draft.py", line 109, in main
+    typ, mailbox = save_draft(args.account, args.to, args.subject, body_html,
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/agent/email-save-draft.py", line
+
+## [2026-06-05T15:42:06.464Z] tool-failure
+tool=mcp__email-pietscarlet__list_emails_metadata
+error=Error executing tool list_emails_metadata: command SEARCH illegal in state AUTH
+
+## [2026-06-05T15:45:14.323Z] tool-failure
+tool=mcp__google-drive__uploadFile
+error=MCP error -32603: Error loading OAuth keys: OAuth credentials not found. Please provide credentials using one of these methods:
+
+1. Config directory (recommended):
+   Place your gcp-oauth.keys.json file in: /home/node/.config/google-drive-mcp/
+
+2. Environment variable:
+   Set GOOGLE_DRIVE_OAUTH_CREDENTIALS to the path of your credentials file:
+   export GOOGLE_DRIVE_OAUTH_CREDENTIALS="/path/to/gcp

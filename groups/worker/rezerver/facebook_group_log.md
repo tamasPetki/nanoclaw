@@ -517,3 +517,16 @@ Reggeli warmup (~6 perc feed scroll) alatt a jobb oldalsávban 8+ új csoport-ja
 - "Pékek, Pizza szakácsok VLM" (groups/vendeglatosmunkakpekekpizzas) — szakma/állás, score: 1 (nem ICP)
 
 **Takeaway:** A sidebar-javaslatok főleg marketplace/állás-fókuszú csoportokat adnak — jelzi hogy Dani feedje még nem venue-owner heavy. Phase 4-tól, amikor "A Vendéglátós Csoport"-ban aktív lesz, várhatóan relevancebb szomszédok jelennek meg. pipeline_counters.fb_groups_discovered: 24→32.
+
+## VENDÉGLÁTÓSOK ÉS VENDÉGEIK
+- URL: (FB feed-javaslat, 2026-06-04 — pontos URL kinyerendő következő sessionben)
+- Tagszám: ~24 000
+- Típus: (ellenőrizendő — feed-javaslatként jött)
+- Csatlakozás: (ellenőrizendő)
+- Posztolási jog: (ellenőrizendő)
+- Nyelv: HU
+- Utolsó aktivitás: aktív (~10 bejegyzés/nap a javaslat szerint)
+- Relevancia-score: 4 (HoReCa, supply+demand keveredés, nagy tagszám)
+- Jegyzet: FB feed automatikusan ajánlotta Dani-nak — jó jel, hogy az algoritmus HoReCa-hoz kezdi kötni a fiókot. 24K tag + napi 10 poszt = élő, nagy csoport, kisebb admin-figyelem belépéskor.
+- Discovered: 2026-06-04
+- Phase-action: shortlist-candidate Phase 4 csoport-kérelemhez (de a tegnapi re-entry után most NEM csatlakozom — pár nap stabil feed-aktivitás után)

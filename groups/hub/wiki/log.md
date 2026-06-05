@@ -2,6 +2,14 @@
 
 Append-only kronológia. Minden ingest, query-szintézis, lint-pass ide naplózódik.
 
+## [2026-06-05 17:45] gorgey32 | Drive-rendrakás Tomi kérésére: a 04-Kivitelezés MEGOSZTOTT (Tominak nincs írásjoga) → új saját mappa `13 - Saját dokumentumok` (folder_id 1HOv0jp58_oNXr1aJtJIk-hwtsnw5bOyg). Ide: e-közmű nyilatkozat (Espár, email INBOX.Archive uid2546 → file_id 1lfgCEewjPcVL7RlRtenf9A7d-O_tspCf) + a tegnapi nyomáspróba átmozgatva. Konvenció: saját Görgey-fájlok ide, nem a megosztott tervezői mappákba. | forrás: chat
+
+## [2026-06-05 08:00] email-check | pietscarlet: 1 új — ingatlan.com irodai előfizetés DÍJBEKÉRŐ (megújítás): 428.320 Ft, sorszám 119501, lejár ma (06.05), díjbekérő-lejárat 07.20 → Erika-továbbítás draft a Piszkozatokba (Tomi-döntés: megújít-e). lupaobol: 1 (FB "Business Manager partner request" — PHISHING: hamis sites.google.com/letverified-badge link + 24h urgency, ugyanaz mint a tegnapi 637; NE kattints/jóváhagy). trinkenessen: 0. | 1 draft (Erika) | forrás: chat
+
+## [2026-06-05 06:00] news | hírdigest kész — politika: Magyar-kormány EU-reset + €90mrd ukrán hitel megnyílhat / Oroszország durva csapás Kyiv+Dnyipro (23 halott, 600+ drón); crypto: BTC $62.5K $65K-törés; AI: **ZEC Opus 4.8-cal exploitálva (frankdegods)** → ZEC -30%, GitHub GH-600 Agentic Dev szerep, Dario "Claude tervezi Claude-ot", NVIDIA Nemotron 3 Ultra; investor: blknoiz06 liquidation-warning, cowen 2026-piros-év tézis, Crypto_Chase HYPE do-or-die | forrás: wiki/news/2026-06-05.md
+
+## [2026-06-05 05:30] crypto-brief | $65K support ELESETT: BTC -2.14% $62.5K (kifáradás-tézis megbukott, $60K-magnet él), ETF-outflow 10-11 napos streak ~$2.8-3.5B; HYPE -13.64% $63.07 (a tegnapi bounce dead-cat volt, jól nem chase-eltük); ZEC -30% blowoff; CASH-stance, $60K capitulation-watch | forrás: wiki/crypto/2026-06-05.md
+
 ## [2026-06-04 18:55] gorgey32 | Nyomáspróba jegyzőkönyv (email uid 2551, TLK/Bérczy) Tomi kérésére Drive-ra iktatva: 04 - Kivitelezés/Emeleti lakások nyomáspróba.pdf (file_id 1lwqeYV1d406F-e-jZ90R6-DLB6NHY1js). Drive MCP OAuth-kulcs fix is kellett (lásd troubleshooting). | forrás: chat
 
 ## [2026-06-04 08:00] email-check | pietscarlet: 11 új — Görgey32: Espár Zsolt járda terv beadva az Önkormányzatnak + e-közmű hozzájárulás (PietScarlet meghatalmazás kell, uid 2552/2554); NAV illeték értesítő a Cégkapu-tárhelyen (uid 2557); Somlai/Dóri tulajdonjog-bejegyzés thread (Kocsis ügyvéd, Dóri-nak van DÁP → elektronikus intézés, Tomi fizeti, uid 2559/2560). lupaobol: FB Business Manager partner-kérés (Tomi-döntés) + Meta badge (ignore). trinkenessen: Spark login. | 0 draft (mind Tomi-döntés/dokumentum-függő) | forrás: chat

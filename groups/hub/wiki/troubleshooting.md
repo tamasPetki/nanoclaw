@@ -72,3 +72,14 @@ echo "{\"wakeAgent\": true}"
 - Symptom: a session elején beírt 06-04 bejegyzések (crypto-brief 05:30, email-check 08:00) később hiányoztak — a fájl teteje 06-03 végi állapotra állt vissza, miközben a gorgey32/summary.md editjeim megmaradtak.
 - Root cause: nem tisztázott — vélhetően concurrent felülírás (cron/process) vagy stale file-state a context-compact körül. CSAK a log.md érintett.
 - Fix/workaround: a hiányzó bejegyzéseket kézzel visszapótoltam (tartalom megvolt a session-kontextusból + wiki/crypto + wiki/news fájlokból). Figyelni: log.md-írásnál Read-del ellenőrizni a tényleges tartalmat append előtt, ne csak az in-memory állapotra hagyatkozni.
+
+---
+
+## [2026-06-05] Google Drive MCP OAuth — a cp-fix NEM perzisztens; token-route a megbízható
+
+- Symptom: a 06-04-i `cp gcp-oauth.keys.json` fix után a MCP egy újabb restart/reconnect-nél MEGINT "OAuth credentials not found"-ot dobott (uploadFile fail). A másolt kulcs eltűnik a MCP-szerver újraindulásakor (npx cache path is változhat).
+- Megbízható megoldás (MCP helyett): a Drive write/read műveletek **közvetlen Drive API-val**, a `/workspace/extra/google-oauth/drive_tokens.json` `access_token`-jével:
+  - GET/PATCH (metadata, shortcutDetails, move addParents/removeParents): `curl --noproxy "www.googleapis.com" -H "Authorization: Bearer $TOKEN" ".../drive/v3/files/<id>?...&supportsAllDrives=true"`
+  - Fájl-feltöltés (multipart/related): Python `urllib` ProxyHandler({})-vel (proxy-bypass), `POST .../upload/drive/v3/files?uploadType=multipart` — működik (2026-06-05 e-közmű nyilatkozat feltöltés így ment).
+  - Mappa-listázás/keresés/shortcut-resolve szintén token-route-tal.
+- IMAP mappa-keresés (eltűnt email): a szerver névtere `INBOX.` prefixű `.`-delimiterrel (INBOX.Archive, INBOX.Later, INBOX.Trash, INBOX."Alv&AOE-llalkoz&APM-i megkeres&AOk-sek" stb.). A MCP `get_emails_content` email_id-ja NEM a raw IMAP UID, és átindexelődhet — ha egy email "eltűnik" az INBOX-ból, raw imaplib-bel kell végignézni a mappákat (FROM <feladó> search + BODYSTRUCTURE az attachment-névért).

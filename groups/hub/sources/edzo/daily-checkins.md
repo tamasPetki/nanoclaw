@@ -1,5 +1,17 @@
 # Esti check-in naplő
 
+## 2026-06-04
+
+- Bringa/edzés: ✅ igen — Freeletics, "durva volt"
+- Kaja/fehérje: nagyon kevés kaja, sok fehérjével (Mounjaro 4. nap, erős étvágy-csökkenés; reggel súly 96.6 kg)
+- Coaching-jel: edzés ✓ + fehérje-fókusz ✓, de a nagyon kevés összmennyiség miatt a fehérje-floor (~140-150g) a kockázat — nem túl-evés, hanem alul-evés ellen kell figyelni
+
+## 2026-06-03
+
+- Bringa/edzés: ✅ igen (Tomi: "edzettem is")
+- Fehérje: ✅ "egy csomó fehérjét ettem" (konkrét gramm nincs)
+- (Mounjaro 3. nap; reggel 06-04: súly 96.6 kg, -1.4 kg 4 nap alatt)
+
 ## 2026-06-02
 
 - Bringa/edzés: nincs adat (nem válaszolt rá)
