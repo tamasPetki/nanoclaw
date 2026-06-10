@@ -626,13 +626,21 @@ export function createChatSdkBridge(config: ChatSdkBridgeConfig): ChannelAdapter
 
         const actionsData = cardData.actions as Array<Record<string, unknown>> | undefined;
         if (actionsData && actionsData.length > 0) {
+          // URL actions become LinkButtons (open the link — chat-sdk's
+          // ButtonElement has no `url` field, so passing one to Button() drops it
+          // silently). Label-only actions become interactive `nccard:` buttons
+          // whose clicks route back into the session (see the nccard: handler).
           const cardButtons = actionsData.map((a, idx) =>
-            Button({
-              id: `nccard:${Date.now()}:${idx}`,
-              label: (a.label as string) || `Option ${idx + 1}`,
-              value: (a.value as string) || (a.label as string) || String(idx),
-              ...(a.url ? { url: a.url as string } : {}),
-            }),
+            a.url
+              ? LinkButton({
+                  label: (a.label as string) || `Option ${idx + 1}`,
+                  url: a.url as string,
+                })
+              : Button({
+                  id: `nccard:${Date.now()}:${idx}`,
+                  label: (a.label as string) || `Option ${idx + 1}`,
+                  value: (a.value as string) || (a.label as string) || String(idx),
+                }),
           );
           const cardLayout = (cardData.layout as 'vertical' | 'horizontal' | 'auto' | undefined) ?? 'auto';
           const cardRows = buildButtonRows(

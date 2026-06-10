@@ -125,7 +125,7 @@ describe('createChatSdkBridge.deliver — display cards (send_card)', () => {
     expect(msg.card).toBeDefined();
   });
 
-  it('drops actions without url (send_card is fire-and-forget; non-URL buttons would have nowhere to land)', async () => {
+  it('renders label-only actions as interactive nccard buttons (downstream extends the URL-only contract; clicks route back as synthetic inbound, so they DO land)', async () => {
     const { calls, postMessage } = makePostCapture();
     const bridge = createChatSdkBridge({
       adapter: stubAdapter({ postMessage }),
@@ -143,13 +143,17 @@ describe('createChatSdkBridge.deliver — display cards (send_card)', () => {
       },
     });
     expect(calls).toHaveLength(1);
-    // Cast through the public Card shape to read the children we set
-    const msg = calls[0].message as { card?: { children?: Array<{ type?: string }> } };
-    const childTypes = (msg.card?.children ?? []).map((c) => c.type);
-    expect(childTypes).not.toContain('actions');
+    // Downstream customization: send_card actions render as interactive `nccard:`
+    // buttons whose clicks are routed back into the session (see the `nccard:`
+    // handler in chat-sdk-bridge.ts). Unlike upstream's fire-and-forget URL-only
+    // contract, label-only actions DO land here, so the Actions row is present.
+    const msg = calls[0].message as { card?: { children?: Array<{ type?: string; children?: unknown[] }> } };
+    const actionsRow = msg.card?.children?.find((c) => c.type === 'actions');
+    expect(actionsRow).toBeDefined();
+    expect(actionsRow?.children ?? []).toHaveLength(2);
   });
 
-  it('renders url actions as link buttons inside an Actions row', async () => {
+  it('renders url and label-only actions together as interactive card buttons (the url action additionally carries its link)', async () => {
     const { calls, postMessage } = makePostCapture();
     const bridge = createChatSdkBridge({
       adapter: stubAdapter({ postMessage }),
@@ -171,9 +175,10 @@ describe('createChatSdkBridge.deliver — display cards (send_card)', () => {
     const actionsRow = msg.card?.children?.find((c) => c.type === 'actions');
     expect(actionsRow).toBeDefined();
     const buttons = actionsRow?.children ?? [];
-    expect(buttons).toHaveLength(1);
-    expect(buttons[0].type).toBe('link-button');
-    expect(buttons[0].url).toBe('https://example.com');
+    // Downstream renders ALL actions as interactive nccard buttons (not just the
+    // url ones); the url action additionally carries its link target.
+    expect(buttons).toHaveLength(2);
+    expect(buttons.some((b) => b.url === 'https://example.com')).toBe(true);
   });
 
   it('skips delivery when the card has neither title nor body content', async () => {
