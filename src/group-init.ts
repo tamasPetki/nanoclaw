@@ -6,6 +6,30 @@ import { ensureContainerConfig } from './db/container-configs.js';
 import { log } from './log.js';
 import type { AgentGroup } from './types.js';
 
+/**
+ * Recursively chown a tree to uid/gid. Only runs when host uid is 0 (root),
+ * idempotent, swallows errors per-entry. Does not dereference symlinks.
+ * Required when the host runs as root (e.g. Linux systemd) so the container
+ * node user (uid 1000) can write into the group dir.
+ */
+function chownRecursiveAsRoot(root: string, uid: number, gid: number): void {
+  if (process.getuid?.() !== 0) return;
+  const walk = (p: string): void => {
+    try {
+      const stat = fs.lstatSync(p);
+      fs.lchownSync(p, uid, gid);
+      if (stat.isDirectory()) {
+        for (const entry of fs.readdirSync(p)) {
+          walk(path.join(p, entry));
+        }
+      }
+    } catch {
+      /* best effort — container will error if it can't read */
+    }
+  };
+  walk(root);
+}
+
 const DEFAULT_SETTINGS_JSON =
   JSON.stringify(
     {
@@ -92,6 +116,15 @@ export function initGroupFilesystem(group: AgentGroup, opts?: { instructions?: s
     fs.mkdirSync(skillsDst, { recursive: true });
     initialized.push('skills/');
   }
+
+  // If the host runs as root, chown the group-owned trees to uid 1000 (the
+  // container's node user) so the container can write state.json, logs, etc.
+  // Idempotent — runs every spawn, cheap when already correct. Downstream
+  // customization mirroring session-manager's session-folder chown.
+  // (No groupRunnerDir chown — agent-runner-src is shared RO under the
+  // project root since the shared-source refactor.)
+  chownRecursiveAsRoot(groupDir, 1000, 1000);
+  chownRecursiveAsRoot(claudeDir, 1000, 1000);
 
   if (initialized.length > 0) {
     log.info('Initialized group filesystem', {

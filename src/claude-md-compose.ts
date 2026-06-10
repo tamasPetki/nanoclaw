@@ -154,6 +154,15 @@ export function migrateGroupsToClaudeLocal(): void {
 
   const actions: string[] = [];
 
+  // DOWNSTREAM PATCH: keep the .claude-global.md symlink alive when we have
+  // user-authored shared content in groups/global/. Many CLAUDE.local.md files
+  // import this symlink as their first line; deleting it makes the import a
+  // silent no-op and the persona/business context disappears from auto-load.
+  // Recreate any missing symlinks to /workspace/global/CLAUDE.md (a dangling
+  // host-side path, valid inside the container via the RO mount).
+  const globalDirPresent = fs.existsSync(path.join(GROUPS_DIR, 'global'));
+  const GLOBAL_LINK_TARGET = '/workspace/global/CLAUDE.md';
+
   for (const entry of fs.readdirSync(GROUPS_DIR, { withFileTypes: true })) {
     if (!entry.isDirectory()) continue;
     if (entry.name === 'global') continue;
@@ -161,12 +170,33 @@ export function migrateGroupsToClaudeLocal(): void {
     const groupDir = path.join(GROUPS_DIR, entry.name);
 
     const oldGlobalLink = path.join(groupDir, '.claude-global.md');
-    try {
-      fs.lstatSync(oldGlobalLink);
-      fs.unlinkSync(oldGlobalLink);
-      actions.push(`${entry.name}/.claude-global.md removed`);
-    } catch {
-      /* already gone */
+    if (globalDirPresent) {
+      // Ensure the symlink exists pointing at the global mount target.
+      let linkOk = false;
+      try {
+        const stat = fs.lstatSync(oldGlobalLink);
+        linkOk = stat.isSymbolicLink() && fs.readlinkSync(oldGlobalLink) === GLOBAL_LINK_TARGET;
+      } catch {
+        /* missing — fall through to create */
+      }
+      if (!linkOk) {
+        try {
+          fs.unlinkSync(oldGlobalLink);
+        } catch {
+          /* missing */
+        }
+        fs.symlinkSync(GLOBAL_LINK_TARGET, oldGlobalLink);
+        actions.push(`${entry.name}/.claude-global.md restored`);
+      }
+    } else {
+      // No global dir — fall back to upstream behavior, remove the link.
+      try {
+        fs.lstatSync(oldGlobalLink);
+        fs.unlinkSync(oldGlobalLink);
+        actions.push(`${entry.name}/.claude-global.md removed`);
+      } catch {
+        /* already gone */
+      }
     }
 
     const claudeMd = path.join(groupDir, 'CLAUDE.md');
@@ -177,10 +207,23 @@ export function migrateGroupsToClaudeLocal(): void {
     }
   }
 
+  // DOWNSTREAM PATCH: keep groups/global/ when it has user-authored content.
+  // Upstream removes it unconditionally assuming the content is already in
+  // container/CLAUDE.md (the shared base). Our install uses groups/global/
+  // for downstream-specific shared memory + references that aren't in the
+  // upstream shared base, and container-runner.ts still mounts it RO at
+  // /workspace/global. Skip removal whenever the dir contains anything
+  // beyond the deprecated CLAUDE.md (or has subdirs / references).
   const globalDir = path.join(GROUPS_DIR, 'global');
   if (fs.existsSync(globalDir)) {
-    fs.rmSync(globalDir, { recursive: true, force: true });
-    actions.push('groups/global/ removed');
+    const entries = fs.readdirSync(globalDir);
+    const isEmpty =
+      entries.length === 0 ||
+      (entries.length === 1 && entries[0] === 'CLAUDE.md' && fs.statSync(path.join(globalDir, 'CLAUDE.md')).size === 0);
+    if (isEmpty) {
+      fs.rmSync(globalDir, { recursive: true, force: true });
+      actions.push('groups/global/ removed');
+    }
   }
 
   if (actions.length > 0) {

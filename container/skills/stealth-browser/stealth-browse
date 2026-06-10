@@ -1,0 +1,1469 @@
+#!/usr/bin/env node
+// stealth-browse — CDP-based browser CLI with anti-detection for Cloudflare
+// Uses Node.js built-in WebSocket (Node 22+), no external dependencies.
+//
+// Usage:
+//   stealth-browse open <url> [--proxy user:pass@host:port]
+//   stealth-browse snapshot
+//   stealth-browse fill <selector> <text>
+//   stealth-browse click <selector>
+//   stealth-browse type <text>
+//   stealth-browse press <key>
+//   stealth-browse select <selector> <value>
+//   stealth-browse eval <js>
+//   stealth-browse screenshot [path]
+//   stealth-browse wait <ms | --text "pattern" | --url "pattern" | --load>
+//   stealth-browse get <text|html|url|title> [selector]
+//   stealth-browse scroll <up|down> [px]
+//   stealth-browse close
+
+const { spawn, execSync } = require('child_process');
+const http = require('http');
+const fs = require('fs');
+const path = require('path');
+
+// Disable HTTP proxying for localhost CDP calls. The worker container has
+// HTTP_PROXY/HTTPS_PROXY set (OneCLI agent-vault gateway on
+// host.docker.internal:10255) and Node 22's EnvHttpProxyAgent honors them
+// automatically — including for `localhost` requests. That routes the
+// stealth-browse → Chrome CDP call through the gateway, which returns
+// "Empty reply" because there's no Chrome at the gateway endpoint. Forcing
+// NO_PROXY here keeps localhost CDP traffic on the loopback interface.
+process.env.NO_PROXY = (process.env.NO_PROXY ? process.env.NO_PROXY + ',' : '') + 'localhost,127.0.0.1,::1';
+process.env.no_proxy = process.env.NO_PROXY;
+
+const STATE_FILE = '/tmp/stealth-browser-state.json';
+// Default user-data-dir for non-persistent sessions — Chrome writes
+// DevToolsActivePort here when --remote-debugging-port=0 is used.
+// Mobile-mode uses a separate dir to keep desktop and mobile fingerprints
+// from cross-contaminating cookies + LocalStorage.
+const DEFAULT_USER_DATA_DIR = '/tmp/stealth-browser-userdata';
+const DEFAULT_USER_DATA_DIR_MOBILE = '/tmp/stealth-browser-userdata-mobile';
+
+// Mobile-mode toggle (Pixel 7 emulation): set STEALTH_MOBILE=1 to enable.
+// Useful for sites that gate signup-flows by detecting desktop automation
+// patterns more aggressively than mobile (e.g. Google account creation).
+const MOBILE_MODE = process.env.STEALTH_MOBILE === '1';
+
+// Paranoid-timing mode: scales all human-input gauss-distributions upward
+// by ~1.8× (slower hovering, slower typing, longer post-click pauses).
+// Set STEALTH_PARANOID=1 for sign-up flows that scrutinize behavior pacing.
+const PARANOID_MODE = process.env.STEALTH_PARANOID === '1';
+const TIMING_SCALE = PARANOID_MODE ? 1.8 : 1.0;
+// Mutable: actual CDP port assigned by Chrome at launch (read from
+// DevToolsActivePort). Hardcoded specific ports (e.g. 9333) don't reliably
+// bind on Chromium 147+ in this container — only --remote-debugging-port=0
+// works, which makes Chrome pick an ephemeral port and write it to the
+// DevToolsActivePort file in the user-data-dir.
+let cdpPort = null;
+const DEFAULT_TIMEOUT = 30000;
+const CHROME_BIN = process.env.AGENT_BROWSER_EXECUTABLE_PATH || '/usr/bin/chromium';
+const XVFB_DISPLAY = process.env.STEALTH_DISPLAY || ':99';
+const XVFB_SCREEN = '1920x1080x24';
+
+// ── Human-like timing helpers ──
+const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+const rand = (min, max) => min + Math.random() * (max - min);
+const randInt = (min, max) => Math.floor(rand(min, max + 1));
+// Box-Muller gaussian, clamped. Mean+stddev scaled by TIMING_SCALE
+// (1.0 normal, 1.8 paranoid mode) — slows pacing of human-input timing
+// (mouse-hover, key-typing, click-debounce) without changing distributions.
+// min/max are also scaled so paranoid mode doesn't get clamped back to fast.
+function gauss(mean, stddev, min, max) {
+  const u1 = Math.random() || 1e-9;
+  const u2 = Math.random();
+  const z = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+  const scaledMean = mean * TIMING_SCALE;
+  const scaledStddev = stddev * TIMING_SCALE;
+  const scaledMax = max * TIMING_SCALE;
+  const v = scaledMean + scaledStddev * z;
+  return Math.max(min, Math.min(scaledMax, v));
+}
+
+// ── Stealth patches injected before every page load ──
+// Desktop persona: Linux x86_64 Chrome (matches real Linux Chrome JA4).
+// Mobile persona: Pixel 7 Android Chrome (when STEALTH_MOBILE=1).
+// The script is built dynamically so the navigator/userAgentData/screen/
+// platform values stay consistent with whichever persona is active.
+function buildStealthScript(mobile) {
+  const platformStr = mobile ? "'Linux armv81'" : "'Linux x86_64'";
+  const maxTouchPoints = mobile ? 5 : 0;
+  const hardwareConcurrency = mobile ? 8 : 8; // Pixel 7 has 8 cores too
+  const deviceMemory = mobile ? 8 : 8;
+  const uadMobile = mobile ? 'true' : 'false';
+  const uadPlatform = mobile ? "'Android'" : "'Linux'";
+  const screenWidth = mobile ? 412 : 1920;
+  const screenHeight = mobile ? 915 : 1080;
+  const screenAvailHeight = mobile ? 893 : 1040;
+  // WebGL renderer differs: desktop = Mesa Intel, mobile = Adreno (Pixel 7 uses Mali-G710 in spec but Chrome reports as ANGLE)
+  const wglVendor = mobile ? "'Google Inc. (ARM)'" : "'Intel'";
+  const wglRenderer = mobile ? "'ANGLE (ARM, Mali-G710 MC10, OpenGL ES 3.2)'" : "'Mesa Intel(R) UHD Graphics (TGL GT1)'";
+
+  return `
+  // Remove webdriver via delete from prototype (rather than getter override) — cleaner
+  try { delete Object.getPrototypeOf(navigator).webdriver; } catch (e) {}
+  Object.defineProperty(Navigator.prototype, 'webdriver', {get: () => undefined, configurable: true});
+
+  // Platform — matches the JA4 fingerprint of real Linux/Android Chrome
+  Object.defineProperty(Navigator.prototype, 'platform', {get: () => ${platformStr}, configurable: true});
+
+  // Realistic hardware
+  Object.defineProperty(Navigator.prototype, 'hardwareConcurrency', {get: () => ${hardwareConcurrency}, configurable: true});
+  Object.defineProperty(Navigator.prototype, 'deviceMemory', {get: () => ${deviceMemory}, configurable: true});
+  Object.defineProperty(Navigator.prototype, 'maxTouchPoints', {get: () => ${maxTouchPoints}, configurable: true});
+
+  // Languages (will also be set via CDP at network layer)
+  Object.defineProperty(Navigator.prototype, 'languages', {get: () => ['en-US', 'en'], configurable: true});
+
+  // Chrome runtime object
+  if (!window.chrome) {
+    window.chrome = {
+      runtime: { id: undefined, connect: function(){}, sendMessage: function(){}, onMessage: {addListener:function(){}} },
+      loadTimes: function(){ return {} },
+      csi: function(){ return {} },
+      app: { isInstalled: false }
+    };
+  }
+
+  // Plugins (PDF viewer etc.)
+  Object.defineProperty(Navigator.prototype, 'plugins', {
+    get: () => {
+      const arr = [
+        {name: 'PDF Viewer', filename: 'internal-pdf-viewer', description: 'Portable Document Format'},
+        {name: 'Chrome PDF Viewer', filename: 'internal-pdf-viewer', description: 'Portable Document Format'},
+        {name: 'Chromium PDF Viewer', filename: 'internal-pdf-viewer', description: 'Portable Document Format'},
+        {name: 'Microsoft Edge PDF Viewer', filename: 'internal-pdf-viewer', description: 'Portable Document Format'},
+        {name: 'WebKit built-in PDF', filename: 'internal-pdf-viewer', description: 'Portable Document Format'}
+      ];
+      arr.item = (i) => arr[i];
+      arr.namedItem = (n) => arr.find(p => p.name === n);
+      arr.refresh = () => {};
+      return arr;
+    }, configurable: true
+  });
+
+  // Permissions query (notification quirk)
+  const origQuery = Permissions.prototype.query;
+  Permissions.prototype.query = function(params) {
+    if (params.name === 'notifications') return Promise.resolve({state: Notification.permission});
+    return origQuery.call(this, params);
+  };
+
+  // Hide CDP runtime via stack trace check
+  const origError = Error.captureStackTrace;
+  if (origError) {
+    Error.captureStackTrace = function(obj, fn) {
+      origError.call(this, obj, fn);
+      if (obj.stack) obj.stack = obj.stack.replace(/\\n.*?DevTools.*?$/gm, '');
+    };
+  }
+
+  // WebGL: persona-specific renderer
+  const WGL_VENDOR = ${wglVendor};
+  const WGL_RENDERER = ${wglRenderer};
+  const getParameterProto = WebGLRenderingContext.prototype.getParameter;
+  WebGLRenderingContext.prototype.getParameter = function(param) {
+    if (param === 37445) return WGL_VENDOR;       // UNMASKED_VENDOR_WEBGL
+    if (param === 37446) return WGL_RENDERER;     // UNMASKED_RENDERER_WEBGL
+    if (param === 7936)  return WGL_VENDOR;       // VENDOR
+    if (param === 7937)  return 'WebKit WebGL';   // RENDERER
+    return getParameterProto.call(this, param);
+  };
+  if (window.WebGL2RenderingContext) {
+    const getParameter2Proto = WebGL2RenderingContext.prototype.getParameter;
+    WebGL2RenderingContext.prototype.getParameter = function(param) {
+      if (param === 37445) return WGL_VENDOR;
+      if (param === 37446) return WGL_RENDERER;
+      if (param === 7936)  return WGL_VENDOR;
+      if (param === 7937)  return 'WebKit WebGL';
+      return getParameter2Proto.call(this, param);
+    };
+  }
+
+  // Canvas fingerprint noise — tiny per-pixel jitter, stable for one page load
+  const canvasSeed = Math.random() * 10;
+  const toDataURLProto = HTMLCanvasElement.prototype.toDataURL;
+  HTMLCanvasElement.prototype.toDataURL = function() {
+    const ctx = this.getContext('2d');
+    if (ctx) {
+      try {
+        const w = this.width, h = this.height;
+        if (w > 0 && h > 0 && w * h < 500000) {
+          const img = ctx.getImageData(0, 0, w, h);
+          for (let i = 0; i < img.data.length; i += 4) {
+            // Stable per-pixel noise: 0 or 1 LSB offset
+            img.data[i]     ^= ((i + canvasSeed) & 1);
+            img.data[i + 1] ^= ((i + canvasSeed + 1) & 1);
+            img.data[i + 2] ^= ((i + canvasSeed + 2) & 1);
+          }
+          ctx.putImageData(img, 0, 0);
+        }
+      } catch (e) {}
+    }
+    return toDataURLProto.apply(this, arguments);
+  };
+  const getImageDataProto = CanvasRenderingContext2D.prototype.getImageData;
+  CanvasRenderingContext2D.prototype.getImageData = function(x, y, w, h) {
+    const data = getImageDataProto.apply(this, arguments);
+    try {
+      for (let i = 0; i < data.data.length; i += 4) {
+        data.data[i]     ^= ((i + canvasSeed) & 1);
+        data.data[i + 1] ^= ((i + canvasSeed + 1) & 1);
+        data.data[i + 2] ^= ((i + canvasSeed + 2) & 1);
+      }
+    } catch (e) {}
+    return data;
+  };
+
+  // AudioContext fingerprint noise
+  if (window.AudioBuffer) {
+    const audioSeed = Math.random() * 0.0000001;
+    const getChannelDataProto = AudioBuffer.prototype.getChannelData;
+    AudioBuffer.prototype.getChannelData = function() {
+      const data = getChannelDataProto.apply(this, arguments);
+      for (let i = 0; i < data.length; i += 100) {
+        data[i] = data[i] + audioSeed;
+      }
+      return data;
+    };
+  }
+
+  // ⚠ NO Battery API spoof — Chrome 124+ removed it. Presence is now an instant flag.
+  try { delete Navigator.prototype.getBattery; } catch (e) {}
+
+  // Screen properties (persona-specific)
+  Object.defineProperty(Screen.prototype, 'colorDepth', {get: () => 24, configurable: true});
+  Object.defineProperty(Screen.prototype, 'pixelDepth', {get: () => 24, configurable: true});
+  Object.defineProperty(Screen.prototype, 'availWidth', {get: () => ${screenWidth}, configurable: true});
+  Object.defineProperty(Screen.prototype, 'availHeight', {get: () => ${screenAvailHeight}, configurable: true});
+
+  // userAgentData — Linux Chrome 124
+  if (navigator.userAgentData) {
+    try {
+      Object.defineProperty(navigator.userAgentData, 'brands', {
+        get: () => [
+          {brand: 'Chromium', version: '124'},
+          {brand: 'Google Chrome', version: '124'},
+          {brand: 'Not-A.Brand', version: '99'}
+        ], configurable: true
+      });
+      Object.defineProperty(navigator.userAgentData, 'mobile', {get: () => ${uadMobile}, configurable: true});
+      Object.defineProperty(navigator.userAgentData, 'platform', {get: () => ${uadPlatform}, configurable: true});
+    } catch (e) {}
+  }
+
+  // Connection API — must be present and 4g desktop
+  if (navigator.connection) {
+    try {
+      Object.defineProperty(navigator.connection, 'rtt', {get: () => 50, configurable: true});
+      Object.defineProperty(navigator.connection, 'downlink', {get: () => 10, configurable: true});
+      Object.defineProperty(navigator.connection, 'effectiveType', {get: () => '4g', configurable: true});
+      Object.defineProperty(navigator.connection, 'saveData', {get: () => false, configurable: true});
+    } catch (e) {}
+  }
+
+  // mediaDevices.enumerateDevices — must return >=1 of each kind, no labels (no permission)
+  if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
+    const origEnum = navigator.mediaDevices.enumerateDevices.bind(navigator.mediaDevices);
+    navigator.mediaDevices.enumerateDevices = function() {
+      return origEnum().then(list => {
+        if (list && list.length > 0) return list;
+        return [
+          {deviceId: '', kind: 'audioinput',  label: '', groupId: '', toJSON: () => ({})},
+          {deviceId: '', kind: 'videoinput',  label: '', groupId: '', toJSON: () => ({})},
+          {deviceId: '', kind: 'audiooutput', label: '', groupId: '', toJSON: () => ({})}
+        ];
+      });
+    };
+  }
+
+  // WebRTC IP-leak prevention — RTCPeerConnection.createOffer/createAnswer
+  // can expose the real client IP via STUN even when traffic is proxied.
+  // We pair this with --webrtc-ip-handling-policy=disable_non_proxied_udp at
+  // the Chrome flag level. JS-side override is belt-and-braces in case the
+  // flag was missed or re-enabled by a site's polyfill.
+  if (window.RTCPeerConnection) {
+    const origCreateOffer = RTCPeerConnection.prototype.createOffer;
+    RTCPeerConnection.prototype.createOffer = function(opts) {
+      const o = Object.assign({}, opts || {}, { iceRestart: false });
+      return origCreateOffer.call(this, o);
+    };
+  }
+
+  // Function.prototype.toString — make patched native methods look native again
+  const nativeToString = Function.prototype.toString;
+  const patchedFns = new WeakSet();
+  function fakeNative(fn, name) {
+    patchedFns.add(fn);
+    return fn;
+  }
+  Function.prototype.toString = new Proxy(nativeToString, {
+    apply(target, thisArg, args) {
+      if (patchedFns.has(thisArg)) {
+        return 'function ' + (thisArg.name || '') + '() { [native code] }';
+      }
+      return Reflect.apply(target, thisArg, args);
+    }
+  });
+  // Mark our overrides as "native"
+  fakeNative(Object.getOwnPropertyDescriptor(Navigator.prototype, 'webdriver').get);
+  fakeNative(Object.getOwnPropertyDescriptor(Navigator.prototype, 'platform').get);
+  fakeNative(WebGLRenderingContext.prototype.getParameter);
+  if (window.WebGL2RenderingContext) fakeNative(WebGL2RenderingContext.prototype.getParameter);
+  fakeNative(HTMLCanvasElement.prototype.toDataURL);
+  fakeNative(CanvasRenderingContext2D.prototype.getImageData);
+  if (navigator.mediaDevices) fakeNative(navigator.mediaDevices.enumerateDevices);
+  fakeNative(Permissions.prototype.query);
+  if (window.RTCPeerConnection) fakeNative(RTCPeerConnection.prototype.createOffer);
+`;
+}
+
+// Personas — JA4-fingerprint matched
+const STEALTH_UA_DESKTOP = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36';
+const STEALTH_UA_MOBILE = 'Mozilla/5.0 (Linux; Android 14; Pixel 7 Build/UQ1A.240205.004) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.6367.207 Mobile Safari/537.36';
+const STEALTH_UA = MOBILE_MODE ? STEALTH_UA_MOBILE : STEALTH_UA_DESKTOP;
+const STEALTH_SCRIPT = buildStealthScript(MOBILE_MODE);
+
+// ── CDP helper ──
+class CDPClient {
+  constructor(wsUrl) {
+    this.wsUrl = wsUrl;
+    this.ws = null;
+    this.id = 1;
+    this.callbacks = new Map();
+    this.events = [];
+    this.proxyUser = null;
+    this.proxyPass = null;
+  }
+
+  setProxyAuth(user, pass) {
+    this.proxyUser = user;
+    this.proxyPass = pass;
+  }
+
+  connect() {
+    return new Promise((resolve, reject) => {
+      this.ws = new WebSocket(this.wsUrl);
+      this.ws.onopen = () => resolve();
+      this.ws.onerror = (e) => reject(new Error(`WebSocket error: ${e.message || 'connection failed'}`));
+      this.ws.onmessage = (evt) => {
+        const msg = JSON.parse(evt.data);
+
+        // Handle proxy auth challenges in real-time
+        if (msg.method === 'Fetch.authRequired' && this.proxyUser) {
+          this.ws.send(JSON.stringify({
+            id: this.id++,
+            method: 'Fetch.continueWithAuth',
+            params: {
+              requestId: msg.params.requestId,
+              authChallengeResponse: {
+                response: 'ProvideCredentials',
+                username: this.proxyUser,
+                password: this.proxyPass,
+              },
+            },
+          }));
+          return;
+        }
+
+        // Continue paused requests (non-auth)
+        if (msg.method === 'Fetch.requestPaused') {
+          this.ws.send(JSON.stringify({
+            id: this.id++,
+            method: 'Fetch.continueRequest',
+            params: { requestId: msg.params.requestId },
+          }));
+          return;
+        }
+
+        if (msg.id && this.callbacks.has(msg.id)) {
+          this.callbacks.get(msg.id)(msg);
+          this.callbacks.delete(msg.id);
+        } else if (msg.method) {
+          this.events.push(msg);
+        }
+      };
+    });
+  }
+
+  send(method, params = {}) {
+    return new Promise((resolve, reject) => {
+      const id = this.id++;
+      const timeout = setTimeout(() => {
+        this.callbacks.delete(id);
+        reject(new Error(`CDP timeout: ${method}`));
+      }, DEFAULT_TIMEOUT);
+
+      this.callbacks.set(id, (msg) => {
+        clearTimeout(timeout);
+        if (msg.error) reject(new Error(`CDP error: ${msg.error.message}`));
+        else resolve(msg.result);
+      });
+      this.ws.send(JSON.stringify({ id, method, params }));
+    });
+  }
+
+  close() {
+    if (this.ws) this.ws.close();
+  }
+}
+
+// ── Xvfb launcher (virtual X display for headed Chrome) ──
+function isXvfbRunning(display) {
+  try {
+    execSync(`xdpyinfo -display ${display}`, { stdio: 'ignore' });
+    return true;
+  } catch { return false; }
+}
+
+function launchXvfb() {
+  if (isXvfbRunning(XVFB_DISPLAY)) return null;
+  const proc = spawn('Xvfb', [
+    XVFB_DISPLAY,
+    '-screen', '0', XVFB_SCREEN,
+    '-nolisten', 'tcp',
+    '-ac',
+    '+extension', 'RANDR',
+    '+extension', 'GLX',
+  ], {
+    stdio: 'ignore',
+    detached: true,
+  });
+  proc.unref();
+  // Wait until display socket exists
+  for (let i = 0; i < 30; i++) {
+    if (isXvfbRunning(XVFB_DISPLAY)) return proc.pid;
+    execSync('sleep 0.1');
+  }
+  throw new Error('Xvfb failed to start');
+}
+
+// ── Chrome launcher ──
+function launchChrome(proxy) {
+  // Resolve user-data-dir. Order: explicit env > mobile-default > desktop-default.
+  // Mobile and desktop personas use separate dirs to avoid cross-fingerprint
+  // contamination of cookies + LocalStorage.
+  const defaultDir = MOBILE_MODE ? DEFAULT_USER_DATA_DIR_MOBILE : DEFAULT_USER_DATA_DIR;
+  const userDataDir = process.env.STEALTH_USER_DATA_DIR || defaultDir;
+  // For the non-persistent default dir, clear any stale Singleton lock + old
+  // DevToolsActivePort before launch — otherwise Chrome refuses to start
+  // ("Opening in existing browser session" path) and the port file lingers
+  // from a prior crashed run.
+  if (!process.env.STEALTH_USER_DATA_DIR) {
+    try {
+      execSync(`rm -f ${userDataDir}/Singleton* ${userDataDir}/DevToolsActivePort`, { stdio: 'ignore' });
+    } catch {}
+  } else {
+    // Persistent dir: only clear the stale port file, keep profile state
+    try {
+      execSync(`rm -f ${userDataDir}/DevToolsActivePort`, { stdio: 'ignore' });
+    } catch {}
+  }
+  fs.mkdirSync(userDataDir, { recursive: true });
+
+  // Headed Chrome on virtual display — looks like a real user, not headless
+  const args = [
+    '--no-sandbox',
+    '--disable-dev-shm-usage',
+    // remote-debugging-port=0 → Chrome picks an ephemeral port and writes it
+    // to ${user-data-dir}/DevToolsActivePort. We read that file in
+    // waitForChrome() to get the actual port.
+    //
+    // Background: Chrome 136+ silently refuses to enable --remote-debugging-*
+    // unless an explicit non-default --user-data-dir is also passed (security
+    // change to prevent silent CDP-attaching to a user's regular Chrome
+    // profile). Hardcoded specific ports (e.g. 9333) further fail to bind in
+    // some containerized + Chromium 147 builds — the safest combination is
+    // port=0 + explicit user-data-dir, then read the picked port from
+    // DevToolsActivePort.
+    '--remote-debugging-port=0',
+    `--user-data-dir=${userDataDir}`,
+    '--disable-blink-features=AutomationControlled',
+    '--disable-features=IsolateOrigins,site-per-process,AutomationControlled',
+    '--disable-infobars',
+    '--no-first-run',
+    '--no-default-browser-check',
+    '--disable-default-apps',
+    '--disable-popup-blocking',
+    '--disable-background-timer-throttling',
+    '--disable-renderer-backgrounding',
+    '--disable-backgrounding-occluded-windows',
+    '--disable-component-update',
+    '--disable-domain-reliability',
+    '--disable-features=TranslateUI',
+    '--password-store=basic',
+    '--use-mock-keychain',
+    '--window-size=1920,1080',
+    '--start-maximized',
+    '--use-gl=angle',
+    '--use-angle=swiftshader',
+    '--enable-unsafe-swiftshader',
+    // WebRTC IP-leak prevention — only proxied UDP. STUN-binding can
+    // otherwise expose the real client IP even with HTTP proxy.
+    '--webrtc-ip-handling-policy=disable_non_proxied_udp',
+    '--force-webrtc-ip-handling-policy',
+    `--user-agent=${STEALTH_UA}`,
+    '--lang=en-US,en',
+    '--accept-lang=en-US,en;q=0.9',
+  ];
+
+  // Mobile mode: window-size + DPR pass-through. CDP setDeviceMetricsOverride
+  // (in getClient) further configures viewport + touch.
+  if (MOBILE_MODE) {
+    args.push('--window-size=412,915');
+    args.push('--force-device-scale-factor=2.625');
+  }
+
+  if (proxy) {
+    const atIdx = proxy.lastIndexOf('@');
+    const hostPort = atIdx >= 0 ? proxy.slice(atIdx + 1) : proxy;
+    args.push(`--proxy-server=http://${hostPort}`);
+  }
+
+  const proc = spawn(CHROME_BIN, args, {
+    stdio: 'ignore',
+    detached: true,
+    env: { ...process.env, DISPLAY: XVFB_DISPLAY },
+  });
+  proc.unref();
+  return { pid: proc.pid, userDataDir };
+}
+
+// ── Get CDP page target ──
+// Belt-and-braces: pass `agent: false` to bypass any global proxy agent that
+// Node's EnvHttpProxyAgent might attach. NO_PROXY is also set at module load,
+// but `agent: false` is the explicit guarantee.
+function getCDPTargets() {
+  if (!cdpPort) throw new Error('CDP port not yet known — call waitForChrome first');
+  return new Promise((resolve, reject) => {
+    const req = http.get({
+      hostname: '127.0.0.1',
+      port: cdpPort,
+      path: '/json',
+      agent: false,
+    }, (res) => {
+      let data = '';
+      res.on('data', (c) => data += c);
+      res.on('end', () => {
+        try { resolve(JSON.parse(data)); }
+        catch (e) { reject(new Error('Failed to parse CDP targets')); }
+      });
+    });
+    req.on('error', reject);
+  });
+}
+
+// Read the actual CDP port Chrome picked from ${user-data-dir}/DevToolsActivePort.
+// Phase 1: poll for the file (Chrome writes it shortly after the CDP server
+// starts). Phase 2: verify the port is actually responding to /json.
+async function waitForChrome(userDataDir, maxWait = 15000) {
+  const start = Date.now();
+  const portFile = path.join(userDataDir, 'DevToolsActivePort');
+  // Phase 1: wait for DevToolsActivePort
+  while (Date.now() - start < maxWait) {
+    try {
+      const content = fs.readFileSync(portFile, 'utf8');
+      const firstLine = content.split('\n')[0].trim();
+      const port = parseInt(firstLine, 10);
+      if (port > 0 && port < 65536) {
+        cdpPort = port;
+        break;
+      }
+    } catch {
+      // file not yet exists or unreadable
+    }
+    await new Promise(r => setTimeout(r, 200));
+  }
+  if (!cdpPort) {
+    throw new Error(`Chrome failed to start: no DevToolsActivePort in ${userDataDir} after ${maxWait}ms`);
+  }
+  // Phase 2: verify CDP server responds
+  const phase2Deadline = start + maxWait;
+  while (Date.now() < phase2Deadline) {
+    try {
+      await getCDPTargets();
+      return;
+    } catch {
+      await new Promise(r => setTimeout(r, 300));
+    }
+  }
+  cdpPort = null;
+  throw new Error(`Chrome started but CDP server on port ${cdpPort} not responding`);
+}
+
+// ── State management ──
+function loadState() {
+  try { return JSON.parse(fs.readFileSync(STATE_FILE, 'utf8')); }
+  catch { return null; }
+}
+
+function saveState(state) {
+  fs.writeFileSync(STATE_FILE, JSON.stringify(state, null, 2));
+}
+
+function clearState() {
+  try { fs.unlinkSync(STATE_FILE); } catch {}
+}
+
+// ── Check if Chrome is alive ──
+function isChromeRunning(pid) {
+  try { process.kill(pid, 0); return true; }
+  catch { return false; }
+}
+
+// ── Connect to existing or launch new Chrome ──
+async function getClient(proxy) {
+  let state = loadState();
+
+  // Check if existing Chrome is running — only if we have its CDP port
+  // recorded. State files from before the dynamic-port refactor lack
+  // cdpPort, so they can't be reused; treat them as stale and re-launch.
+  if (state && state.pid && state.cdpPort && isChromeRunning(state.pid)) {
+    cdpPort = state.cdpPort;
+    try {
+      const targets = await getCDPTargets();
+      const page = targets.find(t => t.type === 'page' && t.id === state.pageId)
+                || targets.find(t => t.type === 'page');
+      if (page) {
+        const client = new CDPClient(page.webSocketDebuggerUrl);
+        await client.connect();
+        // Restore proxy auth on reconnect — Fetch.enable is per-session,
+        // so it must be re-enabled on every new WebSocket connection
+        if (state.proxyUser) {
+          client.setProxyAuth(state.proxyUser, state.proxyPass);
+          await client.send('Fetch.enable', {
+            patterns: [{ urlPattern: '*', requestStage: 'Request' }],
+            handleAuthRequests: true,
+          });
+        }
+        return { client, state, isNew: false };
+      }
+    } catch {}
+    // Reconnect failed — fall through to relaunch (cdpPort gets reset below).
+    cdpPort = null;
+  }
+
+  // Launch new Chrome
+  if (state && state.pid) {
+    try { process.kill(state.pid, 'SIGKILL'); } catch {}
+    await new Promise(r => setTimeout(r, 500));
+  }
+
+  // Ensure Xvfb is running first
+  const xvfbPid = launchXvfb();
+
+  const { pid, userDataDir } = launchChrome(proxy);
+  await waitForChrome(userDataDir);
+
+  const targets = await getCDPTargets();
+  const page = targets.find(t => t.type === 'page');
+  if (!page) throw new Error('No page target found');
+
+  const client = new CDPClient(page.webSocketDebuggerUrl);
+  await client.connect();
+
+  // Enable required domains
+  await client.send('Page.enable');
+  await client.send('Runtime.enable');
+  await client.send('Network.enable');
+
+  // Inject stealth patches (fires before every page JS)
+  await client.send('Page.addScriptToEvaluateOnNewDocument', { source: STEALTH_SCRIPT });
+
+  // Override UA at network level — persona-matched to TLS JA4
+  await client.send('Emulation.setUserAgentOverride', {
+    userAgent: STEALTH_UA,
+    platform: MOBILE_MODE ? 'Linux armv81' : 'Linux x86_64',
+    acceptLanguage: 'en-US,en;q=0.9',
+    userAgentMetadata: {
+      brands: [
+        { brand: 'Chromium', version: '124' },
+        { brand: 'Google Chrome', version: '124' },
+        { brand: 'Not-A.Brand', version: '99' },
+      ],
+      fullVersion: '124.0.6367.207',
+      platform: MOBILE_MODE ? 'Android' : 'Linux',
+      platformVersion: MOBILE_MODE ? '14' : '6.5.0',
+      architecture: MOBILE_MODE ? '' : 'x86',
+      model: MOBILE_MODE ? 'Pixel 7' : '',
+      mobile: MOBILE_MODE,
+    },
+  });
+
+  // Mobile-mode device emulation — viewport + DPR + touch
+  if (MOBILE_MODE) {
+    await client.send('Emulation.setDeviceMetricsOverride', {
+      width: 412,
+      height: 915,
+      deviceScaleFactor: 2.625,
+      mobile: true,
+      screenWidth: 412,
+      screenHeight: 915,
+    });
+    await client.send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 5 });
+    await client.send('Emulation.setEmulatedMedia', { features: [{ name: 'pointer', value: 'coarse' }, { name: 'hover', value: 'none' }] });
+  }
+
+  // Force English language headers on every request (overrides IP geolocation)
+  await client.send('Network.setExtraHTTPHeaders', {
+    headers: { 'Accept-Language': 'en-US,en;q=0.9' },
+  });
+
+  // Pretend to be in a US timezone (matches en-US)
+  try {
+    await client.send('Emulation.setTimezoneOverride', { timezoneId: 'America/New_York' });
+  } catch (e) {}
+
+  // Handle proxy auth if credentials provided
+  if (proxy && proxy.includes('@')) {
+    const atIdx = proxy.lastIndexOf('@');
+    const creds = proxy.slice(0, atIdx);
+    const colonIdx = creds.indexOf(':');
+    const username = creds.slice(0, colonIdx);
+    const password = creds.slice(colonIdx + 1);
+    // Set proxy credentials on client for real-time inline auth handling
+    client.setProxyAuth(username, password);
+    await client.send('Fetch.enable', {
+      patterns: [{ urlPattern: '*', requestStage: 'Request' }],
+      handleAuthRequests: true,
+    });
+    state = { pid, xvfbPid, pageId: page.id, proxy, proxyUser: username, proxyPass: password, cdpPort, userDataDir, mobile: MOBILE_MODE, paranoid: PARANOID_MODE };
+  } else {
+    state = { pid, xvfbPid, pageId: page.id, proxy: proxy || null, cdpPort, userDataDir, mobile: MOBILE_MODE, paranoid: PARANOID_MODE };
+  }
+
+  saveState(state);
+  return { client, state, isNew: true };
+}
+
+// ── Handle proxy auth events ──
+// ── Snapshot: get interactive elements ──
+async function getSnapshot(client) {
+  const result = await client.send('Runtime.evaluate', {
+    expression: `
+      (function() {
+        const els = [];
+        const interactiveSelectors = 'a[href], button, input, textarea, select, [role="button"], [role="link"], [role="textbox"], [contenteditable="true"], [data-testid], [onclick], [tabindex]';
+        const seen = new Set();
+        document.querySelectorAll(interactiveSelectors).forEach((el, i) => {
+          if (seen.has(el)) return;
+          seen.add(el);
+          const rect = el.getBoundingClientRect();
+          if (rect.width === 0 && rect.height === 0) return;
+          if (el.offsetParent === null && el.tagName !== 'BODY') return;
+
+          const tag = el.tagName.toLowerCase();
+          const type = el.getAttribute('type') || '';
+          const name = el.getAttribute('name') || '';
+          const id = el.id || '';
+          const placeholder = el.getAttribute('placeholder') || '';
+          const text = (el.innerText || el.value || '').trim().slice(0, 80);
+          const href = el.getAttribute('href') || '';
+          const ariaLabel = el.getAttribute('aria-label') || '';
+          const testId = el.getAttribute('data-testid') || '';
+          const role = el.getAttribute('role') || '';
+
+          let selector = '';
+          if (testId) selector = '[data-testid="' + testId.replace(/"/g, '\\\\"') + '"]';
+          else if (id) selector = '#' + CSS.escape(id);
+          else if (name) selector = tag + '[name="' + name.replace(/"/g, '\\\\"') + '"]';
+          else {
+            const idx = Array.from(el.parentElement?.children || []).filter(c => c.tagName === el.tagName).indexOf(el);
+            selector = tag + ':nth-of-type(' + (idx + 1) + ')';
+            let parent = el.parentElement;
+            for (let d = 0; d < 3 && parent && parent !== document.body; d++) {
+              const pid = parent.id ? '#' + CSS.escape(parent.id) : parent.tagName.toLowerCase();
+              selector = pid + ' > ' + selector;
+              parent = parent.parentElement;
+              if (parent?.id) break;
+            }
+          }
+
+          els.push({
+            ref: 'e' + (els.length + 1),
+            tag, type, name, text, href, placeholder, ariaLabel, testId, role, selector
+          });
+        });
+        return JSON.stringify(els);
+      })()
+    `,
+    returnByValue: true,
+  });
+
+  return JSON.parse(result.result.value);
+}
+
+function formatSnapshot(elements) {
+  const lines = ['Interactive elements:'];
+  for (const el of elements) {
+    let desc = `  [@${el.ref}] ${el.tag}`;
+    if (el.type) desc += `[type=${el.type}]`;
+    if (el.testId) desc += ` testid="${el.testId}"`;
+    if (el.role && el.role !== 'button' && el.role !== 'link') desc += ` role="${el.role}"`;
+    if (el.name) desc += ` name="${el.name}"`;
+    if (el.placeholder) desc += ` placeholder="${el.placeholder}"`;
+    if (el.ariaLabel) desc += ` aria="${el.ariaLabel}"`;
+    if (el.text) desc += ` "${el.text}"`;
+    if (el.href) desc += ` → ${el.href.slice(0, 60)}`;
+    desc += `  {${el.selector}}`;
+    lines.push(desc);
+  }
+  return lines.join('\n');
+}
+
+// ── Resolve @ref to CSS selector ──
+async function resolveSelector(client, sel) {
+  if (sel.startsWith('@e') || sel.startsWith('@E')) {
+    // Get snapshot and find the ref
+    const elements = await getSnapshot(client);
+    const refNum = sel.replace(/^@[eE]/, '');
+    const el = elements.find(e => e.ref === 'e' + refNum);
+    if (!el) throw new Error(`Ref ${sel} not found. Run snapshot first.`);
+    return el.selector;
+  }
+  return sel;
+}
+
+// ── Wait for navigation/load ──
+async function waitForLoad(client, timeout = 15000) {
+  const start = Date.now();
+  while (Date.now() - start < timeout) {
+    const result = await client.send('Runtime.evaluate', {
+      expression: 'document.readyState',
+      returnByValue: true,
+    });
+    if (result.result.value === 'complete') return;
+    await new Promise(r => setTimeout(r, 300));
+  }
+}
+
+// ── Get bounding box for an element selector ──
+async function getBoundingBox(client, sel) {
+  const result = await client.send('Runtime.evaluate', {
+    expression: `
+      (function() {
+        const el = document.querySelector(${JSON.stringify(sel)});
+        if (!el) return null;
+        el.scrollIntoView({block: 'center', inline: 'center', behavior: 'instant'});
+        const r = el.getBoundingClientRect();
+        return {x: r.x, y: r.y, w: r.width, h: r.height,
+                vw: window.innerWidth, vh: window.innerHeight};
+      })()
+    `,
+    returnByValue: true,
+  });
+  return result.result.value;
+}
+
+// ── WindMouse algorithm (Ben Land port) ──
+// Defeats Pearson-r linearity detection (BeCAPTCHA-Mouse paper) — used by X.
+// Bezier curves are too predictable; WindMouse adds gravity + wind noise terms.
+function windMousePath(sx, sy, ex, ey) {
+  const G_0 = 9, W_0 = 3, M_0 = 15, D_0 = 12;
+  const sqrt3 = Math.sqrt(3), sqrt5 = Math.sqrt(5);
+  let G = G_0, W = W_0, M = M_0, D = D_0;
+  let vx = 0, vy = 0, wx = 0, wy = 0;
+  let cx = sx, cy = sy;
+  const points = [];
+  let safetyCounter = 0;
+  while (safetyCounter++ < 5000) {
+    const dx = ex - cx, dy = ey - cy;
+    const dist = Math.hypot(dx, dy);
+    if (dist < 1) break;
+    const Wmag = Math.min(W, dist);
+    if (dist >= D) {
+      wx = wx / sqrt3 + (Math.random() * 2 * Wmag + 1 - Wmag) / sqrt5;
+      wy = wy / sqrt3 + (Math.random() * 2 * Wmag + 1 - Wmag) / sqrt5;
+    } else {
+      wx /= sqrt3; wy /= sqrt3;
+      if (M < 3) M = Math.random() * 3 + 3;
+      else M /= sqrt5;
+    }
+    vx += wx + G * dx / dist;
+    vy += wy + G * dy / dist;
+    const vmag = Math.hypot(vx, vy);
+    if (vmag > M) {
+      const vclip = M / 2 + Math.random() * M / 2;
+      vx = (vx / vmag) * vclip;
+      vy = (vy / vmag) * vclip;
+    }
+    cx += vx; cy += vy;
+    points.push([cx, cy]);
+  }
+  // Always end at exact target
+  points.push([ex, ey]);
+  return points;
+}
+
+// Track mouse position globally so successive moves chain naturally
+let mouseX = 100 + Math.random() * 200;
+let mouseY = 100 + Math.random() * 200;
+
+async function humanMouseMove(client, ex, ey) {
+  const dx = ex - mouseX, dy = ey - mouseY;
+  const dist = Math.sqrt(dx * dx + dy * dy);
+  if (dist < 1) return;
+  const path = windMousePath(mouseX, mouseY, ex, ey);
+  for (const [x, y] of path) {
+    await client.send('Input.dispatchMouseEvent', {
+      type: 'mouseMoved',
+      x: Math.round(x),
+      y: Math.round(y),
+      button: 'none',
+    });
+    // 5-15ms per waypoint with jitter
+    await sleep(rand(5, 15));
+  }
+  mouseX = ex;
+  mouseY = ey;
+}
+
+async function humanClick(client, sel) {
+  const box = await getBoundingBox(client, sel);
+  if (!box) throw new Error(`Element not found: ${sel}`);
+  // Click off-center but inside element (±15% of width/height from center)
+  const tx = box.x + box.w * (0.35 + Math.random() * 0.30);
+  const ty = box.y + box.h * (0.35 + Math.random() * 0.30);
+  await humanMouseMove(client, tx, ty);
+  // Hover delay before press (180-450ms)
+  await sleep(gauss(290, 90, 180, 480));
+  await client.send('Input.dispatchMouseEvent', {
+    type: 'mousePressed', x: Math.round(tx), y: Math.round(ty),
+    button: 'left', clickCount: 1,
+  });
+  // Press hold (40-90ms)
+  await sleep(gauss(65, 18, 40, 100));
+  await client.send('Input.dispatchMouseEvent', {
+    type: 'mouseReleased', x: Math.round(tx), y: Math.round(ty),
+    button: 'left', clickCount: 1,
+  });
+}
+
+// ── Log-normal inter-key interval (Aalto 136M keystrokes paper) ──
+// Mean ~150-220ms, occasional long tail. mu=5.0, sigma=0.35 → median ~148ms
+function logNormalIki() {
+  const u1 = Math.random() || 1e-9;
+  const u2 = Math.random();
+  const z = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+  return Math.round(Math.exp(5.0 + 0.35 * z));
+}
+
+// Map a printable character to a CDP keyDown event payload
+const KEY_TO_CODE = {
+  ' ': { key: ' ',  code: 'Space',  windowsVirtualKeyCode: 32 },
+  '\n': { key: 'Enter', code: 'Enter', windowsVirtualKeyCode: 13 },
+};
+function charToKeyEvent(char) {
+  if (KEY_TO_CODE[char]) return { ...KEY_TO_CODE[char], text: char };
+  // Letters
+  if (/^[a-zA-Z]$/.test(char)) {
+    const upper = char.toUpperCase();
+    return {
+      key: char,
+      code: 'Key' + upper,
+      windowsVirtualKeyCode: upper.charCodeAt(0),
+      text: char,
+    };
+  }
+  // Digits
+  if (/^[0-9]$/.test(char)) {
+    return {
+      key: char,
+      code: 'Digit' + char,
+      windowsVirtualKeyCode: char.charCodeAt(0),
+      text: char,
+    };
+  }
+  // Punctuation/symbols — generic event with text payload
+  return {
+    key: char,
+    code: '',
+    windowsVirtualKeyCode: char.charCodeAt(0),
+    text: char,
+  };
+}
+
+async function dispatchKeystroke(client, char) {
+  // Letters, digits, and space: full keyDown/keyUp for real keystroke dynamics.
+  // Chrome/CDP has accurate built-in key codes for these.
+  if (/^[a-zA-Z0-9 ]$/.test(char)) {
+    const ev = charToKeyEvent(char);
+    await client.send('Input.dispatchKeyEvent', { type: 'keyDown', ...ev });
+    await sleep(gauss(70, 25, 35, 130));
+    await client.send('Input.dispatchKeyEvent', { type: 'keyUp', ...ev });
+    return;
+  }
+  // Punctuation and symbols: use Input.insertText which reliably emits
+  // beforeinput/input events that React contenteditable (X.com, etc) accepts.
+  // Full key events would need exact windowsVirtualKeyCode + code per char
+  // (e.g. "." needs VK 190 + "Period", not VK 46), and getting this wrong
+  // makes Chrome silently drop the character.
+  await client.send('Input.insertText', { text: char });
+}
+
+// ── Human-like typing with proper keystroke dynamics ──
+// Uses dispatchKeyEvent (keyDown/keyUp) so detectors that watch keystroke
+// timing dynamics see real key events, not synthetic insertText injections.
+async function humanType(client, text) {
+  // Pre-think delay: user reads + decides (Aalto + research)
+  await sleep(gauss(900, 350, 400, 1800));
+
+  let wordCharCount = 0;
+  for (let i = 0; i < text.length; i++) {
+    const char = text[i];
+
+    // ~2% chance of typo + correction (only on letters)
+    if (/^[a-zA-Z]$/.test(char) && Math.random() < 0.02) {
+      const wrongChar = String.fromCharCode(char.charCodeAt(0) + (Math.random() < 0.5 ? -1 : 1));
+      if (/^[a-zA-Z]$/.test(wrongChar)) {
+        await dispatchKeystroke(client, wrongChar);
+        await sleep(gauss(220, 80, 120, 450));
+        // Backspace
+        await client.send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Backspace', code: 'Backspace', windowsVirtualKeyCode: 8 });
+        await sleep(gauss(60, 20, 30, 110));
+        await client.send('Input.dispatchKeyEvent', { type: 'keyUp',   key: 'Backspace', code: 'Backspace', windowsVirtualKeyCode: 8 });
+        await sleep(gauss(120, 50, 60, 250));
+      }
+    }
+
+    await dispatchKeystroke(client, char);
+
+    // Inter-key interval — log-normal
+    let delay = logNormalIki();
+
+    // Word-end / punctuation pauses
+    if (char === ' ') {
+      wordCharCount = 0;
+      // Micro-think every 7-12 words: 400-900ms pause
+      if (Math.random() < 0.10) delay += randInt(400, 900);
+    } else if ('.,!?;:'.includes(char)) {
+      // 20% chance of long pause after punctuation
+      if (Math.random() < 0.20) delay += randInt(600, 2000);
+      else delay += randInt(150, 400);
+    } else {
+      wordCharCount++;
+    }
+
+    await sleep(delay);
+  }
+
+  // Post-type settle (user looks at what they wrote before clicking)
+  await sleep(gauss(700, 250, 350, 1500));
+}
+
+async function humanScroll(client, direction, totalPx) {
+  const sign = direction === 'up' ? -1 : 1;
+  let scrolled = 0;
+  while (scrolled < totalPx) {
+    const step = randInt(60, 140);
+    const actualStep = Math.min(step, totalPx - scrolled);
+    await client.send('Input.dispatchMouseEvent', {
+      type: 'mouseWheel',
+      x: Math.round(mouseX),
+      y: Math.round(mouseY),
+      deltaX: 0,
+      deltaY: sign * actualStep,
+    });
+    scrolled += actualStep;
+    await sleep(gauss(110, 40, 50, 250));
+  }
+}
+
+// ── Cookie helper ──
+// X (Twitter) cookies that should be httpOnly when set on the wire
+const HTTPONLY_COOKIES = new Set(['auth_token', 'twid', '_twitter_sess', 'kdt', 'att']);
+
+async function setCookies(client, domain, kvPairs) {
+  // Always set on the leading-dot form so subdomains inherit
+  const dotDomain = domain.startsWith('.') ? domain : '.' + domain;
+  // Special-case x.com → also set on .twitter.com (X auth still uses both)
+  const domains = [dotDomain];
+  if (dotDomain === '.x.com') domains.push('.twitter.com');
+  if (dotDomain === '.twitter.com') domains.push('.x.com');
+
+  const cookies = [];
+  for (const d of domains) {
+    for (const kv of kvPairs) {
+      const eqIdx = kv.indexOf('=');
+      if (eqIdx < 0) throw new Error(`Bad cookie: ${kv}`);
+      const name = kv.slice(0, eqIdx);
+      const value = kv.slice(eqIdx + 1);
+      cookies.push({
+        name,
+        value,
+        domain: d,
+        path: '/',
+        secure: true,
+        httpOnly: HTTPONLY_COOKIES.has(name),
+        sameSite: 'None',
+      });
+    }
+  }
+  await client.send('Network.setCookies', { cookies });
+}
+
+// ── Main CLI ──
+async function main() {
+  const args = process.argv.slice(2);
+  const cmd = args[0];
+
+  if (!cmd || cmd === '--help' || cmd === '-h') {
+    console.log(`stealth-browse — Headed Chrome (Xvfb) with human-like input
+
+Usage:
+  stealth-browse open <url> [--proxy user:pass@host:port]
+  stealth-browse cookies <domain> KEY=VAL [KEY=VAL ...]   Set cookies before navigation
+  stealth-browse snapshot                 Get interactive elements with @refs
+  stealth-browse fill <@ref|selector> <text>      Human typing with delays
+  stealth-browse click <@ref|selector>            WindMouse + real click
+  stealth-browse hover <@ref|selector>            Move mouse over element
+  stealth-browse type <text>              Type at current focus, human pacing
+  stealth-browse press <key>              Enter, Tab, Escape, etc.
+  stealth-browse select <@ref|selector> <value>
+  stealth-browse eval <js-expression>
+  stealth-browse screenshot [path.png]
+  stealth-browse wait <ms | --text "..." | --url "..." | --load>
+  stealth-browse get <text|html|url|title> [@ref|selector]
+  stealth-browse scroll <up|down> [px]    Wheel events with delays
+  stealth-browse close                    Kill Chrome and Xvfb
+
+Selectors: CSS selectors or @refs from snapshot (e.g. @e1, @e3)
+Proxy: DataImpulse format user:pass@host:port
+
+Env flags:
+  STEALTH_USER_DATA_DIR   persistent profile dir (default: ephemeral, cleared on close)
+  STEALTH_MOBILE=1        Pixel 7 mobile persona (touch events, mobile UA, 412×915 viewport)
+  STEALTH_PARANOID=1      slower human-input timing (×1.8 mean+stddev) for stricter sites
+  STEALTH_DISPLAY         Xvfb display (default :99)
+
+Personas:
+  desktop  Linux x86_64 Chrome 124 (Mesa Intel WebGL) — default
+  mobile   Pixel 7 Android 14 Chrome 124 (ANGLE/Mali WebGL) — STEALTH_MOBILE=1
+
+Runs headed Chrome on Xvfb display ${XVFB_DISPLAY}. The browser is a real
+desktop/mobile Chrome (not --headless), so JS-side fingerprints (canvas, audio,
+WebGL, plugins, hardware, RTCPeerConnection) are spoofed via injected patches.
+WebRTC IP-leak prevention is on by default (--webrtc-ip-handling-policy).`);
+    process.exit(0);
+  }
+
+  try {
+    if (cmd === 'close') {
+      const state = loadState();
+      if (state && state.pid) {
+        try { process.kill(state.pid, 'SIGKILL'); } catch {}
+      }
+      if (state && state.xvfbPid) {
+        try { process.kill(state.xvfbPid, 'SIGKILL'); } catch {}
+      }
+      // Clean up the non-persistent user-data-dir (default location) so the
+      // next launch starts from a clean profile. Persistent user-data-dirs
+      // (set via STEALTH_USER_DATA_DIR) are preserved.
+      if (state && state.userDataDir === DEFAULT_USER_DATA_DIR) {
+        try { execSync(`rm -rf ${DEFAULT_USER_DATA_DIR}`, { stdio: 'ignore' }); } catch {}
+      }
+      clearState();
+      console.log('Browser closed');
+      process.exit(0);
+    }
+
+    // Determine proxy
+    let proxy = null;
+    const proxyIdx = args.indexOf('--proxy');
+    if (proxyIdx >= 0 && args[proxyIdx + 1]) {
+      proxy = args[proxyIdx + 1];
+    } else if (process.env.STEALTH_PROXY) {
+      proxy = process.env.STEALTH_PROXY;
+    } else if (process.env.REDDIT_PROXY) {
+      proxy = process.env.REDDIT_PROXY;
+    }
+
+    const { client, state } = await getClient(proxy);
+
+    // Handle pending proxy auth events
+    // Proxy auth handled inline by CDPClient
+
+    switch (cmd) {
+      case 'open': {
+        let url = args[1];
+        if (!url) { console.error('Usage: stealth-browse open <url>'); process.exit(1); }
+        // Only prepend https:// for plain hostnames, not for special schemes
+        if (!url.match(/^(https?|about|chrome|data|file|javascript|view-source):/)) url = 'https://' + url;
+
+        await client.send('Page.navigate', { url });
+
+        // Wait for page load + Cloudflare challenge resolution
+        let loaded = false;
+        for (let i = 0; i < 60; i++) { // Up to 30 seconds
+          // Proxy auth handled inline by CDPClient
+          const res = await client.send('Runtime.evaluate', {
+            expression: 'document.readyState',
+            returnByValue: true,
+          });
+          if (res.result.value === 'complete') {
+            // Extra wait for Cloudflare challenge pages
+            const titleRes = await client.send('Runtime.evaluate', {
+              expression: 'document.title',
+              returnByValue: true,
+            });
+            const title = titleRes.result.value || '';
+            if (title.includes('Just a moment') || title.includes('Checking') || title.includes('Cloudflare')) {
+              // Cloudflare challenge in progress, keep waiting
+              await new Promise(r => setTimeout(r, 500));
+              continue;
+            }
+            loaded = true;
+            break;
+          }
+          await new Promise(r => setTimeout(r, 500));
+        }
+
+        // Get final URL and title
+        const urlRes = await client.send('Runtime.evaluate', {
+          expression: 'window.location.href', returnByValue: true,
+        });
+        const titleRes = await client.send('Runtime.evaluate', {
+          expression: 'document.title', returnByValue: true,
+        });
+        // Post-load human "reading" delay (1.8-4.5s) — defeats time-to-first-interaction <500ms bot signal
+        // Skipped for about:blank and similar
+        const finalUrl = urlRes.result.value || '';
+        if (finalUrl && !finalUrl.startsWith('about:') && !finalUrl.startsWith('chrome:')) {
+          await sleep(gauss(2800, 800, 1800, 4500));
+        }
+        console.log(`${loaded ? '✓' : '⏳'} ${titleRes.result.value}`);
+        console.log(`  ${urlRes.result.value}`);
+        break;
+      }
+
+      case 'snapshot': {
+        const elements = await getSnapshot(client);
+        // Also get page title and URL for context
+        const urlRes = await client.send('Runtime.evaluate', {
+          expression: 'document.title + " — " + window.location.href', returnByValue: true,
+        });
+        console.log(`Page: ${urlRes.result.value}`);
+        console.log(formatSnapshot(elements));
+        console.log(`\n${elements.length} interactive elements found`);
+        break;
+      }
+
+      case 'fill': {
+        const sel = await resolveSelector(client, args[1]);
+        const text = args.slice(2).join(' ');
+        // Move mouse to element and click first (focus naturally)
+        await humanClick(client, sel);
+        // Pre-type "thinking" delay (600-1400ms) per research
+        await sleep(gauss(950, 250, 600, 1500));
+        // Clear existing value with Ctrl+A + Backspace
+        await client.send('Input.dispatchKeyEvent', { type: 'keyDown', modifiers: 2, key: 'a', code: 'KeyA', windowsVirtualKeyCode: 65 });
+        await sleep(gauss(60, 20, 30, 100));
+        await client.send('Input.dispatchKeyEvent', { type: 'keyUp', modifiers: 2, key: 'a', code: 'KeyA', windowsVirtualKeyCode: 65 });
+        await sleep(gauss(120, 40, 60, 200));
+        await client.send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Backspace', code: 'Backspace', windowsVirtualKeyCode: 8 });
+        await sleep(gauss(60, 20, 30, 100));
+        await client.send('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Backspace', code: 'Backspace', windowsVirtualKeyCode: 8 });
+        await sleep(gauss(180, 60, 80, 350));
+        await humanType(client, text);
+        console.log(`✓ Filled "${text.slice(0, 60)}${text.length > 60 ? '...' : ''}" into ${args[1]}`);
+        break;
+      }
+
+      case 'click': {
+        const sel = await resolveSelector(client, args[1]);
+        try {
+          await humanClick(client, sel);
+          // Random settle time
+          await sleep(gauss(450, 150, 200, 900));
+          console.log(`✓ Clicked ${args[1]}`);
+        } catch (err) {
+          console.error(`✗ ${err.message}`);
+          process.exit(1);
+        }
+        break;
+      }
+
+      case 'type': {
+        const text = args.slice(1).join(' ');
+        await humanType(client, text);
+        console.log(`✓ Typed "${text.slice(0, 60)}${text.length > 60 ? '...' : ''}"`);
+        break;
+      }
+
+      case 'cookies': {
+        // Usage: stealth-browse cookies <domain> KEY=VALUE [KEY=VALUE ...]
+        const domain = args[1];
+        const pairs = args.slice(2);
+        if (!domain || pairs.length === 0) {
+          console.error('Usage: stealth-browse cookies <domain> KEY=VALUE [KEY=VALUE ...]');
+          process.exit(1);
+        }
+        await setCookies(client, domain, pairs);
+        console.log(`✓ Set ${pairs.length} cookies for ${domain}`);
+        break;
+      }
+
+      case 'hover': {
+        const sel = await resolveSelector(client, args[1]);
+        const box = await getBoundingBox(client, sel);
+        if (!box) { console.error(`Element not found: ${args[1]}`); process.exit(1); }
+        const tx = box.x + box.w / 2;
+        const ty = box.y + box.h / 2;
+        await humanMouseMove(client, tx, ty);
+        console.log(`✓ Hovered ${args[1]}`);
+        break;
+      }
+
+      case 'press': {
+        const key = args[1] || 'Enter';
+        const keyMap = {
+          'Enter': { key: 'Enter', code: 'Enter', windowsVirtualKeyCode: 13 },
+          'Tab': { key: 'Tab', code: 'Tab', windowsVirtualKeyCode: 9 },
+          'Escape': { key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 },
+          'Backspace': { key: 'Backspace', code: 'Backspace', windowsVirtualKeyCode: 8 },
+          'Space': { key: ' ', code: 'Space', windowsVirtualKeyCode: 32, text: ' ' },
+          'ArrowDown': { key: 'ArrowDown', code: 'ArrowDown', windowsVirtualKeyCode: 40 },
+          'ArrowUp': { key: 'ArrowUp', code: 'ArrowUp', windowsVirtualKeyCode: 38 },
+          'ArrowLeft': { key: 'ArrowLeft', code: 'ArrowLeft', windowsVirtualKeyCode: 37 },
+          'ArrowRight': { key: 'ArrowRight', code: 'ArrowRight', windowsVirtualKeyCode: 39 },
+        };
+        const k = keyMap[key] || { key, code: key, windowsVirtualKeyCode: 0 };
+        await client.send('Input.dispatchKeyEvent', { type: 'keyDown', ...k });
+        await sleep(gauss(60, 20, 30, 120));
+        await client.send('Input.dispatchKeyEvent', { type: 'keyUp', ...k });
+        console.log(`✓ Pressed ${key}`);
+        break;
+      }
+
+      case 'select': {
+        const sel = await resolveSelector(client, args[1]);
+        const value = args.slice(2).join(' ');
+        await client.send('Runtime.evaluate', {
+          expression: `
+            (function() {
+              const el = document.querySelector('${sel.replace(/'/g, "\\'")}');
+              if (!el) return 'NOT_FOUND';
+              el.value = ${JSON.stringify(value)};
+              el.dispatchEvent(new Event('change', {bubbles: true}));
+              return 'OK';
+            })()
+          `,
+          returnByValue: true,
+        });
+        console.log(`✓ Selected "${value}" in ${args[1]}`);
+        break;
+      }
+
+      case 'eval': {
+        const expr = args.slice(1).join(' ');
+        const result = await client.send('Runtime.evaluate', {
+          expression: expr,
+          returnByValue: true,
+        });
+        if (result.result.value !== undefined) {
+          console.log(typeof result.result.value === 'string'
+            ? result.result.value
+            : JSON.stringify(result.result.value, null, 2));
+        } else if (result.result.type === 'undefined') {
+          console.log('undefined');
+        } else {
+          console.log(result.result.description || result.result.type);
+        }
+        break;
+      }
+
+      case 'screenshot': {
+        const filePath = args[1] || `/tmp/screenshot-${Date.now()}.png`;
+        const result = await client.send('Page.captureScreenshot', { format: 'png' });
+        fs.writeFileSync(filePath, Buffer.from(result.data, 'base64'));
+        console.log(`✓ Screenshot saved: ${filePath}`);
+        break;
+      }
+
+      case 'wait': {
+        if (args[1] === '--text') {
+          const pattern = args[2];
+          for (let i = 0; i < 60; i++) {
+            const result = await client.send('Runtime.evaluate', {
+              expression: `document.body.innerText.includes(${JSON.stringify(pattern)})`,
+              returnByValue: true,
+            });
+            if (result.result.value) { console.log(`✓ Found text: "${pattern}"`); break; }
+            if (i === 59) { console.error(`✗ Timeout waiting for text: "${pattern}"`); process.exit(1); }
+            await new Promise(r => setTimeout(r, 500));
+          }
+        } else if (args[1] === '--url') {
+          const pattern = args[2];
+          for (let i = 0; i < 60; i++) {
+            const result = await client.send('Runtime.evaluate', {
+              expression: 'window.location.href', returnByValue: true,
+            });
+            if (result.result.value.includes(pattern)) { console.log(`✓ URL matches: ${result.result.value}`); break; }
+            if (i === 59) { console.error(`✗ Timeout waiting for URL: "${pattern}"`); process.exit(1); }
+            await new Promise(r => setTimeout(r, 500));
+          }
+        } else if (args[1] === '--load') {
+          await waitForLoad(client);
+          console.log('✓ Page loaded');
+        } else {
+          const ms = parseInt(args[1]) || 1000;
+          await new Promise(r => setTimeout(r, ms));
+          console.log(`✓ Waited ${ms}ms`);
+        }
+        break;
+      }
+
+      case 'get': {
+        const what = args[1];
+        const sel = args[2] ? await resolveSelector(client, args[2]) : null;
+        let expr;
+        switch (what) {
+          case 'text':
+            expr = sel
+              ? `document.querySelector('${sel.replace(/'/g, "\\'")}')?.innerText || 'NOT_FOUND'`
+              : 'document.body.innerText';
+            break;
+          case 'html':
+            expr = sel
+              ? `document.querySelector('${sel.replace(/'/g, "\\'")}')?.innerHTML || 'NOT_FOUND'`
+              : 'document.documentElement.outerHTML';
+            break;
+          case 'url':
+            expr = 'window.location.href';
+            break;
+          case 'title':
+            expr = 'document.title';
+            break;
+          default:
+            console.error(`Unknown get target: ${what}. Use: text, html, url, title`);
+            process.exit(1);
+        }
+        const result = await client.send('Runtime.evaluate', {
+          expression: expr, returnByValue: true,
+        });
+        console.log(result.result.value);
+        break;
+      }
+
+      case 'scroll': {
+        const dir = args[1] || 'down';
+        const px = parseInt(args[2]) || 500;
+        await humanScroll(client, dir, px);
+        console.log(`✓ Scrolled ${dir} ${px}px`);
+        break;
+      }
+
+      default:
+        console.error(`Unknown command: ${cmd}. Run stealth-browse --help`);
+        process.exit(1);
+    }
+
+    client.close();
+
+  } catch (err) {
+    console.error(`✗ Error: ${err.message}`);
+    process.exit(1);
+  }
+}
+
+main();

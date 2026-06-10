@@ -38,13 +38,25 @@ export function loadConfig(): RunnerConfig {
     console.error(`[config] Failed to read ${CONFIG_PATH}, using defaults`);
   }
 
+  // Prefer mcpServers from NANOCLAW_MCP_SERVERS env (host has resolved ${VAR} templates).
+  // Fall back to the file value if env is absent or malformed.
+  let mcpServers = (raw.mcpServers as RunnerConfig['mcpServers']) || {};
+  const envJson = process.env.NANOCLAW_MCP_SERVERS;
+  if (envJson) {
+    try {
+      mcpServers = JSON.parse(envJson) as RunnerConfig['mcpServers'];
+    } catch {
+      console.error('[config] Failed to parse NANOCLAW_MCP_SERVERS env, using container.json mcpServers (templates unresolved)');
+    }
+  }
+
   _config = {
     provider: (raw.provider as string) || 'claude',
     assistantName: (raw.assistantName as string) || '',
     groupName: (raw.groupName as string) || '',
     agentGroupId: (raw.agentGroupId as string) || '',
     maxMessagesPerPrompt: (raw.maxMessagesPerPrompt as number) || DEFAULT_MAX_MESSAGES,
-    mcpServers: (raw.mcpServers as RunnerConfig['mcpServers']) || {},
+    mcpServers,
     model: (raw.model as string) || undefined,
     effort: (raw.effort as string) || undefined,
   };

@@ -23,7 +23,7 @@ import {
 import { log } from './log.js';
 import { normalizeOptions } from './channels/ask-question.js';
 import { clearOutbox, openInboundDb, openOutboundDb, readOutboxFiles } from './session-manager.js';
-import { pauseTypingRefreshAfterDelivery, setTypingAdapter } from './modules/typing/index.js';
+import { stopTypingRefresh, setTypingAdapter } from './modules/typing/index.js';
 import type { OutboundFile } from './channels/adapter.js';
 import type { Session } from './types.js';
 
@@ -193,14 +193,19 @@ async function drainSession(session: Session): Promise<void> {
         markDelivered(inDb, msg.id, platformMsgId ?? null);
         deliveryAttempts.delete(msg.id);
 
-        // Pause the typing indicator after a real user-facing message
-        // lands on the user's screen, so the client has time to visually
-        // clear the indicator before the next heartbeat tick brings it
-        // back. Skip the pause for internal traffic (system actions,
-        // agent-to-agent routing) — the user doesn't see those and
-        // shouldn't get a gap in their typing indicator for them.
+        // Stop the typing indicator after a real user-facing message
+        // lands on the user's screen. The pause-only approach (upstream)
+        // does not hold here: the container's passive poll-loop touches
+        // the `.heartbeat` file every 1s (POLL_INTERVAL_MS) as proof of
+        // life, so the heartbeat never goes stale even when the agent is
+        // idle — the refresher's `isHeartbeatFresh` gate stays true and a
+        // mere pause (POST_DELIVERY_PAUSE_MS) just resumes the infinite
+        // "Typing…" loop after it expires. A hard stop is the only thing
+        // that clears it; the router restarts the refresher on the next
+        // inbound message. Skip for internal traffic (system actions,
+        // agent-to-agent routing) — the user doesn't see those.
         if (msg.kind !== 'system' && msg.channel_type !== 'agent') {
-          pauseTypingRefreshAfterDelivery(session.id);
+          stopTypingRefresh(session.id);
         }
       } catch (err) {
         const attempts = (deliveryAttempts.get(msg.id) ?? 0) + 1;

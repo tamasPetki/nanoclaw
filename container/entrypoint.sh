@@ -11,6 +11,12 @@
 
 set -e
 
+# Wire OneCLI MITM CA cert into the few tool ecosystems that don't honor SSL_CERT_FILE.
+# Node already reads NODE_EXTRA_CA_CERTS; curl reads SSL_CERT_FILE. Git (GnuTLS build on
+# debian) reads neither — needs GIT_SSL_CAINFO explicitly. Without this, every git command
+# the agent runs fails with "server certificate verification failed" through the OneCLI proxy.
+export GIT_SSL_CAINFO="${NODE_EXTRA_CA_CERTS:-/tmp/onecli-combined-ca.pem}"
+
 cat > /tmp/input.json
 
 exec bun run /app/src/index.ts < /tmp/input.json

@@ -1,0 +1,19 @@
+{
+  "name": "ticktick",
+  "description": "TickTick task, project, tag, habit and focus management (replaces Todoist)",
+  "runtime": "python",
+  "command": "/bin/bash",
+  "args": ["/opt/mcp-servers/ticktick/run.sh"],
+  "installPath": "/opt/mcp-servers/ticktick",
+  "install": "export UV_PYTHON_INSTALL_DIR=/opt/uv-python && uv python install 3.12 && uv venv --python 3.12 .venv && VIRTUAL_ENV=.venv uv pip install --no-cache-dir mcp-ticktick==0.1.2 && chmod -R a+rX /opt/uv-python .venv",
+  "env": {
+    "TICKTICK_ACCESS_TOKEN": "",
+    "TICKTICK_CLIENT_ID": "",
+    "TICKTICK_CLIENT_SECRET": "",
+    "TICKTICK_V2_SESSION_TOKEN": "",
+    "NO_PROXY": "api.ticktick.com,ticktick.com,.ticktick.com",
+    "HTTPS_PROXY": "",
+    "HTTP_PROXY": ""
+  },
+  "secrets": ["TICKTICK_ACCESS_TOKEN", "TICKTICK_CLIENT_ID", "TICKTICK_CLIENT_SECRET", "TICKTICK_V2_SESSION_TOKEN"]
+}

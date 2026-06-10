@@ -1,7 +1,7 @@
 import { findByName, getAllDestinations, type DestinationEntry } from './destinations.js';
 import { getPendingMessages, markProcessing, markCompleted, type MessageInRow } from './db/messages-in.js';
 import { writeMessageOut } from './db/messages-out.js';
-import { getInboundDb, touchHeartbeat, clearStaleProcessingAcks } from './db/connection.js';
+import { getCurrentTool, getInboundDb, touchHeartbeat, clearStaleProcessingAcks } from './db/connection.js';
 import { clearContinuation, migrateLegacyContinuation, setContinuation } from './db/session-state.js';
 import { clearCurrentInReplyTo, setCurrentInReplyTo } from './current-batch.js';
 import {
@@ -18,6 +18,13 @@ import type { AgentProvider, AgentQuery, ProviderEvent } from './providers/types
 
 const POLL_INTERVAL_MS = 1000;
 const ACTIVE_POLL_INTERVAL_MS = 500;
+// Stream-event silence watchdog. If no SDK event arrives for this long
+// during an active query AND no tool is in flight, the stream is stuck
+// (compact-stall, MCP silent-stuck, etc.) — abort so the outer loop can
+// open a fresh query from the persisted continuation. Recovers faster
+// than host-sweep's 30-min absolute-ceiling kill (which takes the whole
+// container down, losing any pending follow-up messages with it).
+const STREAM_SILENCE_ABORT_MS = 5 * 60 * 1000;
 
 /**
  * Number of consecutive `database disk image is malformed` errors after which
@@ -111,6 +118,13 @@ export async function runPollLoop(config: PollLoopConfig): Promise<void> {
     const messages = getPendingMessages(isFirstPoll).filter((m) => m.kind !== 'system');
     isFirstPoll = false;
     pollCount++;
+
+    // Touch the heartbeat file on every passive poll-cycle too — not just inside
+    // the active query stream. Without this, an idle agent (no pending messages
+    // for >30 min) gets killed by host-sweep's absolute-ceiling check, even
+    // though the loop is alive and polling. The stream-side touchHeartbeat()
+    // in the events for-await still fires during active turns.
+    touchHeartbeat();
 
     // Periodic heartbeat so we know the loop is alive
     if (pollCount % 30 === 0) {
@@ -237,6 +251,40 @@ export async function runPollLoop(config: PollLoopConfig): Promise<void> {
         continuation = result.continuation;
         setContinuation(config.providerName, continuation);
       }
+      if (result.abortedForSilence) {
+        if (result.abortedAfterClean) {
+          // The turn finished normally — we only timed out waiting for a
+          // follow-up that never came. The stream wasn't actually stuck.
+          // Keep the continuation (it's a valid resume point) and don't
+          // bother the user with a watchdog notification.
+          log(`Silence-abort after clean result — turn finished normally, no recovery needed`);
+        } else {
+          // Stream was stuck mid-turn (compact-stall, broken history, MCP
+          // silent stall). The continuation is likely poisoned — clear it
+          // so the next message starts fresh instead of hitting the same
+          // stall again and looping forever.
+          if (continuation) {
+            log(`Silence-abort mid-turn — clearing continuation ${continuation} to break compact-stall loop`);
+            continuation = undefined;
+            clearContinuation(config.providerName);
+          }
+          // Suppress the watchdog notification on a2a routes — two stalled
+          // agents pinging each other with "Beragadtam..." creates a
+          // cross-agent infinite loop. Humans get notified; agents stay quiet.
+          if (routing.channelType !== 'agent') {
+            writeMessageOut({
+              id: generateId(),
+              kind: 'chat',
+              platform_id: routing.platformId,
+              channel_type: routing.channelType,
+              thread_id: routing.threadId,
+              content: JSON.stringify({
+                text: 'Beragadtam az előző feladat közben — leállítottam magam. Kérlek küldd újra amit kértél.',
+              }),
+            });
+          }
+        }
+      }
     } catch (err) {
       const errMsg = err instanceof Error ? err.message : String(err);
       log(`Query error: ${errMsg}`);
@@ -306,6 +354,16 @@ function formatMessagesWithCommands(messages: MessageInRow[], nativeSlashCommand
 
 interface QueryResult {
   continuation?: string;
+  /** True if the stream-silence watchdog force-aborted the query. */
+  abortedForSilence?: boolean;
+  /**
+   * True if `abortedForSilence` happened AFTER a clean `result` event for
+   * the current turn — i.e. the turn finished normally and we only timed
+   * out waiting for a follow-up. Caller suppresses the user-facing
+   * "Beragadtam…" notification in that case (false positive); when this
+   * is false, the stream was stuck mid-turn and the user should be told.
+   */
+  abortedAfterClean?: boolean;
 }
 
 async function processQuery(
@@ -317,6 +375,11 @@ async function processQuery(
   let queryContinuation: string | undefined;
   let done = false;
   let unwrappedNudged = false;
+  // Tracks whether the SDK already emitted a `result` for the current turn.
+  // When true, a subsequent silence-watchdog abort means we only timed out
+  // waiting for a follow-up — not a stuck mid-turn stream — so the caller
+  // can suppress the user-facing "Beragadtam…" notification.
+  let sawResultThisTurn = false;
 
   // Concurrent polling: push follow-ups into the active query as they arrive.
   // We do NOT force-end the stream on silence — keeping the query open avoids
@@ -329,9 +392,38 @@ async function processQuery(
   // will kill the container and messages get reset to pending.
   let pollInFlight = false;
   let endedForCommand = false;
+  let abortedForSilence = false;
+  // Tracks wall-clock of the most recent SDK event. Updated below on every
+  // event yielded from the provider stream — see the for-await loop.
+  let lastEventAtMs = Date.now();
   let corruptionStreak = 0;
   const pollHandle = setInterval(() => {
-    if (done || pollInFlight || endedForCommand) return;
+    // Independent proof-of-life. The stream-side touchHeartbeat() at the
+    // top of the for-await loop only fires when the SDK yields an event.
+    // If the SDK stalls (compact-stall, MCP silent stuck) it stops emitting
+    // even `activity` events, the heartbeat file goes stale, and host-sweep
+    // SIGKILLs the entire container at 30 min — killing the unrelated
+    // pending messages (cron tasks, follow-ups) with it. While THIS callback
+    // runs, the container's Bun process is alive and the loop is healthy.
+    touchHeartbeat();
+
+    // Stream-silence watchdog. If the SDK has gone silent and no tool is
+    // running, the stream is wedged — abort so the outer loop can recover
+    // from the persisted continuation. Guarded by `getCurrentTool()` so a
+    // legitimately long bash/MCP call doesn't trigger a false abort.
+    if (!done && !endedForCommand && !abortedForSilence) {
+      const silenceMs = Date.now() - lastEventAtMs;
+      if (silenceMs > STREAM_SILENCE_ABORT_MS && getCurrentTool() == null) {
+        log(
+          `Stream silent for ${Math.round(silenceMs / 1000)}s with no tool in flight — aborting query for recovery`,
+        );
+        abortedForSilence = true;
+        query.abort();
+        return;
+      }
+    }
+
+    if (done || pollInFlight || endedForCommand || abortedForSilence) return;
     pollInFlight = true;
 
     void (async () => {
@@ -434,6 +526,7 @@ async function processQuery(
 
   try {
     for await (const event of query.events) {
+      lastEventAtMs = Date.now();
       handleEvent(event, routing);
       touchHeartbeat();
 
@@ -453,6 +546,7 @@ async function processQuery(
         // follow-up pushes. The agent may have responded via MCP
         // (send_message) mid-turn, or the message may not need a response
         // at all — either way the turn is finished.
+        sawResultThisTurn = true;
         markCompleted(initialBatchIds);
         if (event.text) {
           const { hasUnwrapped } = dispatchResultText(event.text, routing);
@@ -475,7 +569,11 @@ async function processQuery(
     clearInterval(pollHandle);
   }
 
-  return { continuation: queryContinuation };
+  return {
+    continuation: queryContinuation,
+    abortedForSilence,
+    abortedAfterClean: abortedForSilence && sawResultThisTurn,
+  };
 }
 
 function handleEvent(event: ProviderEvent, _routing: RoutingContext): void {
@@ -583,7 +681,11 @@ function resolveDestinationThread(
          ORDER BY seq DESC LIMIT 1`,
       )
       .get(channelType, platformId) as { thread_id: string | null; id: string } | undefined;
-    if (row) return { threadId: row.thread_id, inReplyTo: row.id };
+    // Normalize empty-string thread_id to null. Ad-hoc scheduled `task` rows
+    // inserted with an unset thread_id (some bash scripts and host-side INSERTs
+    // write '' instead of NULL) would otherwise propagate the blank through
+    // every subsequent outbound and crash delivery downstream.
+    if (row) return { threadId: row.thread_id || null, inReplyTo: row.id };
   } catch (err) {
     log(`resolveDestinationThread error: ${err instanceof Error ? err.message : String(err)}`);
   }

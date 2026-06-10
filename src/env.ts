@@ -20,6 +20,9 @@ export function readEnvFile(keys: string[]): Record<string, string> {
 
   const result: Record<string, string> = {};
   const wanted = new Set(keys);
+  // Empty keys[] means "return everything" — useful for template substitution
+  // where the caller doesn't know the set of vars ahead of time.
+  const returnAll = keys.length === 0;
 
   for (const line of content.split('\n')) {
     const trimmed = line.trim();
@@ -27,7 +30,7 @@ export function readEnvFile(keys: string[]): Record<string, string> {
     const eqIdx = trimmed.indexOf('=');
     if (eqIdx === -1) continue;
     const key = trimmed.slice(0, eqIdx).trim();
-    if (!wanted.has(key)) continue;
+    if (!returnAll && !wanted.has(key)) continue;
     let value = trimmed.slice(eqIdx + 1).trim();
     if (
       value.length >= 2 &&

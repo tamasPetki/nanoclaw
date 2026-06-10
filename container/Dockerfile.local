@@ -1,0 +1,174 @@
+# syntax=docker/dockerfile:1.7
+# NanoClaw Downstream Extensions
+# ─────────────────────────────────────────────────────────────────────────────
+# Layered on top of the upstream-built base image. Keeping all downstream
+# customizations in this file means the upstream `container/Dockerfile` stays
+# pristine and never conflicts on merge.
+#
+# Sourced by `container/build.sh` after the base image is built. If this file
+# is removed, `build.sh` skips the second stage and the base becomes the
+# final `:latest`.
+#
+# Contents are install-specific:
+#   - apt extras (xvfb, fluxbox, jq, poppler) for stealth-browse + pdf tools
+#   - Python venv with telethon, yt-dlp, etc. (used by skills + MCPs)
+#   - utility scripts under /opt/scripts (telegram-read.py, pdf-filler.cjs, …)
+#   - pdf-lib + /usr/local/bin/pdf-filler wrapper
+#   - per-host MCP servers (quick, todoist, withings)
+#   - skill binaries (stealth-browse, pdf-reader)
+# ─────────────────────────────────────────────────────────────────────────────
+
+ARG BASE_IMAGE
+FROM ${BASE_IMAGE}
+
+USER root
+
+# ---- Extra apt packages for downstream skills / MCPs ------------------------
+# xvfb + dbus-x11 + fluxbox + x11-utils: headed Chrome via stealth-browse
+# python3-venv/pip: Python-based MCP servers (todoist, withings)
+# jq: skill scripting
+# poppler-utils: pdftotext (used by pdf-reader skill)
+# fonts-dejavu: DejaVu Sans for Unicode-safe PDF fills (Hungarian ő/ű
+#   silently break with default Helvetica — see pdf-filler SKILL.md Step E).
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    apt-get update && apt-get install -y --no-install-recommends \
+        xvfb \
+        dbus-x11 \
+        fluxbox \
+        x11-utils \
+        python3-venv \
+        python3-pip \
+        jq \
+        poppler-utils \
+        fonts-dejavu \
+        libreoffice-writer \
+        pandoc \
+        tesseract-ocr \
+        tesseract-ocr-hun \
+        tesseract-ocr-eng \
+        ffmpeg \
+        p7zip-full \
+        unrar-free \
+        yq \
+        httpie \
+        default-jre-headless \
+    && rm -rf /var/lib/apt/lists/*
+
+# ---- mnemon — persistent agent memory ---------------------------------------
+# Graph-based memory (temporal/entity/causal/semantic). `mnemon setup` in
+# entrypoint.sh registers Claude Code hooks per session-start. Data persists
+# in MNEMON_DATA_DIR which sits inside the per-agent-group `.claude-shared`
+# host mount (already wired at /home/node/.claude).
+ARG MNEMON_VERSION=0.1.3
+RUN ARCH=$(dpkg --print-architecture) && \
+    curl -fsSL "https://github.com/mnemon-dev/mnemon/releases/download/v${MNEMON_VERSION}/mnemon_${MNEMON_VERSION}_linux_${ARCH}.tar.gz" \
+    | tar -xz -C /usr/local/bin mnemon && \
+    chmod +x /usr/local/bin/mnemon
+
+ENV MNEMON_DATA_DIR=/home/node/.claude/mnemon
+
+# ---- uv + Python venv -------------------------------------------------------
+# uv/uvx for mcp-email-server and similar publicly-installed Python MCPs
+RUN curl -LsSf https://astral.sh/uv/install.sh | env UV_INSTALL_DIR=/usr/local/bin sh
+
+# Python venv at /opt/pyenv with deps used by skills + MCPs
+# - telethon: Telegram read
+# - youtube-transcript-api: YT skill
+# - yt-dlp: media skill
+# - mcp-email-server: pre-installed (was uvx, but uvx first-call is racy in
+#   container init — caused intermittent "MCP disconnected" aborts during
+#   spawn). Pre-installing eliminates the spawn-time PyPI fetch+resolve.
+# - openpyxl: hub agent project-tracker workflow (Görgey32 ütemterv xlsx
+#   read/write via Drive API + openpyxl). Without it the hub falls back to
+#   creating new docs (the 2026-05-11 incident) or pip-install-on-spawn that
+#   fails behind the OneCLI MITM proxy (no Python CA-cert trust).
+# - pymupdf (fitz): PDF rendering + form extraction + Unicode-safe overlay
+#   (pdf-filler skill Step A/B/E/F). Without it the hub falls back to
+#   `pip install pymupdf` mid-task, which hits the same MITM-proxy CA-trust
+#   problem as openpyxl did. Preinstalling closes the 2026-05-14 PDF-fill
+#   incident (wrong-coordinate overlay because skill workflow was skipped).
+# - pdfplumber: alternative PDF text extraction with table-aware parsing
+#   (complements PyMuPDF dict-mode for complex layouts).
+# - Pillow: image manipulation (used by pdf-filler render-and-verify loop).
+# - python-docx: .docx field manipulation (open source Document, replace
+#   placeholder cells with values, layout preserved). Combined with the
+#   libreoffice-writer apt package above, this closes the .doc/.docx
+#   fill loop — soffice converts .doc → .docx, python-docx edits in place.
+# - olefile: OLE compound binary inspection (raw .doc structure when needed).
+RUN python3 -m venv /opt/pyenv && \
+    /opt/pyenv/bin/pip install --no-cache-dir \
+        telethon youtube-transcript-api requests yt-dlp mcp-email-server \
+        openpyxl pymupdf pdfplumber Pillow python-docx olefile \
+        python-pptx mammoth xlrd \
+        pytesseract opencv-python reportlab beautifulsoup4 \
+        pillow-heif tabula-py csvkit
+ENV PATH="/opt/pyenv/bin:$PATH"
+
+# ---- Utility scripts --------------------------------------------------------
+# telegram-read.py, telegram-auth.py, youtube-transcript.py, pdf-filler.cjs
+COPY _scripts/ /opt/scripts/
+RUN chmod +x /opt/scripts/*.py 2>/dev/null || true
+
+# ---- pdf-lib + pdf-filler wrapper -------------------------------------------
+RUN --mount=type=cache,target=/root/.cache/pnpm \
+    pnpm install -g "pdf-lib@1.17.1"
+
+# pdf-filler wrapper — CJS script at /opt/scripts/pdf-filler.cjs uses pdf-lib
+# via NODE_PATH pointing at pnpm global root.
+RUN printf '#!/bin/bash\nNODE_PATH=%s node /opt/scripts/pdf-filler.cjs "$@"\n' "$(pnpm root -g)" > /usr/local/bin/pdf-filler && \
+    chmod +x /usr/local/bin/pdf-filler
+
+# cdp-cookies-dump wrapper — dumps ALL cookies (httpOnly inclusive) from the
+# active stealth-browse session via CDP Network.getAllCookies. Used by the
+# rezerver Reddit warmup playbook step 9 to refresh the persisted cookie file.
+# Native WebSocket (Node 22+ built-in), no chrome-remote-interface npm dep.
+RUN printf '#!/bin/bash\nexec node /opt/scripts/cdp-cookies.js "$@"\n' > /usr/local/bin/cdp-cookies-dump && \
+    chmod +x /usr/local/bin/cdp-cookies-dump /opt/scripts/cdp-cookies.js
+
+# ---- MCP servers (per-group container.json picks which to use) --------------
+# Custom-code MCPs only — published MCPs (mcp-email-server, google-calendar,
+# youtube-transcript) install on first use via uvx/npx.
+COPY mcp-servers/ /opt/mcp-servers/
+
+# Quick (riport.app) — Node MCP
+RUN cd /opt/mcp-servers/quick && npm install --production --no-audit --no-fund 2>&1 | tail -20
+
+# TickTick — Python MCP (replaces Todoist). mcp-ticktick needs Python >=3.12 but the
+# base image ships 3.11, so build the venv on a uv-managed 3.12. The managed interpreter
+# goes to /opt/uv-python (world-readable) so the non-root `node` user (UID 1000) can exec
+# it at runtime — uv's default install dir is under /root and unreadable to UID 1000.
+# Pinned version — bump via scripts/update-ticktick-mcp.sh, then rebuild.
+RUN cd /opt/mcp-servers/ticktick && \
+    export UV_PYTHON_INSTALL_DIR=/opt/uv-python && \
+    uv python install 3.12 && \
+    uv venv --python 3.12 .venv && \
+    VIRTUAL_ENV=/opt/mcp-servers/ticktick/.venv uv pip install --no-cache-dir mcp-ticktick==0.1.2 && \
+    chmod -R a+rX /opt/uv-python /opt/mcp-servers/ticktick/.venv
+
+# Withings — Python MCP (editable install)
+RUN cd /opt/mcp-servers/withings && \
+    python3 -m venv .venv && \
+    .venv/bin/pip install --no-cache-dir -e .
+
+# Precache uvx mcp-email-server — first-call download avoided at runtime.
+RUN uvx mcp-email-server@latest --help 2>/dev/null || true
+
+# ---- Pre-cache npx MCPs as the node user so cold-start race goes away ------
+# Each spawn would otherwise pull these from npm on first invocation. With the
+# cache primed at /home/node/.npm/_npx, container start is instant and the
+# SDK doesn't see "MCP server not responding" during the initial poll.
+USER node
+RUN npx -y @cocal/google-calendar-mcp --help >/dev/null 2>&1 || true; \
+    npx -y @piotr-agier/google-drive-mcp --help >/dev/null 2>&1 || true; \
+    npx -y @kimtaeyoon83/mcp-server-youtube-transcript --help >/dev/null 2>&1 || true
+USER root
+
+# ---- Skill binaries (PATH-installed) ----------------------------------------
+COPY skills/stealth-browser/stealth-browse /usr/local/bin/stealth-browse
+COPY skills/pdf-reader/pdf-reader /usr/local/bin/pdf-reader
+RUN chmod +x /usr/local/bin/stealth-browse /usr/local/bin/pdf-reader
+
+# Restore non-root user from base. Base sets ENTRYPOINT + WORKDIR — inherited.
+USER node
+WORKDIR /workspace/group

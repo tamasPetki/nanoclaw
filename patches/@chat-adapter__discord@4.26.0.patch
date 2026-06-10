@@ -1,0 +1,22 @@
+diff --git a/dist/index.js b/dist/index.js
+index 8b490cf67e4d4dcec82404a27ef364f440c617b6..124dbebcc063096c0e7f8459f7d1350a02ae35a6 100644
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -247,7 +247,7 @@ var DiscordFormatConverter = class extends BaseFormatConverter {
+    * @name → <@name>
+    */
+   convertMentionsToDiscord(text) {
+-    return text.replace(/@(\w+)/g, "<@$1>");
++    return text.replace(/(^|[^\w.])@(\w+)/g, "$1<@$2>");
+   }
+   /**
+    * Override renderPostable to convert @mentions in plain strings.
+@@ -293,7 +293,7 @@ var DiscordFormatConverter = class extends BaseFormatConverter {
+       return getNodeChildren(node).map((child) => this.nodeToDiscordMarkdown(child)).join("");
+     }
+     if (isTextNode(node)) {
+-      return node.value.replace(/@(\w+)/g, "<@$1>");
++      return node.value.replace(/(^|[^\w.])@(\w+)/g, "$1<@$2>");
+     }
+     if (isStrongNode(node)) {
+       const content = getNodeChildren(node).map((child) => this.nodeToDiscordMarkdown(child)).join("");
