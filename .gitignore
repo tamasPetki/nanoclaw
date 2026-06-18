@@ -11,22 +11,44 @@ store/
 data/
 logs/
 
-# Groups - per-installation state, not tracked
-groups/*
+# Groups — track content (CLAUDE.local.md, container.json, strategy.md, etc.)
+# but exclude secrets, tokens, sessions, runtime state.
+groups/*/.secrets
+groups/*/.secrets.*
+groups/*/.withings/
+groups/*/.mcp-auth/
+groups/*/.claude-auth/
+groups/*/logs/
+groups/*/*-session.json
+groups/*/tg-web-session.json
+groups/*/tokens.json
+groups/*/credentials.json
+groups/*/*.keys.json
 
-# Composer-managed CLAUDE.md artifacts (regenerated every spawn) and
-# per-group memory (CLAUDE.local.md) must never be committed.
-**/CLAUDE.local.md
+# Composer-managed artifacts — regenerated on every container spawn from the
+# shared base + fragments. Per-group customization lives in CLAUDE.local.md
+# (which we DO track) and in container.json fragments.
+groups/*/CLAUDE.md
+groups/*/.claude-shared.md
+groups/*/.claude-fragments/
+# Repo-wide forms (folded in from upstream) — catch these regenerated artifacts
+# anywhere, including nested agent-managed repos. NOTE: upstream also ignores
+# `**/CLAUDE.local.md` and `groups/*`; we intentionally do NOT fold those in,
+# because we deliberately track per-group CLAUDE.local.md and groups/global.
 **/.claude-shared.md
 **/.claude-fragments/
 
-# Secrets
+# Secrets (repo-wide)
 *.keys.json
 .env
 .env*
 
+# Deployment-specific (machine-local state)
+.discord-structure.json
+
 # Temp files
 .tmp-*
+tmp/
 
 # OS
 .DS_Store
@@ -46,3 +68,80 @@ AGENTS.md
 docs/maintainer-guide.md
 docs/drafts/
 forks.md
+
+# Ad-hoc v1 backups kept locally
+tmp-crontab-v1-backup.txt
+
+# Python build artifacts
+*.egg-info/
+__pycache__/
+*.pyc
+.venv/
+
+# Per-account session cookies (Reddit, FB, etc) — never commit
+groups/*/.reddit-cookies-*.json
+groups/*/.fb-cookies-*.json
+groups/*/.*-cookies-*.json
+groups/*/*-cookies.json
+
+# Embedded clones of agent-managed external repos (have their own git + node_modules)
+groups/*/headlesstracker/repo/
+
+# Vendored Python libs mounted into containers (not source)
+groups/*/pylibs/
+
+# Sensitive personal/legal documents — keep out of git
+groups/pietscarlet/*.docx
+
+# Session-i state-backup fájlok (DB pre-edit copies, .secrets pre-edit copies)
+*.bak-*
+*.bak-pre-*
+
+# Rezerver CRM host-generated export snapshot (runtime data)
+.crm-export/
+
+# Agent runtime data — logs + state, frequently secret-laden; never version these.
+# (Removed from history 2026-06-04; the files stay on disk, agents keep using them.)
+**/conversations/
+**/*state.json
+**/.secrets
+
+# Per-install agent-group workspaces — pure runtime state (wiki, logs, memory,
+# screenshots, inbox docs). Backed up nightly by scripts/backup-groups.sh, NOT
+# versioned in the code repo. Durable fix for the fork-hygiene problem (see
+# feedback_fork_hygiene_runtime_state_in_code): runtime state in the code fork
+# caused secrets-in-history → filter-repo → broken merge-base. groups/global
+# stays tracked (upstream scaffold). New runtime groups → add the dir here.
+groups/hub/
+groups/radar/
+groups/stokes/
+groups/tracker/
+groups/worker/
+
+# Radar service runtime — host-written snapshots + agent inbox (not versioned)
+groups/radar/.radar-export/
+groups/radar/inbox/
+# Cookie backups (.prev / .bak of the already-ignored cookie jars)
+groups/*/.*-cookies-*.json.*
+
+# Upstream scaffold "main" group — composer-managed at runtime on this install (churns)
+groups/main/
+
+# Intel DB = runtime data the growth agent rewrites every run (binary churn).
+# The CLI + schema (intel.ts/migrations.ts) ARE tracked; the .db is data → backup-cron, not git.
+groups/*/intel/intel.db
+groups/*/intel/intel.db-*
+
+# Work-tracker DB = Axiom's runtime task store (same pattern as intel.db above).
+# The CLI + schema (work.ts/migrations.ts) ARE tracked; the .db is data → backup-cron, not git.
+groups/*/work/work.db
+groups/*/work/work.db-*
+
+# Axiom incubator PROJECT layer — per-project, swapped/archived on switch-project and
+# backed up nightly by backup-groups.sh. The CORE (CLAUDE.local.md, METHODOLOGY.md,
+# LEARNINGS.md, .claude/, project.md, work|intel CLIs) stays tracked; product/ holds
+# the design deliverables + built repo + screenshots = runtime PROJECT state, not fork code.
+groups/shift-lead/product/
+# PietScarlet pilot company data — CONFIDENTIAL, never version (see CLAUDE.local.md).
+groups/shift-lead/company-pietscarlet.md
+groups/shift-lead/*.png

@@ -48,7 +48,10 @@ export async function dispatch(req: RequestFrame, ctx: CallerContext): Promise<R
     }
 
     if (cliScope === 'group') {
-      const allowed = new Set(['groups', 'sessions', 'destinations', 'members']);
+      // `rezerver` is the worker's CRM domain — whitelisted so it can be reached
+      // under group scope, but each rezerver handler guards to the worker agent
+      // group (see src/cli/resources/rezerver.ts), so no other group can touch it.
+      const allowed = new Set(['groups', 'sessions', 'destinations', 'members', 'rezerver']);
       // Only allow whitelisted resources and general commands (no resource, like help)
       if (cmd.resource && !allowed.has(cmd.resource)) {
         return err(req.id, 'forbidden', `CLI access is scoped to this agent group. Cannot access "${cmd.resource}".`);

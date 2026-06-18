@@ -1,0 +1,14 @@
+{
+  "mcpServers": {},
+  "packages": {
+    "apt": [],
+    "npm": []
+  },
+  "additionalMounts": [],
+  "skills": "all",
+  "groupName": "Drift",
+  "assistantName": "Drift",
+  "agentGroupId": "ag-shift-growth",
+  "model": "claude-opus-4-8[1m]",
+  "effort": "xhigh"
+}

@@ -15,6 +15,11 @@ import {
   LinkButton,
   type CardChild,
   type Adapter,
+  type ActionsElement,
+  type ButtonElement,
+  type LinkButtonElement,
+  type SelectElement,
+  type RadioSelectElement,
   type ConcurrencyStrategy,
   type Message as ChatMessage,
 } from 'chat';
@@ -83,6 +88,24 @@ export interface ChatSdkBridgeConfig {
    * and reactions still target the head of the reply.
    */
   maxTextLength?: number;
+  /**
+   * If true, outbound text is sent to the adapter as `{ raw: text }` instead
+   * of `{ markdown: text }`. Use this when the agent already emits strings in
+   * the platform's native format and the adapter's Markdown → AST → platform
+   * round-trip corrupts them. Concrete case: `@chat-adapter/discord` parses
+   * `<https://…>` autolinks into link nodes and renders them back as
+   * `[url](url)`, double-wrapping every suppress-embed link the agent writes.
+   */
+  sendAsRaw?: boolean;
+  /**
+   * Override for the channel-type / adapter name. When a second instance of an
+   * existing channel type is needed (e.g. two Telegram bots on the same host),
+   * the underlying chat-sdk adapter exposes a hardcoded `name` ('telegram'),
+   * which would collide in the `activeAdapters` registry. Set this to a unique
+   * identifier per registration (e.g. 'telegram-stokes') and it replaces both
+   * `name` and `channelType` on the resulting ChannelAdapter.
+   */
+  channelType?: string;
 }
 
 /**
@@ -110,6 +133,32 @@ function resolveSelectedOption(
     if (render.options[idx]) return render.options[idx].value;
   }
   return candidate;
+}
+
+/**
+ * Layout the button list into one or more `Actions(...)` blocks. Telegram's
+ * inline-keyboard adapter renders one `Actions(...)` block as a single row,
+ * so multiple rows = multiple `Actions(...)` blocks.
+ *
+ * `auto` (default): vertical (one button per row) when there are 3+ buttons
+ * or any label is longer than ~12 chars; otherwise horizontal (one row).
+ * `vertical` / `horizontal` overrides force the layout. The threshold is
+ * tuned for Telegram's narrow mobile button width — wider labels truncate
+ * mid-word and Tomi can't read what he's clicking.
+ */
+type ButtonLike = ButtonElement | LinkButtonElement | SelectElement | RadioSelectElement;
+
+function buildButtonRows(
+  buttons: ButtonLike[],
+  labels: string[],
+  layout?: 'vertical' | 'horizontal' | 'auto',
+): ActionsElement[] {
+  if (buttons.length === 0) return [];
+  const explicit = layout === 'vertical' || layout === 'horizontal' ? layout : undefined;
+  const longest = labels.reduce((m, l) => Math.max(m, (l ?? '').length), 0);
+  const useVertical = explicit === 'vertical' || (!explicit && (buttons.length >= 3 || longest > 12));
+  if (useVertical) return buttons.map((btn) => Actions([btn]));
+  return [Actions(buttons)];
 }
 
 export function splitForLimit(text: string, limit: number): string[] {
@@ -144,6 +193,48 @@ export function createChatSdkBridge(config: ChatSdkBridgeConfig): ChannelAdapter
     );
   }
   const transformText = (t: string): string => (config.transformOutboundText ? config.transformOutboundText(t) : t);
+  // When sendAsRaw is set, deliver text as `{ raw }` so the adapter skips its
+  // Markdown → AST → platform round-trip (which corrupts `<url>` autolinks on
+  // Discord). Otherwise deliver as `{ markdown }` as before.
+  const textPayload = (t: string): { raw: string } | { markdown: string } =>
+    config.sendAsRaw ? { raw: t } : { markdown: t };
+
+  // Markdown delivery with a plain-text fallback. Some adapters (Telegram, via
+  // @chat-adapter/telegram) apply parse_mode=Markdown whenever the payload
+  // carries a `markdown` field, and reject the entire message when that
+  // markdown is malformed — unbalanced `*`/`_`, an unterminated inline code
+  // span, or a broken `[link](url)`. The downstream sanitizer balances most
+  // delimiters but can't cover every legacy-parser edge case, so delivery.ts
+  // then exhausts its 3 retries on the same payload and drops the message
+  // permanently ("can't parse entities … giving up"). On a parse error, resend
+  // the same body as `{ raw }`: the adapter emits no parse_mode for raw
+  // payloads, so the text always lands. Formatting is lost only on the rare
+  // malformed turn — strictly better than silent loss. Non-markdown payloads
+  // (cards, files-only) and unrelated errors fall through to the original throw.
+  const postMaybeRaw = async <T>(
+    tid: string,
+    payload: T & ({ markdown: string } | { raw: string } | Record<string, unknown>),
+  ): Promise<{ id?: string } | undefined> => {
+    try {
+      return (await adapter.postMessage(tid, payload as never)) as { id?: string } | undefined;
+    } catch (err) {
+      const reason = err instanceof Error ? err.message : String(err);
+      if (
+        payload &&
+        typeof payload === 'object' &&
+        'markdown' in payload &&
+        /parse entities|parse_mode|can't find end of/i.test(reason)
+      ) {
+        const { markdown, ...rest } = payload as { markdown: string } & Record<string, unknown>;
+        log.warn('Markdown delivery rejected by adapter, retrying as raw text', {
+          adapter: adapter.name,
+          reason,
+        });
+        return (await adapter.postMessage(tid, { ...rest, raw: markdown } as never)) as { id?: string } | undefined;
+      }
+      throw err;
+    }
+  };
   let chat: Chat;
   let state: SqliteStateAdapter;
   let setupConfig: ChannelSetup;
@@ -214,10 +305,11 @@ export function createChatSdkBridge(config: ChatSdkBridgeConfig): ChannelAdapter
     };
   }
 
+  const effectiveChannelType = config.channelType ?? adapter.name;
   const bridge: ChannelAdapter = {
-    name: config.instance ?? adapter.name,
-    channelType: adapter.name, // unchanged — semantic platform key
-    instance: config.instance, // undefined ⇒ default instance
+    name: config.instance ?? effectiveChannelType,
+    channelType: effectiveChannelType,
+    instance: config.instance, // undefined ⇒ default instance (= channelType via migration 016 backfill)
 
     supportsThreads: config.supportsThreads,
 
@@ -294,38 +386,92 @@ export function createChatSdkBridge(config: ChatSdkBridgeConfig): ChannelAdapter
         await setupConfig.onInbound(channelId, thread.id, await messageToInbound(message, false, true));
       });
 
-      // Handle button clicks (ask_user_question)
+      // Handle button clicks (ask_user_question + send_card)
       chat.onAction(async (event) => {
-        if (!event.actionId.startsWith('ncq:')) return;
-        const parts = event.actionId.split(':');
-        if (parts.length < 3) return;
-        const questionId = parts[1];
-        const tail = parts.slice(2).join(':');
-        const userId = event.user?.userId || '';
+        // ask_user_question: pending_questions row drives the response flow
+        if (event.actionId.startsWith('ncq:')) {
+          const parts = event.actionId.split(':');
+          if (parts.length < 3) return;
+          const questionId = parts[1];
+          const tail = parts.slice(2).join(':');
+          const userId = event.user?.userId || '';
 
-        // Resolve render metadata BEFORE dispatching onAction (which deletes the row).
-        const render = getAskQuestionRender(questionId);
-        // New format: button id/value is an integer index into options (kept
-        // short to fit Telegram's 64-byte callback_data cap). Old format:
-        // the full value is embedded in actionId/value directly.
-        const selectedOption = resolveSelectedOption(render, event.value, tail);
-        const title = render?.title ?? '❓ Question';
-        const matched = render?.options.find((o) => o.value === selectedOption);
-        const selectedLabel = matched?.selectedLabel ?? selectedOption ?? '(clicked)';
+          // Resolve render metadata BEFORE dispatching onAction (which deletes the row).
+          const render = getAskQuestionRender(questionId);
+          // New format: button id/value is an integer index into options (kept
+          // short to fit Telegram's 64-byte callback_data cap). Old format:
+          // the full value is embedded in actionId/value directly.
+          const selectedOption = resolveSelectedOption(render, event.value, tail);
+          const title = render?.title ?? '❓ Question';
+          const matched = render?.options.find((o) => o.value === selectedOption);
+          const selectedLabel = matched?.selectedLabel ?? selectedOption ?? '(clicked)';
 
-        // Update the card to show the selected answer, who acted, and remove buttons
-        const actorName = event.user?.userName || event.user?.fullName || '';
-        const byLine = actorName ? ` — ${actorName}` : '';
-        try {
-          const tid = event.threadId;
-          await adapter.editMessage(tid, event.messageId, {
-            markdown: `${title}\n\n${selectedLabel}${byLine}`,
-          });
-        } catch (err) {
-          log.warn('Failed to update card after action', { err });
+          // Update the card to show the selected answer, who acted, and remove buttons
+          const actorName = event.user?.userName || event.user?.fullName || '';
+          const byLine = actorName ? ` — ${actorName}` : '';
+          try {
+            const tid = event.threadId;
+            await adapter.editMessage(tid, event.messageId, {
+              markdown: `${title}\n\n${selectedLabel}${byLine}`,
+            });
+          } catch (err) {
+            log.warn('Failed to update card after action', { err });
+          }
+
+          setupConfig.onAction(questionId, selectedOption, userId);
+          return;
         }
 
-        setupConfig.onAction(questionId, selectedOption, userId);
+        // send_card with `actions: [{label, value}]`: there is no pending
+        // question state on the host side, so the click is routed back into
+        // the session as a synthetic inbound text message. The agent that
+        // emitted the card sees the value as the user's reply and can act on
+        // it (the prior turn — including the card payload — is still in its
+        // context window). Without this branch every nccard click was a
+        // silent no-op.
+        if (event.actionId.startsWith('nccard:')) {
+          const tid = event.threadId;
+          const userId = event.user?.userId || '';
+          const buttonValue = event.value || '';
+          if (!buttonValue) {
+            log.warn('nccard click missing value', { actionId: event.actionId });
+            return;
+          }
+
+          // Best-effort: replace card with an acknowledgement so the buttons
+          // disappear and the user gets visual feedback their click landed.
+          try {
+            await adapter.editMessage(tid, event.messageId, {
+              markdown: `_↳ ${buttonValue}_`,
+            });
+          } catch (err) {
+            log.warn('Failed to update nccard after action', { err });
+          }
+
+          const channelId = adapter.channelIdFromThreadId(tid);
+          const senderName = event.user?.fullName || event.user?.userName || userId;
+          const synthId = `nccard-action-${Date.now()}`;
+          const syntheticInbound: InboundMessage = {
+            id: synthId,
+            kind: 'chat-sdk',
+            content: {
+              id: synthId,
+              text: buttonValue,
+              senderId: userId,
+              sender: senderName,
+              senderName,
+            },
+            timestamp: new Date().toISOString(),
+            isMention: true,
+            isGroup: false,
+          };
+          try {
+            await setupConfig.onInbound(channelId, tid, syntheticInbound);
+          } catch (err) {
+            log.error('Failed to route nccard click as inbound', { err });
+          }
+          return;
+        }
       });
 
       await chat.initialize();
@@ -402,14 +548,20 @@ export function createChatSdkBridge(config: ChatSdkBridgeConfig): ChannelAdapter
 
     async deliver(platformId: string, threadId: string | null, message): Promise<string | undefined> {
       // platformId is already in the adapter's encoded format (e.g. "telegram:6037840640",
-      // "discord:guildId:channelId") — use it directly as the thread ID
-      const tid = threadId ?? platformId;
+      // "discord:guildId:channelId") — use it directly as the thread ID.
+      // `||` (not `??`) on purpose: upstream rows can carry thread_id='' (empty
+      // string) when a scheduling INSERT or poll-loop inheritance writes blanks
+      // instead of NULL — nullish-coalescing would pass that empty through and
+      // crash the platform adapter with "chat_id is empty".
+      const tid = threadId || platformId;
       const content = message.content as Record<string, unknown>;
 
       if (content.operation === 'edit' && content.messageId) {
-        await adapter.editMessage(tid, content.messageId as string, {
-          markdown: transformText((content.text as string) || (content.markdown as string) || ''),
-        });
+        await adapter.editMessage(
+          tid,
+          content.messageId as string,
+          textPayload(transformText((content.text as string) || (content.markdown as string) || '')),
+        );
         return;
       }
 
@@ -421,28 +573,32 @@ export function createChatSdkBridge(config: ChatSdkBridgeConfig): ChannelAdapter
       // Ask question card — render as Card with buttons
       if (content.type === 'ask_question' && content.questionId && content.options) {
         const questionId = content.questionId as string;
-        const title = content.title as string;
-        const question = content.question as string;
-        if (!title) {
+        const titleRaw = content.title as string;
+        const questionRaw = content.question as string;
+        if (!titleRaw) {
           log.error('ask_question missing required title — skipping delivery', { questionId });
           return;
         }
+        const title = transformText(titleRaw);
+        const question = transformText(questionRaw);
         const options: NormalizedOption[] = normalizeOptions(content.options as never);
+        // Encode button id/value with the option index rather than the full
+        // value. Telegram caps callback_data at 64 bytes, and long values
+        // (e.g. ISO datetimes, URLs) push the JSON payload well past that.
+        // The onAction handlers resolve the index back to the real value via
+        // getAskQuestionRender(questionId).
+        const askButtons = options.map((opt, idx) =>
+          Button({ id: `ncq:${questionId}:${idx}`, label: opt.label, value: String(idx) }),
+        );
+        const askLayout = (content.layout as 'vertical' | 'horizontal' | 'auto' | undefined) ?? 'auto';
+        const askRows = buildButtonRows(
+          askButtons,
+          options.map((o) => o.label),
+          askLayout,
+        );
         const card = Card({
           title,
-          children: [
-            CardText(question),
-            Actions(
-              // Encode button id/value with the option index rather than the
-              // full value. Telegram caps callback_data at 64 bytes, and
-              // long values (e.g. ISO datetimes, URLs) push the JSON payload
-              // well past that. The onAction handlers resolve the index back
-              // to the real value via getAskQuestionRender(questionId).
-              options.map((opt, idx) =>
-                Button({ id: `ncq:${questionId}:${idx}`, label: opt.label, value: String(idx) }),
-              ),
-            ),
-          ],
+          children: [CardText(question), ...askRows],
         });
         const result = await adapter.postMessage(tid, {
           card,
@@ -451,56 +607,92 @@ export function createChatSdkBridge(config: ChatSdkBridgeConfig): ChannelAdapter
         return result?.id;
       }
 
-      // Display card (send_card MCP tool) — returns immediately, no callback flow.
-      // Non-URL actions are dropped: send_card's contract is fire-and-forget, so a
-      // callback button would have nowhere to land. URL actions render as link buttons.
-      if (content.type === 'card' && content.card && typeof content.card === 'object') {
-        const cardSpec = content.card as Record<string, unknown>;
-        const title = (cardSpec.title as string) || '';
-        const fallbackText = (content.fallbackText as string) || (cardSpec.description as string) || title || '';
+      // Display-only card (send_card tool — non-blocking, no buttons required).
+      // Unlike ask_question there is no host-side pending state: `actions` with
+      // a `value` render as callback buttons whose clicks are routed back into
+      // the session as a synthetic inbound message (see the nccard: branches in
+      // chat.onAction and handleForwardedEvent). `actions` with a `url` render
+      // as link buttons.
+      if (content.type === 'card' && content.card) {
+        const cardData = content.card as Record<string, unknown>;
+        const title = transformText((cardData.title as string) || '');
+        const description = transformText((cardData.description as string) || '');
+        const children: Array<ReturnType<typeof CardText | typeof Actions>> = [];
+        if (description) children.push(CardText(description));
 
-        const cardChildren: CardChild[] = [];
-        if (typeof cardSpec.description === 'string' && cardSpec.description) {
-          cardChildren.push(CardText(cardSpec.description));
-        }
-        if (Array.isArray(cardSpec.children)) {
-          for (const child of cardSpec.children) {
-            if (typeof child === 'string' && child) {
-              cardChildren.push(CardText(child));
-            } else if (
-              child &&
-              typeof child === 'object' &&
-              typeof (child as Record<string, unknown>).text === 'string'
-            ) {
-              cardChildren.push(CardText((child as Record<string, string>).text));
+        // Render structured children (sections/text). The agent emits a
+        // tree like: card.children = [{type:'section', title, children:[
+        //   {type:'text', text:'...'}]}]. We flatten this to a sequence of
+        // CardText elements: section title (bold, prefixed with ▸) + body.
+        // Without this, complex multi-section cards arrive at Telegram as
+        // just the top-level title+description and all the actual content
+        // is dropped silently.
+        const cardChildren = cardData.children as Array<Record<string, unknown>> | undefined;
+        if (Array.isArray(cardChildren)) {
+          // A render-output között automatikus üres sort szúrunk be a section-ök
+          // közé, hogy mindig tagolt legyen — Tomi 3× kérte, az LLM CLAUDE.md
+          // utasítást felülbírálta. Ez render-szintű biztosíték (a card-payload
+          // tartalmától független).
+          let firstNode = true;
+          for (const node of cardChildren) {
+            if (!node || typeof node !== 'object') continue;
+            const t = node.type as string | undefined;
+            // Üres sor a section-ök közé (de NEM az első előtt)
+            if (!firstNode && t === 'section') {
+              children.push(CardText(' ')); // non-breaking space → vizuális tagolás
             }
-          }
-        }
-        if (Array.isArray(cardSpec.actions)) {
-          const linkButtons = (cardSpec.actions as Array<Record<string, unknown>>)
-            .filter((a) => typeof a.url === 'string' && a.url && typeof a.label === 'string' && a.label)
-            .map((a) => {
-              const style = a.style;
-              const safeStyle: 'primary' | 'danger' | 'default' | undefined =
-                style === 'primary' || style === 'danger' || style === 'default' ? style : undefined;
-              return LinkButton({
-                label: a.label as string,
-                url: a.url as string,
-                style: safeStyle,
-              });
-            });
-          if (linkButtons.length > 0) {
-            cardChildren.push(Actions(linkButtons));
+            if (t === 'text' && typeof node.text === 'string') {
+              children.push(CardText(transformText(node.text)));
+            } else if (t === 'section') {
+              const secTitle = (node.title as string) || '';
+              if (secTitle) children.push(CardText(transformText(`*${secTitle}*`)));
+              const secChildren = node.children as Array<Record<string, unknown>> | undefined;
+              if (Array.isArray(secChildren)) {
+                for (const sub of secChildren) {
+                  if (sub?.type === 'text' && typeof sub.text === 'string') {
+                    children.push(CardText(transformText(sub.text)));
+                  }
+                }
+              }
+            }
+            firstNode = false;
           }
         }
 
-        if (cardChildren.length === 0 && !title) {
+        const actionsData = cardData.actions as Array<Record<string, unknown>> | undefined;
+        if (actionsData && actionsData.length > 0) {
+          // URL actions become LinkButtons (open the link — chat-sdk's
+          // ButtonElement has no `url` field, so passing one to Button() drops it
+          // silently). Label-only actions become interactive `nccard:` buttons
+          // whose clicks route back into the session (see the nccard: handler).
+          const cardButtons = actionsData.map((a, idx) =>
+            a.url
+              ? LinkButton({
+                  label: (a.label as string) || `Option ${idx + 1}`,
+                  url: a.url as string,
+                })
+              : Button({
+                  id: `nccard:${Date.now()}:${idx}`,
+                  label: (a.label as string) || `Option ${idx + 1}`,
+                  value: (a.value as string) || (a.label as string) || String(idx),
+                }),
+          );
+          const cardLayout = (cardData.layout as 'vertical' | 'horizontal' | 'auto' | undefined) ?? 'auto';
+          const cardRows = buildButtonRows(
+            cardButtons,
+            actionsData.map((a) => (a.label as string) || ''),
+            cardLayout,
+          );
+          children.push(...cardRows);
+        }
+        if (children.length === 0 && !title) {
           log.warn('send_card payload empty, skipping delivery');
           return;
         }
-
-        const card = Card({ title, children: cardChildren });
-        const result = await adapter.postMessage(tid, { card, fallbackText });
+        const card = Card({ title: title || 'ℹ️ Info', children: children as never });
+        const fallback =
+          (content.fallbackText as string) || [title, description].filter(Boolean).join('\n\n') || 'Card';
+        const result = await adapter.postMessage(tid, { card, fallbackText: fallback });
         return result?.id;
       }
 
@@ -514,7 +706,8 @@ export function createChatSdkBridge(config: ChatSdkBridgeConfig): ChannelAdapter
           filename: f.filename,
         }));
         // Split if over the adapter's max length. Files ride on the first
-        // chunk so the head of the reply still carries them.
+        // chunk so the head of the reply still carries them. Use textPayload
+        // so sendAsRaw bypasses adapter Markdown round-trips for chunks too.
         const chunks =
           config.maxTextLength && text.length > config.maxTextLength
             ? splitForLimit(text, config.maxTextLength)
@@ -523,9 +716,9 @@ export function createChatSdkBridge(config: ChatSdkBridgeConfig): ChannelAdapter
         for (let i = 0; i < chunks.length; i++) {
           const chunk = chunks[i];
           const attachFiles = i === 0 && fileUploads && fileUploads.length > 0;
-          const result = await adapter.postMessage(
+          const result = await postMaybeRaw(
             tid,
-            attachFiles ? { markdown: chunk, files: fileUploads } : { markdown: chunk },
+            attachFiles ? { ...textPayload(chunk), files: fileUploads } : textPayload(chunk),
           );
           if (i === 0) firstId = result?.id;
         }
@@ -536,7 +729,7 @@ export function createChatSdkBridge(config: ChatSdkBridgeConfig): ChannelAdapter
           data: f.data,
           filename: f.filename,
         }));
-        const result = await adapter.postMessage(tid, { markdown: '', files: fileUploads });
+        const result = await adapter.postMessage(tid, { ...textPayload(''), files: fileUploads });
         return result?.id;
       }
     },
@@ -651,10 +844,19 @@ async function handleForwardedEvent(
       const interactionId = interaction.id as string;
       const interactionToken = interaction.token as string;
 
-      // Parse the selected option from custom_id
+      // ask_user_question (ncq:*) — pending_questions row drives the response.
+      // send_card (nccard:*) — no host state, click is routed back as synthetic
+      //   inbound so the agent that emitted the card can act on the value.
+      const isNcq = customId?.startsWith('ncq:');
+      const isNccard = customId?.startsWith('nccard:');
+
+      if (!isNcq && !isNccard) return;
+
+      // Parse the selected option from custom_id (ncq path only — nccard's
+      // value comes from interaction.data.values or the button label).
       let questionId: string | undefined;
       let tail: string | undefined;
-      if (customId?.startsWith('ncq:')) {
+      if (isNcq) {
         const colonIdx = customId.indexOf(':', 4); // after "ncq:"
         if (colonIdx !== -1) {
           questionId = customId.slice(4, colonIdx);
@@ -669,10 +871,16 @@ async function handleForwardedEvent(
       const render = questionId ? getAskQuestionRender(questionId) : undefined;
       // Discord custom_id mirrors the new index-based encoding (see Button
       // construction). Decode back to the real option value for downstream.
-      const selectedOption = resolveSelectedOption(render, tail, tail);
+      const selectedOption = isNcq ? resolveSelectedOption(render, tail, tail) : undefined;
       const cardTitle = render?.title ?? ((originalEmbeds[0]?.title as string) || '❓ Question');
       const matchedOpt = render?.options.find((o) => o.value === selectedOption);
-      const selectedLabel = matchedOpt?.selectedLabel ?? selectedOption ?? customId;
+      // For nccard the click value comes from the button's `value` mapped to
+      // interaction.data.custom_id tail (Discord stores the button's
+      // `custom_id` directly without a separate value field — the bridge
+      // encodes the index in the customId, so for now we fall back to the
+      // raw custom_id tail as the value).
+      const nccardValue = isNccard ? customId.split(':').slice(2).join(':') : '';
+      const selectedLabel = matchedOpt?.selectedLabel ?? selectedOption ?? nccardValue ?? customId;
       try {
         await fetch(`https://discord.com/api/v10/interactions/${interactionId}/${interactionToken}/callback`, {
           method: 'POST',
@@ -695,8 +903,34 @@ async function handleForwardedEvent(
       }
 
       // Dispatch to host
-      if (questionId && selectedOption) {
+      if (isNcq && questionId && selectedOption) {
         setupConfig.onAction(questionId, selectedOption, user?.id || '');
+      } else if (isNccard && nccardValue) {
+        // Route the button click as a synthetic inbound text message — same
+        // pattern as the Telegram chat.onAction nccard branch above.
+        const channelId = (interaction.channel_id as string) || '';
+        const userId = user?.id || '';
+        const senderName = (user?.global_name as string) || (user?.username as string) || userId;
+        const synthId = `nccard-action-${Date.now()}`;
+        const syntheticInbound: InboundMessage = {
+          id: synthId,
+          kind: 'chat-sdk',
+          content: {
+            id: synthId,
+            text: nccardValue,
+            senderId: userId,
+            sender: senderName,
+            senderName,
+          },
+          timestamp: new Date().toISOString(),
+          isMention: true,
+          isGroup: false,
+        };
+        try {
+          await setupConfig.onInbound(channelId, channelId, syntheticInbound);
+        } catch (err) {
+          log.error('Failed to route Discord nccard click as inbound', { err });
+        }
       }
       return;
     }

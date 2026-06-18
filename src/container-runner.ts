@@ -27,6 +27,7 @@ import { EGRESS_NETWORK, egressNetworkArgs, ensureEgressNetwork } from './egress
 import { composeGroupClaudeMd } from './claude-md-compose.js';
 import { getAgentGroup } from './db/agent-groups.js';
 import { getDb, hasTable } from './db/connection.js';
+import { readEnvFile } from './env.js';
 import { initGroupFilesystem } from './group-init.js';
 import { stopTypingRefresh } from './modules/typing/index.js';
 import { log } from './log.js';
@@ -445,6 +446,47 @@ async function buildContainerArgs(
     }
   }
 
+  // Model-aware auto-compact window. Upstream's Claude provider reads
+  // CLAUDE_CODE_AUTO_COMPACT_WINDOW from the env (default 165000). We raise it
+  // to 400000 ONLY for 1M-context model variants (e.g. `claude-opus-4-8[1m]`,
+  // the hub) so a heavy agent rarely compacts — compaction is slow and
+  // occasionally drops the turn's output. 200k-context groups must NOT get
+  // this (they'd blow past the API ceiling before compacting), so it's gated
+  // on the model id carrying a 1M marker rather than set globally in the host
+  // env. The operator env var still wins as a manual override.
+  if (containerConfig.model && /\[1m\]|1m/i.test(containerConfig.model)) {
+    args.push('-e', `CLAUDE_CODE_AUTO_COMPACT_WINDOW=${process.env.CLAUDE_CODE_AUTO_COMPACT_WINDOW || '400000'}`);
+  }
+
+  // Users allowed to run admin commands (e.g. /clear) inside this container.
+  // Computed at wake time: owners + global admins + admins scoped to this
+  // agent group. Role changes take effect on next container spawn.
+  //
+  // SQL inlined to keep core independent of the permissions module — we
+  // guard on the `user_roles` table directly. If the permissions module
+  // isn't installed, the table doesn't exist and the set stays empty; the
+  // formatter treats an empty admin set as permissionless mode (every
+  // sender is admin).
+  const adminUserIds = new Set<string>();
+  if (hasTable(getDb(), 'user_roles')) {
+    const db = getDb();
+    const owners = db
+      .prepare("SELECT user_id FROM user_roles WHERE role = 'owner' AND agent_group_id IS NULL")
+      .all() as Array<{ user_id: string }>;
+    const globalAdmins = db
+      .prepare("SELECT user_id FROM user_roles WHERE role = 'admin' AND agent_group_id IS NULL")
+      .all() as Array<{ user_id: string }>;
+    const scopedAdmins = db
+      .prepare("SELECT user_id FROM user_roles WHERE role = 'admin' AND agent_group_id = ?")
+      .all(agentGroup.id) as Array<{ user_id: string }>;
+    for (const r of owners) adminUserIds.add(r.user_id);
+    for (const r of globalAdmins) adminUserIds.add(r.user_id);
+    for (const r of scopedAdmins) adminUserIds.add(r.user_id);
+  }
+  if (adminUserIds.size > 0) {
+    args.push('-e', `NANOCLAW_ADMIN_USER_IDS=${Array.from(adminUserIds).join(',')}`);
+  }
+
   // Egress lockdown when enabled — throws if it can't be established, aborting
   // the spawn rather than running with open egress. Otherwise the host gateway.
   if (ensureEgressNetwork()) {
@@ -469,6 +511,27 @@ async function buildContainerArgs(
     } else {
       args.push('-v', `${mount.hostPath}:${mount.containerPath}`);
     }
+  }
+
+  // Pass additional MCP servers from container config (groups/<folder>/container.json).
+  // Template substitution on env values: ${VAR_NAME} → host .env value.
+  // Keeps secrets out of the JSON on disk; resolved at container-spawn time.
+  // The container's config.ts prefers NANOCLAW_MCP_SERVERS over the on-disk
+  // template, so the resolved (secret-filled) JSON wins there.
+  if (containerConfig.mcpServers && Object.keys(containerConfig.mcpServers).length > 0) {
+    const resolved: Record<string, { command: string; args?: string[]; env?: Record<string, string> }> = {};
+    const templateRe = /\$\{([A-Z_][A-Z0-9_]*)\}/g;
+    const hostEnv = readEnvFile([]);
+    for (const [name, cfg] of Object.entries(containerConfig.mcpServers)) {
+      const newEnv: Record<string, string> = {};
+      for (const [k, v] of Object.entries(cfg.env ?? {})) {
+        newEnv[k] = v.replace(templateRe, (_match, varName: string) => {
+          return hostEnv[varName] ?? process.env[varName] ?? '';
+        });
+      }
+      resolved[name] = { command: cfg.command, args: cfg.args, env: newEnv };
+    }
+    args.push('-e', `NANOCLAW_MCP_SERVERS=${JSON.stringify(resolved)}`);
   }
 
   // OneCLI gateway — injects HTTPS_PROXY + certs so container API calls
@@ -496,7 +559,14 @@ async function buildContainerArgs(
   const imageTag = containerConfig.imageTag || CONTAINER_IMAGE;
   args.push(imageTag);
 
-  args.push('-c', 'exec bun run /app/src/index.ts');
+  // Symlink any .mcp-auth mount from /workspace/extra/ to $HOME/.mcp-auth so
+  // mcp-remote finds its OAuth token cache. Additional-mount paths land under
+  // /workspace/extra/ (mount-security convention), but mcp-remote only looks in
+  // the HOME directory. Keep `exec bun ...` last so signals forward cleanly.
+  args.push(
+    '-c',
+    'if [ -d /workspace/extra/.mcp-auth ]; then ln -sfn /workspace/extra/.mcp-auth "$HOME/.mcp-auth"; fi; exec bun run /app/src/index.ts',
+  );
 
   return args;
 }

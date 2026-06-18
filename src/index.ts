@@ -171,6 +171,10 @@ async function main(): Promise<void> {
   // 7. Start the `ncl` CLI socket server (data/ncl.sock).
   await startCliServer();
 
+  // 8. Rezerver CRM runs as a standalone service now (separate repo at
+  //    /root/rezerver-crm + rezerver-crm.service). The worker reaches it via the
+  //    `ncl rezerver` thin proxy (src/cli/resources/rezerver.ts → POST /api/ncl).
+
   log.info('NanoClaw running');
 }
 

@@ -111,7 +111,8 @@ function buildDestinationsSection(): string {
     lines.push('You can send messages to the following destinations:', '');
     for (const d of all) {
       const label = d.displayName && d.displayName !== d.name ? ` (${d.displayName})` : '';
-      lines.push(`- \`${d.name}\`${label}`);
+      const kindNote = d.type === 'agent' ? ' — **agent** (another assistant)' : ' — **channel** (user-facing)';
+      lines.push(`- \`${d.name}\`${label}${kindNote}`);
     }
   }
   lines.push('');
@@ -126,5 +127,20 @@ function buildDestinationsSection(): string {
   lines.push(
     'The `send_message` MCP tool is the same delivery, available mid-turn — handy for a quick acknowledgment ("on it") before a slow tool call. Each `send_message` call and each final-response `<message>` block lands as its own message in the conversation, so they read as a sequence rather than as one combined reply.',
   );
+  lines.push('');
+  lines.push('### ⚠️ Critical communication rule (compaction-resistant — never forget this)');
+  lines.push('');
+  lines.push('Cross-agent messages and channel messages are routed by the **wrapper**, NOT by the text content.');
+  lines.push('');
+  lines.push('- `<message to="other-agent">...</message>` → reaches `other-agent`\'s inbox');
+  lines.push('- `mcp__nanoclaw__send_message({ to: "other-agent", text: "..." })` → reaches `other-agent`\'s inbox');
+  lines.push('- **Plain text without a wrapper → goes ONLY to your own user channel (the human)**');
+  lines.push('');
+  lines.push('**Hallucination warning:** If you write things like *"I told X"* / *"I asked X"* / *"I delegated to X"* in plain text,');
+  lines.push('it is logged in YOUR channel only — the named agent never receives anything. To genuinely contact another agent,');
+  lines.push('you MUST emit either a `<message to="...">` wrapper or a `send_message` MCP tool call. Reporting an action you did');
+  lines.push('not actually take is a hallucination — verify your last turn includes the wrapper/tool call before claiming you sent it.');
+  lines.push('');
+  lines.push('After context compaction, re-read this section and the destination list above before answering.');
   return lines.join('\n');
 }

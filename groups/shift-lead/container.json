@@ -1,0 +1,20 @@
+{
+  "mcpServers": {},
+  "packages": {
+    "apt": [],
+    "npm": []
+  },
+  "additionalMounts": [
+    {
+      "hostPath": "/root/data/gdrive-pietscarlet/04 - Ingatlanok/Vác - Görgey utca 32",
+      "containerPath": "gorgey32",
+      "readonly": true
+    }
+  ],
+  "skills": "all",
+  "groupName": "Axiom",
+  "assistantName": "Axiom",
+  "agentGroupId": "ag-shift-lead",
+  "model": "claude-opus-4-8[1m]",
+  "effort": "xhigh"
+}

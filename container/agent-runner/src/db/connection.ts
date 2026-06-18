@@ -132,6 +132,23 @@ export function setContainerToolInFlight(tool: string, declaredTimeoutMs: number
     .run(tool, declaredTimeoutMs, now, now);
 }
 
+/**
+ * Read the current in-flight tool, if any. Returns null when no tool is
+ * running (PostToolUse has cleared it). Used by the poll-loop's stream-
+ * silence watchdog to decide whether SDK silence reflects a stuck stream
+ * (no tool) vs. a long-running tool the agent is legitimately awaiting.
+ */
+export function getCurrentTool(): string | null {
+  try {
+    const row = getOutboundDb()
+      .prepare(`SELECT current_tool FROM container_state WHERE id = 1`)
+      .get() as { current_tool: string | null } | undefined;
+    return row?.current_tool ?? null;
+  } catch {
+    return null;
+  }
+}
+
 /** Clear the in-flight tool — called on PostToolUse / PostToolUseFailure. */
 export function clearContainerToolInFlight(): void {
   const now = new Date().toISOString();
