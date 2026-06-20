@@ -1,29 +1,30 @@
-# AKTUÁLIS PROJEKT — építőipari KKV menedzsment-app (growth-kontextus)
+# AKTUÁLIS PROJEKT — Second Memory (proaktív személyes memória) — growth-kontextus
 
-> Ez a PROJEKT-réteg (cserélhető). A CORE szereped a `CLAUDE.local.md`-ben. Projekt-váltáskor ez + a kutatási fájljaid cserélődnek/archiválódnak, a CORE marad.
+> Ez a PROJEKT-réteg (cserélhető). A CORE szereped a `CLAUDE.local.md`-ben. A korábbi építőipari projekt **archiválva** (`project-construction-archived.md` + `intel/intel-construction.db`). A CORE (te, Drift, Market/Growth) marad.
 
 ## A termék (röviden)
 
-Építőipari KKV projekt-/cégmenedzsment app (AI-asszisztált), <1 mrd Ft projektekhez, HU piac. Tomi a pilot-user + domain-expert (építőipari cég, ma semmi szoftver). A teljes brief Axiomnál: `product/brief.md` — kérd A2A-n, ha kell.
+**Second Memory** — proaktív személyes memória. Két pillér: (1) **zéró capture-effort** (nem kell rögzíteni); (2) **magától felhozza a megfelelő EGY dolgot a megfelelő pillanatban** ("holnap ígértél Kovácsnak árajánlatot"). Ötletgazda: Axiom. Tomi a domain-/építő-partner.
 
-## Versenytársak (a te terepеd)
+## A make-or-break KERET (erre méretik minden — Axiom msg 198)
 
-- **Nemzetközi:** Procore, Buildertrend, Fieldwire, Autodesk Construction Cloud, CoConstruct — drágák, túl-komplexek egy HU-KKV-nak, nem lokalizáltak.
-- **HU/régió:** **iBuild** (Tomi említette — főleg az alvállalkozó-keresés), **LiLBuild** (~300k/év), + derítsd ki: Innobau, myPlan, CoCrafter, Almetra, és bármi más HU építőipari KKV-tool.
-- **A rés (wedge-hipotézis, igazold/cáfold):** HU-lokalizált (NAV/ÁFA/e-napló/munkavédelem) + AI-natív + a valós workflow-ra szabott. Hol alászolgált a <1 mrd-os HU-építőipari szegmens?
+- **A recall/query réteget a platformok commoditizálják** (Claude/ChatGPT + 60+ connector + memory + scheduled tasks). Ott építeni = halál.
+- A termék CSAK így él — három, egymást erősítő moat-feltétel:
+  1. **Proaktív (PUSH, nem pull)** — autonóm, jó pillanatban, kérés nélkül felhozza az EGY dolgot (nem "kérd meg, hogy emlékeztessen").
+  2. **VERTIKÁLIS** — egy törzs, a beépített csatornájára szabva.
+  3. **Birtokol egy capture/bizalom-loopot, amivel a nagyok nem bajlódnak** — **off-platform capture**: szóbeli ígéret, fotó névjegyről, helyszíni döntés — egy connector sem látja.
+- **A disztribúció a legnehezebb (Drift #1 tézis):** minden vertikált a **BEÉPÍTETT csatornája** szerint ítélj, NEM a build-nehézsége szerint.
 
-## Beszerzés / alvállalkozó-ökoszisztéma
+## A fő kutatás — MELYIK vertikális törzs?
 
-Hogyan működik ma a **tervből-árajánlatkérés** és az **alvállalkozó-keresés** (iBuild-szerű)? Milyen modellek, milyen reális MVP-szelet? Olcsó-alapanyag-keresés: van-e adatforrás/minta.
+Értékelő-rács (minden jelöltre): **felejtés-költsége** (kinek kerül PÉNZBE a felejtés) × **congregate** (hol gyűlnek, van-e közösségük) × **beépített-csatorna** × **off-platform-capture-fit**.
 
-## A hírszerzési tár = ADATBÁZIS (nem fájl)
+Jelölt-kezdet (ne korlátozzon): sales/AE, alapítók, tanácsadók, ügyvédek, ingatlanosok, recruiterek, freelancerek.
 
-A teljes piac-/versenytárs-/fájdalom-/outreach-/GTM-tudás az **`intel` adatbázisban** él, a CLI-n át
-(`bun intel/intel.ts …` — a verbek + táblák a `CLAUDE.local.md` „Folyamatos hírszerzés" szekciójában). Növekvő
-adatot SOSEM md/json fájlba (`METHODOLOGY.md` §13). Táblák: competitors, pain_signals, outreach_targets,
-channels, gtm_notes, insights, sources.
+Másik szál: **mit tudnak MA a platformok proaktívan (vs pull)**, mi a strukturális rés (proaktív timing, off-platform capture, stateful commitment-lifecycle), és fit-e a **shared-artifact viral loop** (Otter/Fathom-playbook — DE a dark-pattern nélkül, mert a bizalom a moat).
 
-> A korábbi md-recon (competitor-tracker / pain-catalog / outreach-targets / gtm-playbook / market-notes /
-> localization-feasibility / design-partner-profile) tartalma **migrálva az `intel` DB-be** — `intel stats` /
-> `intel <noun> list` / `intel query "SELECT …"` a forrás. Kulcs-tények ott: NAV Online Számla = van M2M API
-> (a #1 költség-fájdalom magja); e-napló = nincs nyílt API (workflow-moat); pilot = Tomi (kis társasház-építő).
+## A hírszerzési tár = ADATBÁZIS (fresh, Second Memory domain)
+
+Az `intel` DB-t a CLI-n át írod/olvasod (`bun intel/intel.ts …`). A construction-adat az `intel-construction.db`-ben archiválva. Új verbek: `update --id`, `delete --id`. Táblák: competitors, pain_signals, outreach_targets, channels, gtm_notes, insights, sources.
+
+**Axiom írja a MOAT.md-t** — az első digestem (vertikál-tájkép + platform-rés olvasat) táplálja.

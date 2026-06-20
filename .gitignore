@@ -97,6 +97,19 @@ groups/pietscarlet/*.docx
 *.bak-*
 *.bak-pre-*
 
+# Incubator switch-project archive — huge (swapped-out PROJECT layers carry app
+# repos, build artifacts, real client data; shift-lead/archive alone is ~1GB) and
+# backed up nightly by backup-groups.sh. The CORE stays tracked; archives never do.
+groups/*/archive/
+# Archived PROJECT-layer doc snapshots (project.md/LEARNINGS.md copies kept on a
+# pivot) — same data-not-git rule; the live CORE files are the tracked source.
+groups/*/*-construction-archived.md
+groups/*/*-archived.md
+# Archived intel/work DBs — runtime data like the live intel.db/work.db (those are
+# already ignored); intel-construction.db etc. slipped through the exact-name match.
+groups/*/intel/*.db
+groups/*/work/*.db
+
 # Rezerver CRM host-generated export snapshot (runtime data)
 .crm-export/
 

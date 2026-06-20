@@ -189,6 +189,38 @@ function doList(db: Database, noun: string, flags: Record<string, string>): void
   console.log(`(${rows.length} row${rows.length === 1 ? '' : 's'})`);
 }
 
+const HAS_UPDATED = ['competitors', 'outreach_targets', 'channels'];
+
+function doUpdate(db: Database, noun: string, flags: Record<string, string>): void {
+  const spec = SPECS[noun];
+  if (!spec) die(`unknown noun '${noun}'`);
+  const id = flags.id;
+  if (!id) die(`--id is required for '${noun} update'`);
+  if (!/^\d+$/.test(id)) die('--id must be a positive integer');
+  const setCols = spec.cols.filter((c) => flags[c] !== undefined);
+  if (!setCols.length) die(`no updatable fields given — cols: ${spec.cols.join(', ')}`);
+  const existing = db.query(`SELECT id FROM ${spec.table} WHERE id = ?`).get(id) as { id: number } | null;
+  if (!existing) die(`${noun} id=${id} not found`);
+  const sets = [
+    ...setCols.map((c) => `${c} = ?`),
+    ...(HAS_UPDATED.includes(spec.table) ? ["updated_at = datetime('now')"] : []),
+  ];
+  db.run(`UPDATE ${spec.table} SET ${sets.join(', ')} WHERE id = ?`, [...setCols.map((c) => flags[c]), id]);
+  console.log(`updated ${noun} (id=${id}, fields: ${setCols.join(', ')})`);
+}
+
+function doDelete(db: Database, noun: string, flags: Record<string, string>): void {
+  const spec = SPECS[noun];
+  if (!spec) die(`unknown noun '${noun}'`);
+  const id = flags.id;
+  if (!id) die(`--id is required for '${noun} delete'`);
+  if (!/^\d+$/.test(id)) die('--id must be a positive integer');
+  const existing = db.query(`SELECT id FROM ${spec.table} WHERE id = ?`).get(id) as { id: number } | null;
+  if (!existing) die(`${noun} id=${id} not found`);
+  db.run(`DELETE FROM ${spec.table} WHERE id = ?`, [id]);
+  console.log(`deleted ${noun} (id=${id})`);
+}
+
 function doStats(db: Database): void {
   const tables = ['competitors', 'pain_signals', 'outreach_targets', 'channels', 'gtm_notes', 'insights', 'sources'];
   const v = (db.query('PRAGMA user_version').get() as { user_version: number }).user_version;
@@ -268,11 +300,14 @@ const HELP = `intel — canonical intelligence store (DB, not md/json)
   intel insight add --domain wedge|pain|competitor --title .. --body ..
   intel source add --url .. --title .. --kind article|forum|vendor
   intel <noun> list [--<field> value] [--limit N]
+  intel <noun> update --id N --<field> value [...]   (edit a row by id)
+  intel <noun> delete --id N                          (remove a row by id)
   intel query "SELECT ... "            (SELECT only)
   intel import migration.json          (bulk; idempotent)
   intel maintain                       (structure-smell + counts)
 
-Re-adding a pain with the same --dedup_key bumps its frequency (dedup). Other nouns upsert on their unique key.`;
+Re-adding a pain with the same --dedup_key bumps its frequency (dedup). Other nouns upsert on their unique key.
+update/delete operate by numeric id (find it via list/query); update touches only the --fields you pass.`;
 
 // ---- main ------------------------------------------------------------------
 const { _, flags } = parseFlags(process.argv.slice(2));
@@ -292,6 +327,8 @@ try {
   else if (SPECS[a]) {
     if (b === 'add') doAdd(db, a, flags);
     else if (b === 'list') doList(db, a, flags);
+    else if (b === 'update') doUpdate(db, a, flags);
+    else if (b === 'delete') doDelete(db, a, flags);
     else if (b === 'help' || !b) console.log(HELP);
     else die(`unknown verb '${b}' for '${a}'`);
   } else {

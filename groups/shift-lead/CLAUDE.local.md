@@ -108,7 +108,7 @@ A piac-megfigyelés módszertana + minden valós ügyfél-/cégadat belső. ToS/
 @./project.md
 
 ## Bizalmas referenciák (CORE)
-- `company-pietscarlet.md` — a pilot cég (PietScarlet Kft) cégadatai. BIZALMAS, nem repo/publikus.
-- `.secrets` — NAV + Supabase + GitHub credentials (crown jewel). Sosem echo/commit.
-- `product/PREFERENCES.md` — Tomi személyes termék-/UX-inputjai (igényes UI, chartok, mobil, pillér-vízió). Minden UI-build figyelembe veszi.
-- `product/PILLAR-SCHEDULING.md` — MAJOR pain-pillér: csapat-kapacitás folytonosság + szakág-függőség + sub-commitment (Tomi #1 napi stressze). Work-breakdown = projekt-gerinc (közös költséggel).
+- `IDEAS-BACKLOG.md` — CORE idea-backlog + Tomi "distribution is the hardest" tézise. A #1 (Second Memory) MOST AZ AKTÍV TERMÉK (pivot 2026-06-20).
+- `product/PREFERENCES.md` — Tomi termék-független UX-taste + a "help, not admin" észak-csillag. Minden UI-build figyelembe veszi.
+- `.secrets` — credentials (crown jewel). Sosem echo/commit. ⚠️ A jelenlegi `.secrets` a construction-termékhez tartozik (NAV + a Pallér Supabase/GitHub) → az ARCHIVÁLT terméké; az új Second Memory saját credjeit a build-fázisnál kérem (Tomi/OneCLI), nem keverem.
+- **ARCHIVÁLT (construction, `archive/construction-2026-06/`) — BIZALMAS marad, nem publikus, nem keveredik az új termékbe:** `company-pietscarlet.md` (PietScarlet Kft cégadatai); a teljes construction `product/` (Görgey 32 valós adat, repo, deliverable-ök); `product/PILLAR-SCHEDULING.md` + a construction-specifikus PREFERENCES. A `/workspace/extra/gorgey32` Drive READ-ONLY mount továbbra is bizalmas.
