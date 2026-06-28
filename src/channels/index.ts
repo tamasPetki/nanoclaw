@@ -17,4 +17,6 @@ import './telegram-worker.js';
 import './telegram-hex.js';
 import './telegram-radar.js';
 import './telegram-axiom.js';
+import './telegram-friend.js';
+import './telegram-ledger.js';
 import './whatsapp.js';
