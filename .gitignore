@@ -138,6 +138,14 @@ groups/ledger/
 groups/tally/
 groups/form/
 
+# A Forge builder foursight-munkafája SAJÁT git-repo (github.com/tamasPetki/foursight).
+# Enélkül a `git add -A` gitlinket csinál belőle (mode 160000) .gitmodules nélkül:
+# a kód NEM megy be, csak egy commit-hash, és klónozáskor üres mappa marad —
+# backupnak értéktelen, ráadásul minden commitnál újra felajánlja magát.
+# Az autoritatív backup a saját repója. A groups/forge/ többi része (run-log,
+# CLAUDE.local.md, screenshotok) szándékosan trackelt marad.
+groups/forge/foursight/
+
 # Radar service runtime — host-written snapshots + agent inbox (not versioned)
 groups/radar/.radar-export/
 groups/radar/inbox/
