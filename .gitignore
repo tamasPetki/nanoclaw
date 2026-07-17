@@ -15,6 +15,7 @@ logs/
 # but exclude secrets, tokens, sessions, runtime state.
 groups/*/.secrets
 groups/*/.secrets.*
+groups/*/.dev-secrets/
 groups/*/.withings/
 groups/*/.mcp-auth/
 groups/*/.claude-auth/
@@ -130,6 +131,12 @@ groups/radar/
 groups/stokes/
 groups/tracker/
 groups/worker/
+# Ledger finance-app trió — runtime workspace: node_modules + product/ (valós
+# számla-/bér-PDF-ek, screenshotok), work/, conversations/. Soha ne verziózd
+# (invoices → git-history = confidential leak). backup-groups.sh menti éjjel.
+groups/ledger/
+groups/tally/
+groups/form/
 
 # Radar service runtime — host-written snapshots + agent inbox (not versioned)
 groups/radar/.radar-export/

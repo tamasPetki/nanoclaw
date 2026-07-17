@@ -1,0 +1,19 @@
+{
+  "mcpServers": {},
+  "packages": {
+    "apt": [],
+    "npm": []
+  },
+  "additionalMounts": [
+    {
+      "hostPath": "/root/nanoclaw-v2/data/shared/grok",
+      "containerPath": "grok",
+      "readonly": false
+    }
+  ],
+  "skills": "all",
+  "provider": "claude",
+  "groupName": "Forge",
+  "assistantName": "Forge",
+  "agentGroupId": "ag-1783102179165-z2x2fl"
+}

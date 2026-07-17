@@ -14,16 +14,36 @@ set -euo pipefail
 LOG=/root/nanoclaw-v2/data/pain-harvest-schedule.log
 SDB=/root/nanoclaw-v2/data/v2-sessions/ag-worker/sess-1778077729204-u2ry5f/inbound.db
 
-# ── Source rotation by weekday (1=Mon … 7=Sun) ────────────────────────────────
-# Full 3-platform rotation from day one (Tomi 2026-06-12). One cluster per run so
-# the lurk cadence stays human and the agent context doesn't fill up.
+# ── Source rotation ───────────────────────────────────────────────────────────
+# A forráslista 2026-07-17 óta adatvezérelt: groups/worker/rezerver/pain-sources.json.
+# Korábban itt egy hard-coded `case DOW` állt, ami miatt új fórumot csak a script
+# szerkesztésével lehetett bevonni — az agent nem tudta bővíteni. Most a vasárnapi
+# fórum-felderítés felveheti az új forrást a JSON-ba, és a rotáció magától bevonja.
+#
+# Rotáció: vasárnap mindig szintézis + felderítés; hétköznap az év napja szerint
+# körbejárunk a `lurk` forrásokon (a `weight` többször szerepelteti a fontosabbat).
+# Egy klaszter/futás — így a lurk-kadencia emberi marad és a context sem telik meg.
+SRC_JSON=/root/nanoclaw-v2/groups/worker/rezerver/pain-sources.json
 DOW=$(date +%u)
-case "$DOW" in
-  1|4) CLUSTER="Reddit HoReCa — u/dani_horeca a r/restaurateur, r/restaurantowners, r/foodservice, r/EventPlanning subokon." ;;
-  2|5) CLUSTER="Reddit builder/indie — u/lloyd_bt READ-ONLY lurk a r/SideProject, r/indiehackers, r/smallbusiness, r/SaaS subokon. FONTOS: lloyd_bt shadowbanned → olvasás OK, write (poszt/komment/vote/save/subscribe) SOHA." ;;
-  3|6) CLUSTER="Facebook — Dani Bene a 2 belépett HoReCa-csoport (\"A Vendéglátós Csoport\", \"VENDÉGLÁTÓSOK ÉS VENDÉGEIK VLM\") feedjén. Zéró interakció, phase-5 cadence (csak feed-olvasás)." ;;
-  7) CLUSTER="HETI SZINTÉZIS — NINCS új lurk. Olvasd be a .crm-export/pain_signals.json-t és posztolj Tominak egy heti pain-klaszter összefoglalót: top-frequency klaszterek, új vertikálok, a legígéretesebb termék-ötletek. (A részleteket lásd a pain-harvest.md 'Vasárnap' szekciójában.)" ;;
-esac
+
+if [[ "$DOW" == "7" ]]; then
+  CLUSTER=$(jq -r '.sources[] | select(.type=="synthesis") | "HETI SZINTÉZIS + FÓRUM-FELDERÍTÉS — NINCS új lurk. \(.note)"' "$SRC_JSON")
+else
+  # weight szerint kifejtett lurk-lista, majd az év napja alapján választunk
+  mapfile -t POOL < <(jq -r '[.sources[] | select(.type=="lurk")] | map(. as $s | range(.weight // 1) | $s) | .[] | @base64' "$SRC_JSON")
+  if (( ${#POOL[@]} == 0 )); then
+    echo "$(date): ERROR — nincs lurk-forrás a $SRC_JSON-ban" >> "$LOG"
+    exit 1
+  fi
+  IDX=$(( 10#$(date +%j) % ${#POOL[@]} ))
+  SEL=$(echo "${POOL[$IDX]}" | base64 -d)
+  CLUSTER=$(jq -r '"\(.label) — persona: \(.persona), platform: \(.platform). Célpontok: \(.targets | join(", ")). \(.note)"' <<<"$SEL")
+fi
+
+if [[ -z "$CLUSTER" ]]; then
+  echo "$(date): ERROR — ures CLUSTER (rossz $SRC_JSON?)" >> "$LOG"
+  exit 1
+fi
 
 # Random offset: 60-120 minutes after 12:00 local → fires 13:00-14:00 local.
 OFFSET_MIN=$(( 60 + RANDOM % 61 ))
@@ -68,16 +88,25 @@ KRITIKUS — amitől nem szabad eltérni:
 1. READ-ONLY lurk. SEMMI interakció: no upvote / save / join / comment / post / subscribe. Stealth-browse + residential proxy KÖTELEZŐ (a `platforms/browser.md` szabálya). Persona-disambig (Dani vs Lloyd) a `reddit.md` szerint — `BT_REDDIT_*` Lloydhoz, sima `REDDIT_*` Danihoz.
 2. Session elején OLVASD be a `.crm-export/pain_signals.json`-t (ismert pain-ek + dedup_key-ek) — ez a dedup alapja.
 3. A talált fájdalompontokat `ncl rezerver pain-add`-dal írd be. Ha egy pain lényegében egyezik egy ismert dedup_key-jel → add meg UGYANAZT a `--dedup-key`-t (frequency++); különben új. A `context_quote` MINDIG anonim — SOHA username/PII.
-4. **Step 5** (korai indítás-jelzés, 1 mondat) és **Step 8** (záró reflexió, 1-3 mondat) közvetlenül Tominak a botodon (`<message to="tomi">`), persona-hangon — prefix és hub nélkül.
-5. A pain-harvest BELSŐ. Semmilyen output nem mehet publikusra (operational secrecy).
+4. A pain-harvest BELSŐ. Semmilyen output nem mehet publikusra (operational secrecy).
 
-Anomália (checkpoint / captcha / nem-várt képernyő) → STOP + Tomi-ping (max 3 mondat), de NE kérj manuális belépést.
+**NÉMÁN dolgozol (2026-07-17 óta).** A playbook Step 5 (korai indítás-jelzés) és Step 8 (záró reflexió) üzeneteit NE küldd ki — a napi riport (19:00) összefoglal. Helyette a végén appendeld a `rezerver/daily-log.md`-be a blokkodat (`## <dátum> <idő> — Pain-harvest`), a fájl fejlécében leírt formátumban.
+
+**A te `megfigyelés` sorod a legértékesebb az egész naplóban.** A 19:00-s riport „AMIT EBBŐL TANULTUNK" szekciója elsősorban ebből él: te hallod, amit egymás közt mondanak — nem a marketingszöveget. Amit keress a jelek MÖGÖTT (nem csak a pain_text, hanem a hozzáállás):
+- **Árazási pszichológia**: mit mondanak a SaaS-okról, havidíjról, jutalékról, „another subscription"-ről? Egy „tired of paying monthly for X" jel többet ér, mint tíz venue-profil.
+- **Mitől félnek**: elveszett foglalás, no-show, adminisztráció, hogy a rendszer elveszi a személyes kapcsolatot?
+- **Milyen szavakkal írják le a saját problémájukat** — ez lesz később a megkeresés nyelve. Ne a mi zsargonunk, az övék.
+- **Mit utasítanak el és miért** — ha valaki azt írja „tried [tool], went back to pen and paper", az ARANY: a `pain_text`-be a panasz megy, a `megfigyelés`-be az, hogy MIÉRT bukott meg.
+
+Anomália (checkpoint / captcha / nem-várt képernyő) → STOP + **azonnali** Tomi-ping (`<message to="tomi">`, max 3 mondat) — ez riasztás, nem rutin-státusz, tehát ez ÉL. NE kérj manuális belépést.
 PROMPT_EOF
 
 PROMPT="${PROMPT//__CLUSTER__/$CLUSTER}"
 
 CONTENT=$(jq -nc --arg p "$PROMPT" '{prompt: $p, script: null}')
-NEXT_SEQ=$(sqlite3 "$SDB" "SELECT COALESCE(MAX(seq),0)+1 FROM messages_in")
+# Páros seq — a host páros, a container páratlan számokat használ (CLAUDE.md,
+# docs/db-session.md). A korábbi `MAX(seq)+1` a paritástól függően páratlant is adott.
+NEXT_SEQ=$(sqlite3 "$SDB" "SELECT (COALESCE(MAX(seq),0)/2)*2+2 FROM messages_in")
 ESC_CONTENT=$(printf '%s' "$CONTENT" | sed "s/'/''/g")
 
 sqlite3 "$SDB" "INSERT INTO messages_in (id, seq, kind, timestamp, status, process_after, recurrence, trigger, content) VALUES ('$TASK_ID', $NEXT_SEQ, 'task', '$TS_NOW', 'pending', '$PROCESS_AFTER', NULL, 1, '$ESC_CONTENT');"

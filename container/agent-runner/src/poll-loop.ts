@@ -3,7 +3,13 @@ import { getPendingMessages, markProcessing, markCompleted, type MessageInRow } 
 import { writeMessageOut } from './db/messages-out.js';
 import { getCurrentTool, getInboundDb, touchHeartbeat, clearStaleProcessingAcks } from './db/connection.js';
 import { clearContinuation, migrateLegacyContinuation, setContinuation } from './db/session-state.js';
-import { clearCurrentInReplyTo, setCurrentInReplyTo } from './current-batch.js';
+import {
+  clearCurrentInReplyTo,
+  outboundContentKey,
+  recordOutboundContent,
+  setCurrentInReplyTo,
+  wasOutboundContentSent,
+} from './current-batch.js';
 import {
   formatMessages,
   extractRouting,
@@ -707,6 +713,7 @@ function dispatchResultText(text: string, routing: RoutingContext): { sent: numb
 
   let match: RegExpExecArray | null;
   let sent = 0;
+  let blocksSeen = 0;
   let lastIndex = 0;
   const scratchpadParts: string[] = [];
 
@@ -717,6 +724,7 @@ function dispatchResultText(text: string, routing: RoutingContext): { sent: numb
     const toName = match[1];
     const body = match[2].trim();
     lastIndex = MESSAGE_RE.lastIndex;
+    blocksSeen++;
 
     const dest = findByName(toName);
     if (!dest) {
@@ -724,8 +732,9 @@ function dispatchResultText(text: string, routing: RoutingContext): { sent: numb
       scratchpadParts.push(`[dropped: unknown destination "${toName}"] ${body}`);
       continue;
     }
-    sendToDestination(dest, body, routing);
-    sent++;
+    if (sendToDestination(dest, body, routing)) {
+      sent++;
+    }
   }
   if (lastIndex < text.length) {
     scratchpadParts.push(text.slice(lastIndex));
@@ -737,16 +746,31 @@ function dispatchResultText(text: string, routing: RoutingContext): { sent: numb
     log(`[scratchpad] ${scratchpad.slice(0, 500)}${scratchpad.length > 500 ? '…' : ''}`);
   }
 
-  const hasUnwrapped = sent === 0 && !!scratchpad;
+  // Unwrapped means the agent wrote bare text with NO <message> blocks at all.
+  // Base it on blocks seen, not blocks sent: a block that was turn-dedup-skipped
+  // (already sent via send_message) still means the agent used the envelope, so
+  // it must not trigger the "re-wrap" nudge.
+  const hasUnwrapped = blocksSeen === 0 && !!scratchpad;
   if (hasUnwrapped) {
     log(`WARNING: agent output had no <message to="..."> blocks — nothing was sent`);
   }
   return { sent, hasUnwrapped };
 }
 
-function sendToDestination(dest: DestinationEntry, body: string, routing: RoutingContext): void {
+function sendToDestination(dest: DestinationEntry, body: string, routing: RoutingContext): boolean {
   const platformId = dest.type === 'channel' ? dest.platformId! : dest.agentGroupId!;
   const channelType = dest.type === 'channel' ? dest.channelType! : 'agent';
+  const content = JSON.stringify({ text: body });
+
+  // Turn-scoped dedup: if the agent already sent this exact text to this same
+  // destination mid-turn via send_message, don't re-send it from the
+  // final-response <message> block (both would land as separate messages).
+  const dedupKey = outboundContentKey(channelType, platformId, content);
+  if (wasOutboundContentSent(dedupKey)) {
+    log(`dispatch: skipping duplicate <message to="${dest.name}"> — identical text already sent this turn`);
+    return false;
+  }
+
   // Resolve thread_id per-destination from the most recent inbound message
   // that came from this same channel+platform. In agent-shared sessions,
   // different destinations have different thread contexts — using a single
@@ -759,8 +783,10 @@ function sendToDestination(dest: DestinationEntry, body: string, routing: Routin
     platform_id: platformId,
     channel_type: channelType,
     thread_id: destRouting?.threadId ?? null,
-    content: JSON.stringify({ text: body }),
+    content,
   });
+  recordOutboundContent(dedupKey);
+  return true;
 }
 
 /**

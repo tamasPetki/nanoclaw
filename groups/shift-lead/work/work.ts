@@ -82,6 +82,31 @@ function logEvent(db: Database, taskKey: string, from: string | null, to: string
   );
 }
 
+// ---- build-pipeline sequencing (METHODOLOGY §4 / build-feature.md), feature tasks only ----
+// 2026-07-03: an audit (Ledger + shift-lead/Axiom) found the documented DAG
+// (spec→architect→dev→test→review→shipped) was pure convention with zero enforcement — most
+// feature tasks in both work.db instances skipped straight from todo/None to shipped, with
+// only a handful ever touching 'architect'. This makes the sequence structurally impossible
+// to skip for kind='feature' tasks (build-feature.md's own title scopes the DAG to features);
+// chore/bug/spec tasks are unaffected.
+const PIPELINE_ORDER = ['todo', 'spec', 'architect', 'dev', 'test', 'review', 'shipped'];
+
+function validateTransition(kind: string, from: string | null, to: string): void {
+  if (kind !== 'feature') return;
+  if (to === 'blocked' || from === 'blocked') return; // safety valve, always allowed both ways
+  const fromIdx = from === null ? -1 : PIPELINE_ORDER.indexOf(from);
+  const toIdx = PIPELINE_ORDER.indexOf(to);
+  if (toIdx === -1) return; // not a pipeline status — not our concern
+  if (toIdx === fromIdx + 1) return; // one step forward
+  if (toIdx === PIPELINE_ORDER.indexOf('dev') && fromIdx >= PIPELINE_ORDER.indexOf('test')) return; // fix-loop
+  die(
+    `feature task can't jump '${from ?? '(new)'}' → '${to}' — the build-pipeline is sequential ` +
+      `(todo→spec→architect→dev→test→review→shipped; fix-loop: test/review/shipped→dev). ` +
+      `Spawn the missing stage's subagent (Task/Agent tool) and flip through it, or re-file with ` +
+      `--kind chore|bug|spec if this genuinely doesn't need the full DAG.`,
+  );
+}
+
 // `task add` — upsert on key. On status change vs existing, log a task_events row.
 function doTaskAdd(db: Database, flags: Record<string, string>): void {
   if (!flags.key) die('--key is required for \'task add\'');
@@ -94,6 +119,9 @@ function doTaskAdd(db: Database, flags: Record<string, string>): void {
       const setCols = present.filter((c) => c !== 'key');
       const newStatus = flags.status;
       const statusChanged = newStatus !== undefined && newStatus !== existing.status;
+      if (statusChanged) {
+        validateTransition((flags.kind ?? existing.kind) as string, existing.status as string, newStatus);
+      }
       const sets = [
         ...setCols.map((c) => `${c} = ?`),
         "updated_at = datetime('now')",
@@ -111,6 +139,7 @@ function doTaskAdd(db: Database, flags: Record<string, string>): void {
       console.log(`updated task '${flags.key}' (id=${existing.id})${statusChanged ? ` [${existing.status}→${newStatus}]` : ''}`);
       return;
     }
+    validateTransition(flags.kind ?? 'feature', null, flags.status ?? 'todo');
     const insCols = present;
     const placeholders = insCols.map(() => '?').join(', ');
     const r = db.run(
@@ -135,6 +164,9 @@ function doTaskUpdate(db: Database, flags: Record<string, string>): void {
     if (!existing) die(`task '${flags.key}' not found — use 'task add' to create it`);
     const newStatus = flags.status;
     const statusChanged = newStatus !== undefined && newStatus !== existing.status;
+    if (statusChanged) {
+      validateTransition((flags.kind ?? existing.kind) as string, existing.status as string, newStatus);
+    }
     const sets = [
       ...present.map((c) => `${c} = ?`),
       "updated_at = datetime('now')",
@@ -158,6 +190,19 @@ function doTaskDone(db: Database, flags: Record<string, string>): void {
   const tx = db.transaction(() => {
     const existing = getTask(db, flags.key);
     if (!existing) die(`task '${flags.key}' not found`);
+    const kind = (flags.kind ?? existing.kind) as string;
+    if (existing.status !== 'shipped') {
+      validateTransition(kind, existing.status as string, 'shipped');
+    }
+    if (kind === 'feature') {
+      const score = flags.health_score !== undefined ? parseInt(flags.health_score, 10) : NaN;
+      if (!Number.isFinite(score) || score < 8) {
+        die(
+          `ship-gate (METHODOLOGY §4, KEMÉNY): feature task 'task done' requires --health_score >= 8 ` +
+            `(got ${flags.health_score ?? '(none)'}). Below 8 → fix-loop back to dev, don't ship.`,
+        );
+      }
+    }
     const sets = ['status = ?', "closed_at = datetime('now')", "updated_at = datetime('now')"];
     const vals: unknown[] = ['shipped'];
     if (flags.health_score !== undefined) {
@@ -289,7 +334,13 @@ const HELP = `work — canonical work-tracker store (DB, not md/json)
   work query "SELECT ... "             (SELECT only)
   work maintain                        (structure-smell + counts)
 
-Schema: tasks (key=stable slug) · task_deps · task_events. Append migrations, never edit a shipped one.`;
+Schema: tasks (key=stable slug) · task_deps · task_events. Append migrations, never edit a shipped one.
+
+HARD GATE (kind='feature' only): status must move one pipeline step at a time
+(todo→spec→architect→dev→test→review→shipped; fix-loop test/review/shipped→dev allowed;
+'blocked' always allowed both ways). 'task done' additionally requires --health_score >= 8.
+Skipping a stage or shipping without a score errors out — spawn the missing stage's
+subagent and flip through it, or use --kind chore|bug|spec if the full DAG doesn't apply.`;
 
 // ---- main ------------------------------------------------------------------
 const { _, flags } = parseFlags(process.argv.slice(2));

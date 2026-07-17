@@ -96,6 +96,17 @@ A FB login-inputok React-controlled mezők. A megbízható kitöltés:
 A "Log in" gomb egy `div[role=button]` → **CDP coord-click** a pontos rect-közepére (`cdp-click.js <x> <y>`,
 `CDP_PORT` env-ben a cdpPort). A sima Enter / JS-click gyakran nem submitál.
 
+> ⚠️ **NÉMA BOUNCE a pickerre ≠ rossz jelszó (2026-06-27, élesben igazolva).** Ha a submit után a
+> device-login némán visszadob az account-pickerre, feed nélkül, **hibaüzenet NÉLKÜL** — az NEM rossz
+> jelszó. Rossz jelszónál a FB **inline "Téves jelszó / incorrect password" hibát ír** a modálban. A
+> néma bounce a fenti React-commit hiba tünete: a mező `.value`-ja kitöltött, de a React state üres
+> maradt → a submit üres jelszót küld. (Egy NanoClaw-agent 6× elbukott emiatt 2 nap alatt, és tévesen
+> "lejárt jelszót" diagnosztizált; a host-oldali tiszta flow UGYANAZZAL a tárolt jelszóval átment.)
+> Ezért **kötelező** mielőtt submitálsz: (1) `eval`-lal verifikáld `document.activeElement===input` →
+> `true`; (2) a valódi keystroke-os `type` UTÁN `eval` `.value.length`; (3) **NE reloadolj / NE navigálj
+> a fill és a submit között** (a reload nullázza a React-state-et). Ha mindez megvolt és MÉGIS némán
+> bounce-ol → CSAK AKKOR gyanús a jelszó (de a tipikus ok a fill, nem a credential).
+
 **Cookie-consent modal:** friss profilnál előjöhet egy "Allow the use of cookies" modal, ami elnyeli a
 clickeket (a login gomb mögötte van). Zárd be **"Allow all cookies" CDP coord-clickkel** (a React-modal
 a JS `.click()`-re nem reagál), mielőtt a formmal foglalkozol.

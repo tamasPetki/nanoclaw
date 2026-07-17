@@ -563,9 +563,13 @@ async function buildContainerArgs(
   // mcp-remote finds its OAuth token cache. Additional-mount paths land under
   // /workspace/extra/ (mount-security convention), but mcp-remote only looks in
   // the HOME directory. Keep `exec bun ...` last so signals forward cleanly.
+  // mnemon setup registers the Claude Code memory hooks. It also lives in
+  // container/entrypoint.sh, but this dynamic-spawn command bypasses that
+  // script entirely — without the line here the hooks silently never register.
+  // Idempotent + `|| true` so a mnemon failure can never block agent spawn.
   args.push(
     '-c',
-    'if [ -d /workspace/extra/.mcp-auth ]; then ln -sfn /workspace/extra/.mcp-auth "$HOME/.mcp-auth"; fi; exec bun run /app/src/index.ts',
+    'if [ -d /workspace/extra/.mcp-auth ]; then ln -sfn /workspace/extra/.mcp-auth "$HOME/.mcp-auth"; fi; mnemon setup --target claude-code --yes --global >&2 || true; exec bun run /app/src/index.ts',
   );
 
   return args;

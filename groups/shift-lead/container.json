@@ -16,5 +16,5 @@
   "assistantName": "Axiom",
   "agentGroupId": "ag-shift-lead",
   "model": "claude-opus-4-8[1m]",
-  "effort": "xhigh"
+  "effort": "high"
 }

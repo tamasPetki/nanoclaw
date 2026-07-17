@@ -9,7 +9,7 @@
 import fs from 'fs';
 import path from 'path';
 
-import { getCurrentInReplyTo } from '../current-batch.js';
+import { getCurrentInReplyTo, outboundContentKey, recordOutboundContent } from '../current-batch.js';
 import { findByName, getAllDestinations } from '../destinations.js';
 import { getMessageIdBySeq, getRoutingBySeq, writeMessageOut } from '../db/messages-out.js';
 import { getSessionRouting } from '../db/session-routing.js';
@@ -116,6 +116,7 @@ export const sendMessage: McpToolDefinition = {
     if ('error' in routing) return err(routing.error);
 
     const id = generateId();
+    const content = JSON.stringify({ text });
     const seq = writeMessageOut({
       id,
       in_reply_to: getCurrentInReplyTo(),
@@ -123,8 +124,11 @@ export const sendMessage: McpToolDefinition = {
       platform_id: routing.platform_id,
       channel_type: routing.channel_type,
       thread_id: routing.thread_id,
-      content: JSON.stringify({ text }),
+      content,
     });
+    // Record for turn-scoped dedup so the final-response <message> block
+    // doesn't re-send this same text (see current-batch.ts).
+    recordOutboundContent(outboundContentKey(routing.channel_type, routing.platform_id, content));
 
     log(`send_message: #${seq} → ${routing.resolvedName}`);
     return ok(`Message sent to ${routing.resolvedName} (id: ${seq})`);

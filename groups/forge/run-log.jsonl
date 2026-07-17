@@ -1,0 +1,20 @@
+{"ts":"2026-07-06T06:53:49Z","task":"showcase-v5","stage":"done"}
+{"ts":"2026-07-06T00:00:00Z","task":"szamlak-v4","stage":"shipped","commit":"7f09320","branch":"ui/showcase-szamlak-v2","health":10}
+{"ts":"2026-07-08T23:10:00Z","task":"bank-livewiring","stage":"shipped","commit":"afb1d87","branch":"ui/bank-livewiring","health":10,"note":"Ledger merged with responsive fix (768/1024 tablet breakpoints)"}
+{"ts":"2026-07-09T09:45:00Z","task":"beerkezo-1024fix","stage":"pushed","branch":"ui/beerkezo-1024","commit":"5d3a0de","health":10}
+{"ts":"2026-07-09T09:41:00Z","task":"beerkezo-1024fix","stage":"shipped","commit":"5d3a0de","branch":"ui/beerkezo-1024","health":10}
+{"ts":"2026-07-09T10:30:00Z","task":"premium-shell-p1","stage":"pushed","branch":"ui/premium-shell","commit":"8abff7d","health":9}
+{"ts":"2026-07-09T16:00:00Z","task":"premium-shell-p1","stage":"shipped","commit":"8abff7d","branch":"ui/premium-shell","note":"Ledger merged to main f2a2a8a — marking done retroactively (stall detector false positive)"}
+{"ts":"2026-07-09T16:00:00Z","task":"shell-upload-fix","stage":"pushed","branch":"ui/shell-upload-fix","commit":"e6cc00c"}
+{"ts":"2026-07-09T19:30:00Z","task":"home-premium-p2s1","stage":"pushed","branch":"ui/home-premium","commit":"f5b0790"}
+{"ts":"2026-07-09T20:59:26.629Z","task":"szamlak-premium","stage":"pushed","commit":"31a0ca4"}
+{"ts":"2026-07-10T00:01:00Z","task":"shell-upload-fix","stage":"shipped","commit":"32443a9","branch":"ui/shell-upload-fix","note":"merged to main, stall-detector false positive"}
+{"ts":"2026-07-10T01:00:00Z","task":"home-premium-p2s1","stage":"shipped","commit":"dbf22eb","branch":"ui/home-premium","note":"merged to main, stall-detector false positive"}
+{"ts":"2026-07-10T07:13:00Z","task":"szamlak-premium","stage":"shipped","commit":"8e7066e","branch":"ui/szamlak-premium","note":"merged to main, R5 layout-fix bc6bff2 by Ledger (break-words line-clamp-2, lg->xl breakpoints)","health":10}
+{"ts":"2026-07-10T07:40:00Z","task":"teendok-premium","stage":"shipped","commit":"769ef8b","branch":"ui/teendok-premium","note":"merged to main, 996/996 zöld, money-path érintetlen, health 10"}
+{"ts":"2026-07-13T00:30:00Z","task":"ui-overhaul-slice0","stage":"done"}
+{"ts":"2026-07-13T17:47:00+02:00","task":"slice2-szamlak","stage":"amendment-received-brief-missing"}
+{"ts":"2026-07-13T17:52:00+02:00","task":"slice2-szamlak","stage":"dev-start"}
+{"ts":"2026-07-13T22:40:00+02:00","task":"slice2-szamlak","stage":"shipped","commit":"9c22d28","branch":"live/szamlak","health":9,"note":"Ledger took fix-loop directly; live page shipped, standing by for next task"}
+{"ts":"2026-07-15T08:02:00Z","task":"PAY-BATCH-SELECT-#225","stage":"DONE-shipped"}
+{"ts":"2026-07-15T14:00:00Z","task":"PAY-BATCH-SELECT-#225","stage":"shipped"}

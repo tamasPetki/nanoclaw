@@ -9,6 +9,6 @@
   "groupName": "Drift",
   "assistantName": "Drift",
   "agentGroupId": "ag-shift-growth",
-  "model": "claude-opus-4-8[1m]",
+  "model": "claude-sonnet-5[1m]",
   "effort": "xhigh"
 }

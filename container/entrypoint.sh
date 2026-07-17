@@ -17,6 +17,10 @@ set -e
 # the agent runs fails with "server certificate verification failed" through the OneCLI proxy.
 export GIT_SSL_CAINFO="${NODE_EXTRA_CA_CERTS:-/tmp/onecli-combined-ca.pem}"
 
+# mnemon — register persistent-memory hooks (idempotent; local, no network).
+# Output to stderr so it doesn't corrupt the JSON stdin handshake below.
+mnemon setup --target claude-code --yes --global >/dev/stderr 2>&1
+
 cat > /tmp/input.json
 
 exec bun run /app/src/index.ts < /tmp/input.json

@@ -169,6 +169,38 @@ COPY skills/stealth-browser/stealth-browse /usr/local/bin/stealth-browse
 COPY skills/pdf-reader/pdf-reader /usr/local/bin/pdf-reader
 RUN chmod +x /usr/local/bin/stealth-browse /usr/local/bin/pdf-reader
 
+# ---- Grok Build CLI (coding-delegation, subscription-auth) -------------------
+# Native binary (NOT npm — xAI ships a standalone artifact). The Forge builder
+# delegates isolated, well-scoped coding tasks to `grok -p` (Grok 4.5 / grok-build
+# model) for ~3–5x faster per-turn throughput on fresh, small contexts. Auth is
+# the operator's SuperGrok/X-Premium+ subscription (no API key, EU-safe): the
+# auth.json is bind-mounted at /workspace/extra/grok (container_configs.additional_mounts,
+# from host data/shared/grok) and the agent points the CLI at it via
+# GROK_HOME=/workspace/extra/grok (the mount allowlist forbids mounting onto
+# ~/.grok directly). Pinned + sha256-verified for supply-chain integrity (x86_64;
+# skip verify on other arch — the hash differs per platform).
+#
+# ── TO REMOVE (full revert) ──────────────────────────────────────────────────
+#   1) delete this block, 2) drop the ~/.grok/auth.json mount from the Forge
+#      container_configs, 3) remove the Grok section from groups/forge/CLAUDE.local.md,
+#      4) ./container/build.sh && ncl groups restart --id ag-1783102179165-z2x2fl
+# ─────────────────────────────────────────────────────────────────────────────
+ARG GROK_BUILD_VERSION=0.2.99
+ARG GROK_BUILD_SHA256_X86_64=9fccba400d3808ec34a991892096b34c6f5846b2b118d355001601fd5428445c
+RUN ARCH=$(dpkg --print-architecture) && \
+    case "$ARCH" in \
+        amd64) GARCH=x86_64 ;; \
+        arm64) GARCH=aarch64 ;; \
+        *) echo "Grok Build: unsupported arch $ARCH" >&2; exit 1 ;; \
+    esac && \
+    curl -fsSL "https://storage.googleapis.com/grok-build-public-artifacts/cli/grok-${GROK_BUILD_VERSION}-linux-${GARCH}" -o /usr/local/bin/grok && \
+    if [ "$GARCH" = "x86_64" ]; then echo "${GROK_BUILD_SHA256_X86_64}  /usr/local/bin/grok" | sha256sum -c -; fi && \
+    chmod +x /usr/local/bin/grok && \
+    /usr/local/bin/grok --version
+# Fallback writable ~/.grok for the node user (only used if the agent runs grok
+# WITHOUT GROK_HOME; the real auth lives at the /workspace/extra/grok mount).
+RUN mkdir -p /home/node/.grok && chown -R node:node /home/node/.grok
+
 # Restore non-root user from base. Base sets ENTRYPOINT + WORKDIR — inherited.
 USER node
 WORKDIR /workspace/group

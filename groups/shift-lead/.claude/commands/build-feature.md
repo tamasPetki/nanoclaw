@@ -20,6 +20,8 @@ bun work/work.ts query "SELECT key,status,wip_note,health_score FROM tasks WHERE
 
 A `task update --status` **automatikusan** beír egy `task_events` sort (`from→to`) ugyanabban a tranzakcióban; a `task done` beállítja a `closed_at`-ot. A státusz-szótár: `todo · spec · architect · dev · test · review · shipped · blocked`. **Pozicionális `?` paraméterek** (bun:sqlite) -- ezt a CLI kezeli, te csak flageket adsz.
 
+**⚠️ HARD GATE (2026-07-03):** a `work.ts` `kind=feature` taskoknál technikailag KIKÉNYSZERÍTI ezt a DAG-ot -- egy stage-skip (pl. `spec→dev` vagy `todo→shipped`) `error`-ral elutasítva, a parancs nem fut le. A `task done` health_score < 8 vagy hiányzó health_score esetén szintén elutasítja. Ha ezt kapod: NE kerülgesd -- spawnold a hiányzó stage subagentjét és menj végig rajta, vagy ha a task tényleg nem igényli a teljes DAG-ot, `--kind chore|bug|spec`-re jelöld át (ezekre a gate nem vonatkozik). Ez korábban puszta konvenció volt; agent-audit találta, hogy a taskok többsége simán átugrotta -- innentől ez nem lehetséges.
+
 ---
 
 ## 0. lépés -- RESUME (mindig ezzel kezdd)

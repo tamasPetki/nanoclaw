@@ -64,6 +64,8 @@ a státusz-váltás automatikusan event-sort ír a `task_events`-be). A **health
 belépőpontja a `/build-feature` parancs** (§16) — az vezeti végig a fázisokat és billentgeti a státuszt; ne fejből
 deriváld minden buildnél.
 
+**⚠️ HARD GATE (2026-07-03).** A fenti sorrend `kind=feature` taskoknál a `work.ts`-ben technikailag kikényszerítve — stage-skip és health_score nélküli/gyenge `task done` `error`-t dob, a parancs nem fut le. Korábban ez puszta konvenció volt (a szöveg megvolt, a CLI mégis engedett bármilyen ugrást); egy audit találta, hogy a taskok túlnyomó többsége simán átugrotta a teljes DAG-ot, és a fejlesztő maga írt kódot a fő szálon subagent-spawnolás helyett. Ha hibát kapsz: ez a jelzés, hogy spawnold a hiányzó stage subagentjét — ne kerüld meg `--kind chore`-ra váltással, ha a task valójában feature.
+
 ---
 
 ## 5. Spec-first — sosem „kódolj, aztán dokumentálj"

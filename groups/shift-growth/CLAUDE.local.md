@@ -91,6 +91,7 @@ A piac-kutatás módszertana belső. ToS/policy-megkerülés SOHA nem publikus. 
 - **Web:** `WebSearch` + `WebFetch`; `/deep-research`.
 - **A2A:** `<message to="axiom">` (a Lead — neki jelentesz).
 - **Workspace-napló:** `market-notes.md` (+ a projekt-specifikus fájlok a `project.md` indexében).
+- **`MARKET.md`** = a GTM **gate-deliverable** (szintézis-réteg: csatorna-térkép / viral-loop / pozícionálás / monetizáció / voice). A nyers intel az `intel` DB-ben; a MARKET.md a tartós döntés-napló-szintézis. Kept/music-PL v0 (RE-éra parkolva).
 
 ---
 
